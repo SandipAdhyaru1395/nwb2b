@@ -470,7 +470,7 @@ use Illuminate\Support\Facades\Route;
             href="{{ Route::has('profile.show') ? route('profile.show') : url('profile-user') }}">
             <i class="icon-base ti tabler-user me-3 icon-md"></i><span class="align-middle">My Profile</span> </a>
         </li>
-        <li>
+        <!-- <li>
           <a class="dropdown-item" href="{{ url('pages/account-settings-billing') }}">
             <span class="d-flex align-items-center align-middle">
               <i class="flex-shrink-0 icon-base ti tabler-file-dollar me-3 icon-md"></i><span
@@ -478,7 +478,7 @@ use Illuminate\Support\Facades\Route;
               <span class="flex-shrink-0 badge bg-danger d-flex align-items-center justify-content-center">4</span>
             </span>
           </a>
-        </li>
+        </li> -->
         
         <li>
           <div class="dropdown-divider my-1 mx-n2"></div>

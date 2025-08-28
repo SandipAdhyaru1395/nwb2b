@@ -4,11 +4,16 @@ namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Role;
 
 class UserViewConnections extends Controller
 {
-  public function index()
+  public function index($id)
   {
-    return view('content.apps.app-user-view-connections');
+    $data['user'] = User::findOrFail($id);
+    $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-connections',$data);
   }
 }

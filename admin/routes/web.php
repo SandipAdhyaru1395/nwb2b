@@ -165,61 +165,140 @@ use App\Http\Controllers\Auth\RegisterController as AuthRegisterController;
 // Current Working Routes
 
 //dashboard
-Route::middleware('auth')->group(function () {
-    
-    Route::get('/', [AuthLoginController::class, 'show']);
-    
-    Route::get('/dashboard', [EcommerceDashboard::class, 'index'])->name('dashboard.read');
+Route::middleware(['auth', 'sidebar'])->group(function () {
+
+    Route::middleware('permission:dashboard.read')->group(function () {
+        Route::get('/dashboard', [EcommerceDashboard::class, 'index'])->name('dashboard.read');
+    });
 
     // Product
-    Route::get('/product/list', [EcommerceProductList::class, 'index'])->name('product-list.read');
-    Route::get('/product/add', [EcommerceProductAdd::class, 'index'])->name('product-add.read');
-    Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('product-category.read');
+    Route::middleware('permission:product-list.read')->group(function () {
+        Route::get('/product/list', [EcommerceProductList::class, 'index'])->name('product-list.read');
+    });
+
+    Route::middleware('permission:product-add.read')->group(function () {
+        Route::get('/product/add', [EcommerceProductAdd::class, 'index'])->name('product-add.read');
+    });
+
+    Route::middleware('permission:product-category.read')->group(function () {
+        Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('product-category.read');
+    });
+
 
     //Order
-    Route::get('/order/list', [EcommerceOrderList::class, 'index'])->name('order-list.read');
-    Route::get('/order/details', [EcommerceOrderDetails::class, 'index'])->name('order-details.read');
+    Route::middleware('permission:order-list.read')->group(function () {
+        Route::get('/order/list', [EcommerceOrderList::class, 'index'])->name('order-list.read');
+    });
+
+    Route::middleware('permission:order-details.read')->group(function () {
+        Route::get('/order/details', [EcommerceOrderDetails::class, 'index'])->name('order-details.read');
+    });
 
     //Customer
-    Route::get('/customer/all', [EcommerceCustomerAll::class, 'index'])->name('customer-all.read');
+    Route::middleware('permission:customer-all.read')->group(function () {
+        Route::get('/customer/all', [EcommerceCustomerAll::class, 'index'])->name('customer-all.read');
+    });
 
-    Route::get('/manage/reviews', [EcommerceManageReviews::class, 'index'])->name('manage-reviews.read');
-    Route::get('/referrals', [EcommerceReferrals::class, 'index'])->name('referrals.read');
-    Route::get('/settings/details', [EcommerceSettingsDetails::class, 'index'])->name('settings-details.read');
-    Route::get('/settings/payments', [EcommerceSettingsPayments::class, 'index'])->name('settings-payments.read');
-    Route::get('/settings/checkout', [EcommerceSettingsCheckout::class, 'index'])->name('settings-checkout.read');
-    Route::get('/settings/shipping', [EcommerceSettingsShipping::class, 'index'])->name('settings-shipping.read');
-    Route::get('/settings/locations', [EcommerceSettingsLocations::class, 'index'])->name('settings-locations.read');
-    Route::get('/settings/notifications', [EcommerceSettingsNotifications::class, 'index'])->name('settings-notifications.read');
+    Route::middleware('permission:manage-reviews.read')->group(function () {
+        Route::get('/manage/reviews', [EcommerceManageReviews::class, 'index'])->name('manage-reviews.read');
+    });
+
+    Route::middleware('permission:referrals.read')->group(function () {
+        Route::get('/referrals', [EcommerceReferrals::class, 'index'])->name('referrals.read');
+    });
+
+    Route::middleware('permission:settings-details.read')->group(function () {
+        Route::get('/settings/details', [EcommerceSettingsDetails::class, 'index'])->name('settings-details.read');
+    });
+
+    Route::middleware('permission:settings-payments.read')->group(function () {
+        Route::get('/settings/payments', [EcommerceSettingsPayments::class, 'index'])->name('settings-payments.read');
+    });
+
+    Route::middleware('permission:settings-checkout.read')->group(function () {
+        Route::get('/settings/checkout', [EcommerceSettingsCheckout::class, 'index'])->name('settings-checkout.read');
+    });
+
+    Route::middleware('permission:settings-shipping.read')->group(function () {
+        Route::get('/settings/shipping', [EcommerceSettingsShipping::class, 'index'])->name('settings-shipping.read');
+    });
+
+    Route::middleware('permission:settings-locations.read')->group(function () {
+        Route::get('/settings/locations', [EcommerceSettingsLocations::class, 'index'])->name('settings-locations.read');
+    });
+
+    Route::middleware('permission:settings-notifications.read')->group(function () {
+        Route::get('/settings/notifications', [EcommerceSettingsNotifications::class, 'index'])->name('settings-notifications.read');
+    });
+
 
     // Invoice
-    Route::get('/invoice/list', [InvoiceList::class, 'index'])->name('invoice-list.read');
-    Route::get('/invoice/preview', [InvoicePreview::class, 'index'])->name('invoice-preview.read');
-    Route::get('/invoice/print', [InvoicePrint::class, 'index'])->name('invoice-print.read');
-    Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
-    Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
+    Route::middleware('permission:invoice-list.read')->group(function () {
+        Route::get('/invoice/list', [InvoiceList::class, 'index'])->name('invoice-list.read');
+    });
+
+    Route::middleware('permission:invoice-preview.read')->group(function () {
+        Route::get('/invoice/preview', [InvoicePreview::class, 'index'])->name('invoice-preview.read');
+    });
+
+    Route::middleware('permission:invoice-print.read')->group(function () {
+        Route::get('/invoice/print', [InvoicePrint::class, 'index'])->name('invoice-print.read');
+    });
+
+    Route::middleware('permission:invoice-edit.read')->group(function () {
+        Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
+    });
+
+    Route::middleware('permission:invoice-add.read')->group(function () {
+        Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
+    });
+
 
     // Users
-    Route::get('/user/list', [UserList::class, 'index'])->name('user-list.read');
-    Route::get('/user/view/account', [UserViewAccount::class, 'index'])->name('user-view-account.read');
-    Route::get('/user/view/security', [UserViewSecurity::class, 'index'])->name('user-view-security.read');
-    Route::get('/user/view/billing', [UserViewBilling::class, 'index'])->name('user-view-billing.read');
-    Route::get('/user/view/notifications', [UserViewNotifications::class, 'index'])->name('user-view-notifications.read');
-    Route::get('/user/view/connections', [UserViewConnections::class, 'index'])->name('user-view-connections.read');
+    Route::middleware('permission:user-list.read')->group(function () {
+
+        Route::get('/user/list', [UserList::class, 'index'])->name('user-list.read');
+        Route::get('/ajax/user/list/with/roles', [UserList::class, 'ajaxUserListWithRoles'])->name('user-ajax.read');
+        Route::get('/ajax/user/list/all', [UserList::class, 'ajaxUserAll'])->name('user-ajax.all');
+        Route::get('/user/ajax/show', [UserList::class, 'ajaxShow'])->name('user-ajax.show');
+
+        Route::get('/user/view/account/{id}', [UserViewAccount::class, 'index'])->name('user-view-account.read');
+        Route::get('/user/view/security/{id}', [UserViewSecurity::class, 'index'])->name('user-view-security.read');
+        Route::get('/user/view/billing/{id}', [UserViewBilling::class, 'index'])->name('user-view-billing.read');
+        Route::get('/user/view/notifications/{id}', [UserViewNotifications::class, 'index'])->name('user-view-notifications.read');
+        Route::get('/user/view/connections/{id}', [UserViewConnections::class, 'index'])->name('user-view-connections.read');
+    });
+
+    Route::middleware('permission:user-list.write')->group(function () {
+        Route::post('/user/update', [UserList::class, 'update'])->name('user.update');
+        Route::post('/user/update/password', [UserList::class, 'updatePassword'])->name('user.update-password');
+        Route::get('user/change/status/{id}', [UserList::class, 'changeStatus'])->name('user.change-status');
+
+    });
+
+    Route::middleware('permission:user-list.create')->group(function () {
+        Route::post('/user/create', [UserList::class, 'create'])->name('user.create');
+        Route::get('/user/delete/{id}', [UserList::class, 'delete'])->name('user.delete');
+    });
 
     // Roles & Permissions
-    Route::get('/access-roles', [AccessRoles::class, 'index'])->name('access-roles');
-    Route::post('/access-roles/store', [AccessRoles::class, 'store'])->name('access-roles.store');
-    Route::post('/access-roles/update', [AccessRoles::class, 'update'])->name('access-roles.update');
+    Route::middleware('permission:access-roles.read')->group(function () {
+        Route::get('/access-roles', [AccessRoles::class, 'index'])->name('access-roles.read');
+        Route::get('/access-roles/show', [AccessRoles::class, 'show'])->name('access-roles.show');
+    });
 
-    Route::get('/access-roles/show', [AccessRoles::class, 'show'])->name('access-roles.show');
+    Route::middleware('permission:access-roles.create')->group(function () {
+        Route::post('/access-roles/store', [AccessRoles::class, 'store'])->name('access-roles.store');
+    });
 
-    Route::get('/access-permission', [AccessPermission::class, 'index'])->name('access-permission');
+    Route::middleware('permission:access-roles.write')->group(function () {
+        Route::post('/access-roles/update', [AccessRoles::class, 'update'])->name('access-roles.update');
+    });
 
     Route::get('/profile-user', [UserProfile::class, 'index'])->name('profile-user.read');
 });
 
-
+Route::get('/', [AuthLoginController::class, 'show']);
 // Auth routes (blank layout, custom blades)
 Route::post('/logout', [AuthLoginController::class, 'logout'])->name('logout');
 Route::get('/login', [AuthLoginController::class, 'show'])->name('login');

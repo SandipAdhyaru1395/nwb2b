@@ -12,7 +12,7 @@ class AccessRoles extends Controller
 {
   public function index()
   {
-    $data['roles'] = Role::get();
+    $data['roles'] = Role::where('id','!=',1)->get();
 
     return view('content.apps.app-access-roles', $data);
   }
@@ -61,6 +61,12 @@ class AccessRoles extends Controller
 
   public function update(Request $request)
   {
+    
+    if($request->role_id == 1) {
+      Toastr::error('Permission denied!');
+      return redirect()->back();
+    }
+
     $role = Role::find($request->role_id);
     $role->name = $request->modalRoleName;
     $role->save();

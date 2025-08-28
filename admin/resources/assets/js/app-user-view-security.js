@@ -18,8 +18,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
               message: 'Please enter new password'
             },
             stringLength: {
-              min: 8,
-              message: 'Password must be more than 8 characters'
+              min: 6,
+              message: 'Password must be more than 6 characters'
             }
           }
         },
@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
               message: 'The password and its confirm are not the same'
             },
             stringLength: {
-              min: 8,
-              message: 'Password must be more than 8 characters'
+              min: 6,
+              message: 'Password must be more than 6 characters'
             }
           }
         }
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }),
         submitButton: new FormValidation.plugins.SubmitButton(),
         // Submit the form when all fields are valid
-        // defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
+        defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
         autoFocus: new FormValidation.plugins.AutoFocus()
       },
       init: instance => {

@@ -22,7 +22,7 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/pages-auth.js'])
+@vite(['resources/assets/js/auth-login.js'])
 @endsection
 
 @section('content')
@@ -54,13 +54,13 @@ $configData = Helper::appClasses();
         <h4 class="mb-1">Welcome to {{ config('variables.templateName') }}! 👋</h4>
         <p class="mb-6">Please sign-in to your account and start the adventure</p>
 
-        <form id="formAuthentication" class="mb-6" action="{{ route('login.post') }}" method="POST">
+        <form id="loginFormAuthentication" class="mb-6" action="{{ route('login.post') }}" method="POST">
           @csrf
           <div class="mb-6 form-control-validation">
-            <label for="email" class="form-label">Email or Username</label>
-            <input type="text" class="form-control" id="email" name="email-username"
-              placeholder="Enter your email or username" autofocus />
-            @error('email-username')
+            <label for="email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="email" name="email"
+              placeholder="Enter your email" value="{{ old('email') }}"/>
+            @error('email')
             <div class="text-danger small mt-1">{{ $message }}</div>
             @enderror
           </div>

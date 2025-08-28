@@ -4,16 +4,17 @@
 
 'use strict';
 
+
 // Datatable (js)
 document.addEventListener('DOMContentLoaded', function (e) {
   const dtUserTable = document.querySelector('.datatables-users'),
     statusObj = {
-      1: { title: 'Pending', class: 'bg-label-warning' },
-      2: { title: 'Active', class: 'bg-label-success' },
-      3: { title: 'Inactive', class: 'bg-label-secondary' }
+      "active": { title: 'Active', class: 'bg-label-success' },
+      "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
     };
   let dt_User,
-    userView = baseUrl + 'app/user/view/account';
+    userView = baseUrl + 'user/view/account',
+    changeStatus = baseUrl + 'user/change/status';
 
   // Users List datatable
   if (dtUserTable) {
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     const userPlan = document.createElement('div');
     userPlan.classList.add('user_plan');
     dt_User = new DataTable(dtUserTable, {
-      ajax: assetsPath + 'json/user-list.json', // JSON file to add data
+      ajax: baseUrl + 'ajax/user/list/with/roles', // JSON file to add data
       columns: [
         // columns according to JSON
         { data: 'id' },
@@ -71,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
             if (image) {
               // For Avatar image
-              output = `<img src="${assetsPath}img/avatars/${image}" alt="Avatar" class="rounded-circle">`;
+              output = `<img src="${image}" alt="Avatar" class="rounded-circle">`;
             } else {
               // For Avatar badge
               const stateNum = Math.floor(Math.random() * 6) + 1;
@@ -90,8 +91,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   </div>
                 </div>
                 <div class="d-flex flex-column">
-                  <a href="${userView}" class="text-heading text-truncate"><span class="fw-medium">${name}</span></a>
-                  <small>@${email}</small>
+                  <a href="${userView}/${full['id']}" class="text-heading text-truncate"><span class="fw-medium">${name}</span></a>
+                  <small>${email}</small>
                 </div>
               </div>
             `;
@@ -104,12 +105,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const role = full['role'];
             const roleBadgeObj = {
-              Subscriber: '<span class="me-2"><i class="icon-base ti tabler-user icon-22px text-success"></i></span>',
-              Author:
-                '<span class="me-2"><i class="icon-base ti tabler-device-desktop icon-22px text-danger"></i></span>',
-              Maintainer: '<span class="me-2"><i class="icon-base ti tabler-chart-pie icon-22px text-info"></i></span>',
-              Editor: '<span class="me-2"><i class="icon-base ti tabler-edit icon-22px text-warning"></i></span>',
-              Admin: '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>'
+              "User": '<span class="me-2"><i class="icon-base ti tabler-user icon-22px text-success"></i></span>',
+              // "Manager":
+              //   '<span class="me-2"><i class="icon-base ti tabler-device-desktop icon-22px text-danger"></i></span>',
+              "Manager": '<span class="me-2"><i class="icon-base ti tabler-chart-pie icon-22px text-info"></i></span>',
+              // "Manager": '<span class="me-2"><i class="icon-base ti tabler-edit icon-22px text-warning"></i></span>',
+              "Administrator": '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>'
             };
 
             return `<span class='text-truncate d-flex align-items-center'>${roleBadgeObj[role] || ''}${role}</span>`;
@@ -147,12 +148,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             return `
               <div class="d-flex align-items-center">
-                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect delete-record"><i class="icon-base ti tabler-trash icon-md"></i></a>
-                <a href="${userView}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect"><i class="icon-base ti tabler-eye icon-md"></i></a>
+                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" onclick="deleteRecord(${full['id']})"><i class="icon-base ti tabler-trash icon-md"></i></a>
+                <a href="${userView}/${full['id']}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect"><i class="icon-base ti tabler-eye icon-md"></i></a>
                 <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-md"></i></a>
                 <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="javascript:;" class="dropdown-item">Edit</a>
-                  <a href="javascript:;" class="dropdown-item">Suspend</a>
+                  <a href="javascript:;" class="dropdown-item" data-id="${full['id']}" data-bs-target="#ajaxEditUserModal" data-bs-toggle="modal">Edit</a>
+                  <a href="${changeStatus}/${full['id']}" class="dropdown-item">${full['status'] == 'active' ? 'Inactive' : 'Active'}</a>
                 </div>
               </div>
             `;
@@ -398,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   className: 'add-new btn btn-primary rounded-2 waves-effect waves-light',
                   attr: {
                     'data-bs-toggle': 'modal',
-                    'data-bs-target': '#addRoleModal'
+                    'data-bs-target': '#addUserModal'
                   }
                 }
               ]
@@ -459,15 +460,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     });
 
     //? The 'delete-record' class is necessary for the functionality of the following code.
-    function deleteRecord(event) {
-      let row = document.querySelector('.dtr-expanded');
-      if (event) {
-        row = event.target.parentElement.closest('tr');
-      }
-      if (row) {
-        dt_User.row(row).remove().draw();
-      }
-    }
+
 
     function bindDeleteEvent() {
       const userTable = document.querySelector('.datatables-users');

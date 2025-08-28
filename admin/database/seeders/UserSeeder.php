@@ -16,10 +16,11 @@ class UserSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'superadmin@example.com'],
       [
-        'name' => 'admin',
+        'name' => 'superadmin',
         'role_id' => 1,
         'image' => asset('assets/img/avatars/5.png'),
         'password' => 'password', // hashed by model cast
+        'status' => 'active'
       ]
     );
 
@@ -30,6 +31,8 @@ class UserSeeder extends Seeder
         'role_id' => 2,
         'image' => asset('assets/img/avatars/5.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '1111111111',
+        'status' => 'active'
       ]
     );
 
@@ -37,56 +40,68 @@ class UserSeeder extends Seeder
     User::updateOrCreate(
       ['email' => 'manager1@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager1',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/12.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '2222222222',
+        'status' => 'active'
       ]
     );
     User::updateOrCreate(
       ['email' => 'manager2@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager2',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/6.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '3333333333',
+        'status' => 'active'
       ]
     );
     User::updateOrCreate(
       ['email' => 'manager3@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager3',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/3.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '4444444444',
+        'status' => 'active'
       ]
     );
     User::updateOrCreate(
       ['email' => 'manager4@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager4',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/5.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '5555555555',
+        'status' => 'active'
       ]
     );
     User::updateOrCreate(
       ['email' => 'manager5@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager5',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/12.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '6666666666',
+        'status' => 'active'
       ]
     );
 
      User::updateOrCreate(
       ['email' => 'manager6@example.com'],
       [
-        'name' => 'manager',
+        'name' => 'manager6',
         'role_id' => 3,
          'image' => asset('assets/img/avatars/6.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '7777777777',
+        'status' => 'active'
       ]
     );
 
@@ -97,6 +112,8 @@ class UserSeeder extends Seeder
         'role_id' => 4,
          'image' => asset('assets/img/avatars/3.png'),
         'password' => 'password', // hashed by model cast
+        'phone' => '8888888888',
+        'status' => 'active'
       ]
     );
   }

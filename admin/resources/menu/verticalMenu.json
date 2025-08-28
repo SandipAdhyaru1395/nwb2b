@@ -168,37 +168,6 @@
           "url": "user/list",
           "name": "List",
           "slug": "user-list"
-        },
-        {
-          "name": "View",
-          "slug": "user-view",
-          "submenu": [
-            {
-              "url": "user/view/account",
-              "name": "Account",
-              "slug": "user-view-account"
-            },
-            {
-              "url": "user/view/security",
-              "name": "Security",
-              "slug": "user-view-security"
-            },
-            {
-              "url": "user/view/billing",
-              "name": "Billing & Plans",
-              "slug": "user-view-billing"
-            },
-            {
-              "url": "user/view/notifications",
-              "name": "Notifications",
-              "slug": "user-view-notifications"
-            },
-            {
-              "url": "user/view/connections",
-              "name": "Connections",
-              "slug": "user-view-connections"
-            }
-          ]
         }
       ]
     },
@@ -211,11 +180,6 @@
           "url": "access-roles",
           "name": "Roles",
           "slug": "access-roles"
-        },
-        {
-          "url": "access-permission",
-          "name": "Permission",
-          "slug": "access-permission"
         }
       ]
     }

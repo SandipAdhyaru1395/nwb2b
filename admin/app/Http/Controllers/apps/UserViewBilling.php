@@ -4,11 +4,16 @@ namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use App\Models\Role;
 
 class UserViewBilling extends Controller
 {
-  public function index()
+  public function index($id)
   {
-    return view('content.apps.app-user-view-billing');
+     $data['user'] = User::findOrFail($id);
+     $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-billing',$data);
   }
 }

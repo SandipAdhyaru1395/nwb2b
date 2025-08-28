@@ -17,26 +17,25 @@ class LoginController extends Controller
   public function login(Request $request)
   {
     $validated = $request->validate([
-      'email-username' => ['required', 'string'],
+      'email' => ['required', 'string'],
       'password' => ['required', 'string'],
     ]);
 
-    $login = $validated['email-username'];
+    $login = $validated['email'];
     $password = $validated['password'];
     $remember = (bool) $request->boolean('remember');
 
     // Try email first, then username (name)
     if (
-      Auth::attempt(['email' => $login, 'password' => $password], $remember) ||
-      Auth::attempt(['name' => $login, 'password' => $password], $remember)
+      Auth::attempt(['email' => $login, 'password' => $password], $remember) 
     ) {
       $request->session()->regenerate();
       return redirect()->intended(route('dashboard.read'));
     }
 
     return back()
-      ->withErrors(['email-username' => 'Invalid credentials'])
-      ->withInput($request->only('email-username'));
+      ->withErrors(['email' => 'Invalid credentials'])
+      ->withInput($request->only('email'));
   }
 
   public function logout(Request $request)

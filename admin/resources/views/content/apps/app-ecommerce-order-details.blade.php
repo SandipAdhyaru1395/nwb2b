@@ -158,7 +158,7 @@
             <img src="{{ asset('assets/img/avatars/1.png') }}" alt="Avatar" class="rounded-circle" />
           </div>
           <div class="d-flex flex-column">
-            <a href="{{ url('app/user/view/account') }}" class="text-body text-nowrap">
+            <a href="{{ url('user/view/account') }}" class="text-body text-nowrap">
               <h6 class="mb-0">Shamus Tuttle</h6>
             </a>
             <span>Customer ID: #58909</span>

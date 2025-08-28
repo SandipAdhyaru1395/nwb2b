@@ -5,33 +5,16 @@
 
 document.addEventListener('DOMContentLoaded', function () {
   (() => {
-    const formAuthentication = document.querySelector('#formAuthentication');
+    const formAuthentication = document.querySelector('#loginFormAuthentication');
 
     // Form validation for Add new record
     if (formAuthentication && typeof FormValidation !== 'undefined') {
       FormValidation.formValidation(formAuthentication, {
         fields: {
-          name: {
-            validators: {
-              notEmpty: {
-                message: 'Please enter name'
-              }
-            }
-          },
           email: {
             validators: {
               notEmpty: {
                 message: 'Please enter your email'
-              },
-              emailAddress: {
-                message: 'Please enter a valid email address'
-              }
-            }
-          },
-          'email': {
-            validators: {
-              notEmpty: {
-                message: 'Please enter email'
               }
             }
           },
@@ -43,28 +26,6 @@ document.addEventListener('DOMContentLoaded', function () {
               stringLength: {
                 min: 6,
                 message: 'Password must be more than 6 characters'
-              }
-            }
-          },
-          'confirmPassword': {
-            validators: {
-              notEmpty: {
-                message: 'Please confirm password'
-              },
-              identical: {
-                compare: () => formAuthentication.querySelector('[name="password"]').value,
-                message: 'The password and its confirmation do not match'
-              },
-              stringLength: {
-                min: 6,
-                message: 'Password must be more than 6 characters'
-              }
-            }
-          },
-          terms: {
-            validators: {
-              notEmpty: {
-                message: 'Please agree to terms & conditions'
               }
             }
           }
