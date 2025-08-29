@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Product Add - Apps')
+@section('title', 'Product Add')
 
 @section('vendor-style')
 @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss',
@@ -167,31 +167,31 @@
                 <div class="nav-align-left">
                   <ul class="nav nav-pills flex-column w-100">
                     <li class="nav-item">
-                      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#restock">
+                      <button type="button" class="nav-link active" data-bs-toggle="tab" data-bs-target="#restock">
                         <i class="icon-base ti tabler-box icon-sm me-1_5"></i>
                         <span class="align-middle">Restock</span>
                       </button>
                     </li>
                     <li class="nav-item">
-                      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#shipping">
+                      <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#shipping">
                         <i class="icon-base ti tabler-car icon-sm me-1_5"></i>
                         <span class="align-middle">Shipping</span>
                       </button>
                     </li>
                     <li class="nav-item">
-                      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#global-delivery">
+                      <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#global-delivery">
                         <i class="icon-base ti tabler-world icon-sm me-1_5"></i>
                         <span class="align-middle">Global Delivery</span>
                       </button>
                     </li>
                     <li class="nav-item">
-                      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#attributes">
+                      <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#attributes">
                         <i class="icon-base ti tabler-link icon-sm me-1_5"></i>
                         <span class="align-middle">Attributes</span>
                       </button>
                     </li>
                     <li class="nav-item">
-                      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#advanced">
+                      <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#advanced">
                         <i class="icon-base ti tabler-lock icon-sm me-1_5"></i>
                         <span class="align-middle">Advanced</span>
                       </button>

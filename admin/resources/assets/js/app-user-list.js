@@ -16,17 +16,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
   const dt_user_table = document.querySelector('.datatables-users'),
     userView = baseUrl + 'user/view/account',
     changeStatus = baseUrl + 'user/change/status',
-     statusObj = {
+    statusObj = {
       "active": { title: 'Active', class: 'bg-label-success' },
       "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
     };
   var select2 = $('.select2');
 
   if (select2.length) {
-    var $this = select2;
-    $this.wrap('<div class="position-relative"></div>').select2({
-      placeholder: 'Select Country',
-      dropdownParent: $this.parent()
+    
+    select2.each(function () {
+      var $this = $(this);
+      console.log($this.parent());
+      $this.wrap('<div class="position-relative"></div>').select2({
+        placeholder: 'Select value',
+        dropdownParent: $this.parent()
+      });
     });
   }
 
@@ -103,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               '</div>' +
               '<div class="d-flex flex-column">' +
               '<a href="' +
-              userView+'/'+full['id'] +
+              userView + '/' + full['id'] +
               '" class="text-heading text-truncate"><span class="fw-medium">' +
               name +
               '</span></a>' +
@@ -650,20 +654,48 @@ document.addEventListener('DOMContentLoaded', function (e) {
   // Add New User Form Validation
   const fv = FormValidation.formValidation(addNewUserForm, {
     fields: {
-      userFullname: {
+      modalAddUserName: {
         validators: {
           notEmpty: {
-            message: 'Please enter fullname '
+            message: 'Please enter name '
           }
         }
       },
-      userEmail: {
+      modalAddUserEmail: {
         validators: {
           notEmpty: {
-            message: 'Please enter your email'
+            message: 'Please enter email'
           },
           emailAddress: {
             message: 'The value is not a valid email address'
+          }
+        }
+      },
+      newPassword: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter new password'
+          },
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
+          }
+        }
+      },
+      confirmPassword: {
+        validators: {
+          notEmpty: {
+            message: 'Please confirm new password'
+          },
+          identical: {
+            compare: function () {
+              return document.getElementById('addNewUserForm').querySelector('[name="newPassword"]').value;
+            },
+            message: 'The password and its confirm are not the same'
+          },
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
           }
         }
       }
@@ -680,8 +712,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }),
       submitButton: new FormValidation.plugins.SubmitButton(),
       // Submit the form when all fields are valid
-      // defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
+      defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
       autoFocus: new FormValidation.plugins.AutoFocus()
+    },
+    init: instance => {
+      instance.on('plugins.message.placed', function (e) {
+        if (e.element.parentElement.classList.contains('input-group')) {
+          e.element.parentElement.insertAdjacentElement('afterend', e.messageElement);
+        }
+      });
     }
   });
 });

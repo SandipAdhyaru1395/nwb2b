@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Order Details - Apps')
+@section('title', 'Order Details')
 
 @section('vendor-style')
 @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
@@ -204,7 +204,6 @@
 </div>
 
 <!-- Modals -->
-@include('_partials/_modals/modal-edit-user')
 @include('_partials/_modals/modal-add-new-address')
 
 

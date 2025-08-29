@@ -430,9 +430,7 @@ use Illuminate\Support\Facades\Route;
     <li class="nav-item navbar-dropdown dropdown-user dropdown">
       <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
         <div class="avatar avatar-online">
-          <!-- <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}" alt
-            class="rounded-circle" /> -->
-            <img src="{{  asset('assets/img/avatars/1.png') }}" alt
+            <img src="{{  auth()->user()->image ?? asset('assets/img/avatars/1.png') }}" alt
             class="rounded-circle" />
         </div>
       </a>
@@ -443,21 +441,17 @@ use Illuminate\Support\Facades\Route;
             <div class="d-flex align-items-center">
               <div class="flex-shrink-0 me-2">
                 <div class="avatar avatar-online">
-                  <!-- <img src="{{ Auth::user() ? Auth::user()->profile_photo_url : asset('assets/img/avatars/1.png') }}"
-                    alt class="rounded-circle" /> -->
-                    <img src="{{  asset('assets/img/avatars/1.png') }}" alt
+                    <img src="{{  auth()->user()->image ?? asset('assets/img/avatars/1.png') }}" alt
                     class="rounded-circle" />
                 </div>
               </div>
               <div class="flex-grow-1">
                 <h6 class="mb-0">
-                  @if (Auth::check())
                   {{ Auth::user()->name }}
-                  @else
-                  John Doe
-                  @endif
                 </h6>
-                <small class="text-body-secondary">Admin</small>
+                @if(Auth::user()->role)
+                  <small class="text-body-secondary">{{ Auth::user()->role->name }}</small>
+                @endif
               </div>
             </div>
           </a>

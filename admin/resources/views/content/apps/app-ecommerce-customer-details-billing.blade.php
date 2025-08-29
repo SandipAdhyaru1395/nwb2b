@@ -21,7 +21,7 @@ $configData = Helper::appClasses();
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/modal-edit-cc.js',
+@vite(['resources/assets/js/modal-edit-cc.js',
 'resources/assets/js/modal-add-new-cc.js', 'resources/assets/js/modal-add-new-address.js',
 'resources/assets/js/app-ecommerce-customer-detail.js'])
 @endsection
@@ -562,7 +562,6 @@ $configData = Helper::appClasses();
 </div>
 
 <!-- Modal -->
-@include('_partials/_modals/modal-edit-user')
 @include('_partials/_modals/modal-edit-cc')
 @include('_partials/_modals/modal-add-new-address')
 @include('_partials/_modals/modal-add-new-cc')

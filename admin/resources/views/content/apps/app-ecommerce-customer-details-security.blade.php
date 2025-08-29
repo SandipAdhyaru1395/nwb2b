@@ -17,7 +17,7 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/modal-enable-otp.js',
+@vite(['resources/assets/js/modal-enable-otp.js',
 'resources/assets/js/app-ecommerce-customer-detail.js', 'resources/assets/js/app-user-view-security.js'])
 @endsection
 
@@ -267,7 +267,6 @@
 </div>
 
 <!-- Modal -->
-@include('_partials/_modals/modal-edit-user')
 @include('_partials/_modals/modal-enable-otp')
 @include('_partials/_modals/modal-upgrade-plan')
 <!-- /Modal -->

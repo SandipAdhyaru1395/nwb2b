@@ -48,6 +48,7 @@
   const dropzoneBasic = document.querySelector('#dropzone-basic');
   if (dropzoneBasic) {
     const myDropzone = new Dropzone(dropzoneBasic, {
+      url: 'https://httpbin.org/post',
       previewTemplate: previewTemplate,
       parallelUploads: 1,
       maxFilesize: 5,

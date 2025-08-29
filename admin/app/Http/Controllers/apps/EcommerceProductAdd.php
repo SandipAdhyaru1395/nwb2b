@@ -15,6 +15,7 @@ class EcommerceProductAdd extends Controller
 
   public function store(Request $request)
   {
+    return redirect()->back();
     $validated = $request->validate([
       'productTitle' => ['required', 'string', 'max:255'],
       'productSku' => ['required', 'string', 'max:64', 'unique:products,sku'],
@@ -27,21 +28,19 @@ class EcommerceProductAdd extends Controller
       'status' => ['nullable', 'string', 'in:Publish,Scheduled,Inactive'],
     ]);
 
-    Product::create([
-      'name' => $validated['productTitle'],
-      'sku' => $validated['productSku'],
-      'barcode' => $validated['productBarcode'] ?? null,
-      'brand' => $validated['vendor'] ?? null,
-      'category' => $validated['category'] ?? null,
-      'description' => null,
-      'image' => null,
-      'stock_qty' => (int)($validated['quantity'] ?? 0),
-      'in_stock' => ($validated['quantity'] ?? 0) > 0,
-      'status' => $validated['status'] ?? 'Publish',
-      'price' => $validated['productPrice'],
-      'discounted_price' => $validated['productDiscountedPrice'] ?? null,
-    ]);
+    // Product::create([
+    //   'name' => $validated['productTitle'],
+    //   'sku' => $validated['productSku'],
+    //   'barcode' => $validated['productBarcode'] ?? null,
+    //   'category' => $validated['category'] ?? null,
+    //   'description' => null,
+    //   'image' => null,
+    //   'quantity' => (int)($validated['quantity'] ?? 0),
+    //   'status' => $validated['status'] ?? 'Publish',
+    //   'price' => $validated['productPrice'],
+    //   'discounted_price' => $validated['productDiscountedPrice'] ?? null,
+    // ]);
 
-    return redirect()->route('app-ecommerce-product-list')->with('success', 'Product created');
+    // return redirect()->route('app-ecommerce-product-list')->with('success', 'Product created');
   }
 }

@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // Variable declaration for table
   const dt_product_table = document.querySelector('.datatables-products'),
-    productAdd = baseUrl + 'app/ecommerce/product/add',
+    productAdd = baseUrl + 'product/add',
     statusObj = {
       1: { title: 'Scheduled', class: 'bg-label-warning' },
       2: { title: 'Publish', class: 'bg-label-success' },

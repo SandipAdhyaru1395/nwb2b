@@ -20,7 +20,7 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-ecommerce-customer-detail.js',
+@vite(['resources/assets/js/app-ecommerce-customer-detail.js',
 'resources/assets/js/app-ecommerce-customer-detail-overview.js'])
 @endsection
 
@@ -266,7 +266,6 @@
 </div>
 
 <!-- Modal -->
-@include('_partials/_modals/modal-edit-user')
 @include('_partials/_modals/modal-upgrade-plan')
 <!-- /Modal -->
 @endsection

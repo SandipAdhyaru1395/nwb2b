@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Settings Details - Apps')
+@section('title', 'Settings Details')
 
 @section('vendor-style')
 @vite('resources/assets/vendor/libs/select2/select2.scss')
@@ -28,31 +28,31 @@
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/payments') }}">
+          <a class="nav-link" href="{{ url('/settings/payments') }}">
             <i class="icon-base ti tabler-credit-card icon-sm me-1_5"></i>
             <span class="align-middle">Payments</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/checkout') }}">
+          <a class="nav-link" href="{{ url('/settings/checkout') }}">
             <i class="icon-base ti tabler-shopping-cart icon-sm me-1_5"></i>
             <span class="align-middle">Checkout</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/shipping') }}">
+          <a class="nav-link" href="{{ url('/settings/shipping') }}">
             <i class="icon-base ti tabler-rosette-discount icon-sm me-1_5"></i>
             <span class="align-middle">Shipping & delivery</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/locations') }}">
+          <a class="nav-link" href="{{ url('/settings/locations') }}">
             <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>
             <span class="align-middle">Locations</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/notifications') }}">
+          <a class="nav-link" href="{{ url('/settings/notifications') }}">
             <i class="icon-base ti tabler-bell-ringing icon-sm me-1_5"></i>
             <span class="align-middle">Notifications</span>
           </a>
@@ -275,7 +275,7 @@
 
         <div class="d-flex justify-content-end gap-4">
           <button type="reset" class="btn btn-label-secondary">Discard</button>
-          <a class="btn btn-primary" href="{{ url('/app/ecommerce/settings/payments') }}">Save Changes</a>
+          <a class="btn btn-primary" href="{{ url('/settings/payments') }}">Save Changes</a>
         </div>
       </div>
     </div>

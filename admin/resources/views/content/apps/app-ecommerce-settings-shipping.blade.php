@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Settings Shipping - Apps')
+@section('title', 'Settings Shipping')
 
 @section('vendor-style')
 @vite('resources/assets/vendor/fonts/flag-icons.scss')
@@ -18,19 +18,19 @@
       <h5 class="mb-4">Getting Started</h5>
       <ul class="nav nav-align-left nav-pills flex-column">
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/details') }}">
+          <a class="nav-link" href="{{ url('/settings/details') }}">
             <i class="icon-base ti tabler-building-store icon-sm me-1_5"></i>
             <span class="align-middle">Store details</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/payments') }}">
+          <a class="nav-link" href="{{ url('/settings/payments') }}">
             <i class="icon-base ti tabler-credit-card icon-sm me-1_5"></i>
             <span class="align-middle">Payments</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/checkout') }}">
+          <a class="nav-link" href="{{ url('/settings/checkout') }}">
             <i class="icon-base ti tabler-shopping-cart icon-sm me-1_5"></i>
             <span class="align-middle">Checkout</span>
           </a>
@@ -42,13 +42,13 @@
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/locations') }}">
+          <a class="nav-link" href="{{ url('/settings/locations') }}">
             <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>
             <span class="align-middle">Locations</span>
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/notifications') }}">
+          <a class="nav-link" href="{{ url('/settings/notifications') }}">
             <i class="icon-base ti tabler-bell-ringing icon-sm me-1_5"></i>
             <span class="align-middle">Notifications</span>
           </a>

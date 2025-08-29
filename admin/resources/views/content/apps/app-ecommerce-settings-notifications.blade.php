@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'eCommerce Settings Notifications - Apps')
+@section('title', 'Settings Notifications')
 
 @section('page-script')
 @vite('resources/assets/js/app-ecommerce-settings.js')
@@ -14,31 +14,31 @@
       <h5 class="mb-4">Getting Started</h5>
       <ul class="nav nav-align-left nav-pills flex-column">
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/details') }}">
+          <a class="nav-link" href="{{ url('/settings/details') }}">
             <i class="icon-base ti tabler-building-store icon-sm me-1_5"></i>
             <span class="align-middle">Store details</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/payments') }}">
+          <a class="nav-link" href="{{ url('/settings/payments') }}">
             <i class="icon-base ti tabler-credit-card icon-sm me-1_5"></i>
             <span class="align-middle">Payments</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/checkout') }}">
+          <a class="nav-link" href="{{ url('/settings/checkout') }}">
             <i class="icon-base ti tabler-shopping-cart icon-sm me-1_5"></i>
             <span class="align-middle">Checkout</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/shipping') }}">
+          <a class="nav-link" href="{{ url('/settings/shipping') }}">
             <i class="icon-base ti tabler-rosette-discount icon-sm me-1_5"></i>
             <span class="align-middle">Shipping & delivery</span>
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="{{ url('/app/ecommerce/settings/locations') }}">
+          <a class="nav-link" href="{{ url('/settings/locations') }}">
             <i class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>
             <span class="align-middle">Locations</span>
           </a>

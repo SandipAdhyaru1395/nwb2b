@@ -296,6 +296,15 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     });
 
     Route::get('/profile-user', [UserProfile::class, 'index'])->name('profile-user.read');
+    Route::get('/profile-teams', [UserTeams::class, 'index'])->name('profile-teams.read');
+    Route::get('/profile-projects', [UserProjects::class, 'index'])->name('profile-projects.read');
+    Route::get('/profile-connections', [UserConnections::class, 'index'])->name('profile-connections.read');
+
+
+    Route::get('/app/ecommerce/customer/details/overview', [EcommerceCustomerDetailsOverview::class, 'index'])->name('app-ecommerce-customer-details-overview');
+Route::get('/app/ecommerce/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
+Route::get('/app/ecommerce/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
+Route::get('/app/ecommerce/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
 });
 
 Route::get('/', [AuthLoginController::class, 'show']);
@@ -348,10 +357,7 @@ Route::get('/app/ecommerce/product/list/data', [EcommerceProductList::class, 'da
 Route::post('/app/ecommerce/product/add', [EcommerceProductAdd::class, 'store'])->name('app-ecommerce-product-store');
 Route::get('/app/ecommerce/category/list/data', [EcommerceProductCategory::class, 'data'])->name('app-ecommerce-category-data');
 Route::post('/app/ecommerce/category/store', [EcommerceProductCategory::class, 'store'])->name('app-ecommerce-category-store');
-Route::get('/app/ecommerce/customer/details/overview', [EcommerceCustomerDetailsOverview::class, 'index'])->name('app-ecommerce-customer-details-overview');
-Route::get('/app/ecommerce/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
-Route::get('/app/ecommerce/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
-Route::get('/app/ecommerce/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
+
 Route::get('/app/academy/dashboard', [AcademyDashboard::class, 'index'])->name('app-academy-dashboard');
 Route::get('/app/academy/course', [AcademyCourse::class, 'index'])->name('app-academy-course');
 Route::get('/app/academy/course-details', [AcademyCourseDetails::class, 'index'])->name('app-academy-course-details');
@@ -361,9 +367,7 @@ Route::get('/app/logistics/fleet', [LogisticsFleet::class, 'index'])->name('app-
 
 // pages
 
-Route::get('/pages/profile-teams', [UserTeams::class, 'index'])->name('pages-profile-teams');
-Route::get('/pages/profile-projects', [UserProjects::class, 'index'])->name('pages-profile-projects');
-Route::get('/pages/profile-connections', [UserConnections::class, 'index'])->name('pages-profile-connections');
+
 Route::get('/pages/account-settings-account', [AccountSettingsAccount::class, 'index'])->name('pages-account-settings-account');
 Route::get('/pages/account-settings-security', [AccountSettingsSecurity::class, 'index'])->name('pages-account-settings-security');
 Route::get('/pages/account-settings-billing', [AccountSettingsBilling::class, 'index'])->name('pages-account-settings-billing');
