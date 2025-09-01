@@ -11,7 +11,7 @@ const nextConfig = {
   },
   output: 'export',
   trailingSlash: true,
-  distDir: 'dist',
+  distDir: 'out',
   basePath: '/nwb2b/front',
   assetPrefix: '/nwb2b/front',
 }

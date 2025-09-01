@@ -1,9 +1,10 @@
 RewriteEngine On
 
-# Handle client-side routing
+# Handle client-side routing for React app
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ /nwb2b/front/index.html [QSA,L]
+RewriteCond %{REQUEST_URI} !^/nwb2b/front/_next/
+RewriteRule ^(.*)$ index.html [QSA,L]
 
 # Enable compression
 <IfModule mod_deflate.c>
