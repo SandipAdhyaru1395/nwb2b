@@ -9,6 +9,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'dist',
+  basePath: '/nwb2b/front',
+  assetPrefix: '/nwb2b/front',
 }
 
 export default nextConfig
