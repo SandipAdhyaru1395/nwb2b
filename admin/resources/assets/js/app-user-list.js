@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     
     select2.each(function () {
       var $this = $(this);
-      console.log($this.parent());
+
       $this.wrap('<div class="position-relative"></div>').select2({
         placeholder: 'Select value',
         dropdownParent: $this.parent()
