@@ -28,6 +28,11 @@
               "url": "product/category",
               "name": "Category List",
               "slug": "product-category"
+            },
+            {
+              "url": "product/subcategory",
+              "name": "Sub Category List",
+              "slug": "product-sub-category"
             }
           ]
         },

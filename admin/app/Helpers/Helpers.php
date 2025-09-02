@@ -308,4 +308,23 @@ class Helpers
 }
 CSS;
   }
+
+    public static function isMenuActive($menu) {
+        $currentUrl = url()->current();
+       
+        if (isset($menu['url']) && url($menu['url']) === $currentUrl) {
+            return true;
+        }
+
+        if (!empty($menu['children'])) {
+            foreach ($menu['children'] as $child) {
+                if (\App\Helpers\Helpers::isMenuActive($child)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
 }

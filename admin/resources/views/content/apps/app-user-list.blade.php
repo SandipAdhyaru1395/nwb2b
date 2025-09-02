@@ -50,7 +50,9 @@
           },
           buttonsStyling: false
         }).then(function (result) {
-          window.location.href = baseUrl + 'user/delete/' + id;
+          if(result.isConfirmed){
+            window.location.href = baseUrl + 'user/delete/' + id;
+          }
         });
       }
     }

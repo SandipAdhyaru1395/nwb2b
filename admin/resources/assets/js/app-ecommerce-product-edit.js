@@ -12,7 +12,7 @@
   const commentEditor = document.querySelector('.comment-editor');
 
   if (commentEditor) {
-    quill = new Quill(commentEditor, {
+     quill = new Quill(commentEditor, {
       modules: {
         toolbar: '.comment-toolbar'
       },
@@ -72,11 +72,11 @@
   const TagifyBasic = new Tagify(tagifyBasicEl);
 
   //For form validation
-  const addProductForm = document.getElementById('addProductForm');
+  const editProductForm = document.getElementById('editProductForm');
 
-  if (addProductForm) {
+  if (editProductForm) {
     //Add New customer Form Validation
-    const fv = FormValidation.formValidation(addProductForm, {
+    const fv = FormValidation.formValidation(editProductForm, {
       fields: {
         productTitle: {
           validators: {
@@ -122,13 +122,6 @@
               message: 'Please select sub category'
             }
           }
-        },
-        productImage: {
-          validators: {
-            notEmpty: {
-              message: 'Please upload product image'
-            }
-          }
         }
       },
       plugins: {
@@ -149,13 +142,10 @@
 
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {
-      let content = quill.root.innerHTML;
-      if (content === '<p><br></p>') {
-          content = ''; // Treat as empty
-      }
-      document.getElementById("productDescription").value = content;
+
+      document.getElementById("productDescription").value = quill.root.innerHTML;
       // Submit the form manually
-      addProductForm.submit();
+      editProductForm.submit();
     });
   }
 })();

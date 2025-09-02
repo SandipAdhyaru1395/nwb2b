@@ -8,14 +8,14 @@ let quillAdd;
 window.quillEdit = null;
 
 // Function to initialize Quill editor for edit offcanvas
-window.initializeQuillEdit = function () {
-  const commentEditorEdit = document.querySelector('#edit-category-description');
+window.initializeQuillEdit = function() {
+  const commentEditorEdit = document.querySelector('#edit-sub-category-description');
   if (commentEditorEdit) {
     // Destroy existing Quill instance if it exists
     if (window.quillEdit && typeof window.quillEdit.destroy === 'function') {
       window.quillEdit.destroy();
     }
-
+    
     // Create new Quill instance
     window.quillEdit = new Quill(commentEditorEdit, {
       modules: {
@@ -24,7 +24,7 @@ window.initializeQuillEdit = function () {
       placeholder: 'Write a Comment...',
       theme: 'snow'
     });
-
+    
     return window.quillEdit;
   } else {
     return null;
@@ -34,15 +34,15 @@ window.initializeQuillEdit = function () {
 // Datatable (js)
 document.addEventListener('DOMContentLoaded', function (e) {
   let statusObj = {
-    "active": { title: 'Active', class: 'bg-label-success' },
-    "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
-  };
+      "active": { title: 'Active', class: 'bg-label-success' },
+      "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
+    };
 
   // Comment editor
-
+  
 
   // Initialize Quill for Add Category (this works because add offcanvas is always visible)
-  const commentEditorAdd = document.querySelector('#add-category-description');
+  const commentEditorAdd = document.querySelector('#add-sub-category-description');
 
   if (commentEditorAdd) {
     quillAdd = new Quill(commentEditorAdd, {
@@ -53,15 +53,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
       theme: 'snow'
     });
   }
-
+  
   // Initialize Quill for Edit Category when offcanvas is shown
-  const editOffcanvas = document.getElementById('offcanvasEditCategory');
+  const editOffcanvas = document.getElementById('offcanvasEditSubCategory');
   if (editOffcanvas) {
     // Initialize Quill editor when offcanvas starts showing
     editOffcanvas.addEventListener('show.bs.offcanvas', function () {
       initializeQuillEdit();
     });
-
+    
     // Handle offcanvas hidden event to clean up
     editOffcanvas.addEventListener('hidden.bs.offcanvas', function () {
       if (window.quillEdit && typeof window.quillEdit.destroy === 'function') {
@@ -70,10 +70,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
     });
   }
+  
+  var dt_category_list_table = document.querySelector('.datatables-sub-category-list');
 
-  var dt_category_list_table = document.querySelector('.datatables-category-list');
-
-
+  
 
 
   //select2 for dropdowns in offcanvas
@@ -93,14 +93,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   if (dt_category_list_table) {
     var dt_category = new DataTable(dt_category_list_table, {
-      ajax: baseUrl + 'category/ajax-list', // JSON file to add data
+      ajax: baseUrl + 'subcategory/ajax-list', // JSON file to add data
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'categories' },
+        { data: 'sub_category' },
+        { data: 'category' },
         { data: 'id' },
-        { data: 'status' }
+        {data: 'status'}
       ],
       columnDefs: [
         {
@@ -132,9 +133,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 2,
           responsivePriority: 2,
           render: function (data, type, full, meta) {
-            const name = full['categories'];
-            const categoryDetail = full['category_detail'];
-
+            const name = full['sub_category'];
+            const categoryDetail = full['sub_category_desc'];
+            
             let stateNum = Math.floor(Math.random() * 6);
             let states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
             let state = states[stateNum];
@@ -155,14 +156,40 @@ document.addEventListener('DOMContentLoaded', function (e) {
               </div>
             </div>
             `;
-
             return rowOutput;
+          }
+        },
+        {
+          targets: 3,
+          render: function (data, type, full, meta) {
+            const name = full['category'];
+            
+            let stateNum = Math.floor(Math.random() * 6);
+            let states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
+            let state = states[stateNum];
+            let initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
 
+            let output = `<span class="avatar-initial rounded-2 bg-label-${state}">${initials}</span>`;
+            // Creates full output for Categories and Category Detail
+            const rowOutput = `
+            <div class="d-flex align-items-center">
+             <div class="avatar-wrapper">
+                  <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
+                </div>
+              <div class="d-flex align-items-center">
+                <div class="d-flex flex-column justify-content-center">
+                  <span class="text-heading text-wrap fw-medium">${name}</span>
+                </div>
+              </div>
+            </div>
+            `;
+            
+            return rowOutput;
           }
         },
         {
           // For status
-          targets: 3,
+          targets: 4,
           render: function (data, type, full, meta) {
             const status = full['status'];
             // Creates full output for row
@@ -185,7 +212,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return `
               <div class="d-flex align-items-sm-center justify-content-sm-center">
                 <button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"  data-bs-toggle="offcanvas"
-                  data-bs-target="#offcanvasEditCategory" data-id="${full['id']}"><i class="icon-base ti tabler-edit icon-22px"></i></button>
+                  data-bs-target="#offcanvasEditSubCategory" data-id="${full['id']}"><i class="icon-base ti tabler-edit icon-22px"></i></button>
               </div>
             `;
           }
@@ -195,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         style: 'multi',
         selector: 'td:nth-child(2)'
       },
-      // order: [2, 'desc'],
+      // order: [0, 'desc'],
       displayLength: 7,
       layout: {
         topStart: {
@@ -218,11 +245,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
             },
             buttons: [
               {
-                text: `<i class="icon-base ti tabler-plus icon-16px me-0 me-sm-2"></i><span class="d-none d-sm-inline-block">Add Category</span>`,
+                text: `<i class="icon-base ti tabler-plus icon-16px me-0 me-sm-2"></i><span class="d-none d-sm-inline-block">Add Sub Category</span>`,
                 className: 'add-new btn btn-primary',
                 attr: {
                   'data-bs-toggle': 'offcanvas',
-                  'data-bs-target': '#offcanvasAddCategory'
+                  'data-bs-target': '#offcanvasAddSubCategory'
                 }
               }
             ]
@@ -248,7 +275,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of ' + data['categories'];
+              return 'Details of ' + data['sub_category'];
             }
           }),
           type: 'column',
@@ -283,30 +310,30 @@ document.addEventListener('DOMContentLoaded', function (e) {
   }
 
   // Event delegation for edit button clicks
-  document.addEventListener('click', function (e) {
-    if (e.target.closest('[data-bs-target="#offcanvasEditCategory"]')) {
+  document.addEventListener('click', function(e) {
+    if (e.target.closest('[data-bs-target="#offcanvasEditSubCategory"]')) {
       // Get the row data from DataTable
       const row = dt_category.row(e.target.closest('tr'));
       const data = row.data();
-
+      
       // Populate the edit form with data
       setTimeout(() => {
-        const titleInput = document.getElementById('category-title');
-        const statusSelect = document.getElementById('category-status');
-
-        if (titleInput) titleInput.value = data.categories || '';
+        const titleInput = document.getElementById('sub-category-title');
+        const statusSelect = document.getElementById('sub-category-status');
+        
+        if (titleInput) titleInput.value = data.sub_category || '';
         if (statusSelect) statusSelect.value = data.status || 'active';
-
+        
         // Set Quill content if available
-        if (quillEdit && data.category_detail) {
-          quillEdit.root.innerHTML = data.category_detail;
+        if (quillEdit && data.sub_category_desc) {
+          quillEdit.root.innerHTML = data.sub_category_desc;
         }
-
+        
         // If Quill is not ready yet, set content after a longer delay
-        if (!quillEdit && data.category_detail) {
+        if (!quillEdit && data.sub_category_desc) {
           setTimeout(() => {
-            if (quillEdit && data.category_detail) {
-              quillEdit.root.innerHTML = data.category_detail;
+            if (quillEdit && data.sub_category_desc) {
+              quillEdit.root.innerHTML = data.sub_category_desc;
             }
           }, 300);
         }
@@ -340,21 +367,28 @@ document.addEventListener('DOMContentLoaded', function (e) {
       });
     });
   }, 100);
-
+  
   //For form validation
-  const addCategoryForm = document.getElementById('addCategoryForm');
+  const addSubCategoryForm = document.getElementById('addSubCategoryForm');
 
-  if (addCategoryForm) {
+  if (addSubCategoryForm) {
     //Add New customer Form Validation
-    const fv = FormValidation.formValidation(addCategoryForm, {
+    const fv = FormValidation.formValidation(addSubCategoryForm, {
       fields: {
-        categoryTitle: {
+        subcategoryTitle: {
           validators: {
             notEmpty: {
               message: 'Please enter category title'
             }
           }
-        }
+        },
+        category_id: {
+          validators: {
+            notEmpty: {
+              message: 'Please select category'
+            }
+          }
+        },
       },
       plugins: {
         trigger: new FormValidation.plugins.Trigger(),
@@ -371,39 +405,46 @@ document.addEventListener('DOMContentLoaded', function (e) {
         autoFocus: new FormValidation.plugins.AutoFocus()
       }
     });
-
+    
     // Handle form submission with Quill editor content
-    fv.on('core.form.valid', function () {
+    fv.on('core.form.valid', function() {
 
       // Check if Quill editor exists
       if (quillAdd) {
         // Get the content of the Quill editor
         const quillContentAdd = quillAdd.root.innerHTML;
-
+        
         // Set the content to the hidden input
-        const hiddenInput = document.getElementById('category-description-hidden');
+        const hiddenInput = document.getElementById('sub-category-description-hidden');
         hiddenInput.value = quillContentAdd;
       }
-
+      
       // Submit the form manually
-      addCategoryForm.submit();
+      addSubCategoryForm.submit();
     });
   }
 
 
-  const updateCategoryForm = document.getElementById('updateCategoryForm');
+  const updateSubCategoryForm = document.getElementById('updateSubCategoryForm');
 
-  if (updateCategoryForm) {
+  if (updateSubCategoryForm) {
     //Add New customer Form Validation
-    const fvEdit = FormValidation.formValidation(updateCategoryForm, {
+    const fvEdit = FormValidation.formValidation(updateSubCategoryForm, {
       fields: {
-        categoryTitle: {
+        subcategoryTitle: {
           validators: {
             notEmpty: {
               message: 'Please enter category title'
             }
           }
-        }
+        },
+        category_id: {
+          validators: {
+            notEmpty: {
+              message: 'Please select category'
+            }
+          }
+        },
       },
       plugins: {
         trigger: new FormValidation.plugins.Trigger(),
@@ -420,22 +461,22 @@ document.addEventListener('DOMContentLoaded', function (e) {
         autoFocus: new FormValidation.plugins.AutoFocus()
       }
     });
-
+    
     // Handle form submission with Quill editor content
-    fvEdit.on('core.form.valid', function () {
+    fvEdit.on('core.form.valid', function() {
 
       // Check if Quill editor exists
       if (window.quillEdit) {
         // Get the content of the Quill editor
         const quillContentEdit = window.quillEdit.root.innerHTML;
-
         // Set the content to the hidden input
-        const hiddenInputEdit = document.getElementById('category-description-hidden-edit');
+        const hiddenInputEdit = document.getElementById('sub-category-description-hidden-edit');
+
         hiddenInputEdit.value = quillContentEdit;
       }
-
+      
       // Submit the form manually
-      updateCategoryForm.submit();
+      updateSubCategoryForm.submit();
     });
   }
 });

@@ -24,7 +24,7 @@ class LoginController extends Controller
     $login = $validated['email'];
     $password = $validated['password'];
     $remember = (bool) $request->boolean('remember');
-
+    
     // Try email first, then username (name)
     if (
       Auth::attempt(['email' => $login, 'password' => $password], $remember) 

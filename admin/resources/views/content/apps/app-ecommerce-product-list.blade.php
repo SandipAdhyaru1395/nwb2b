@@ -3,19 +3,42 @@
 @section('title', 'Product List')
 
 @section('vendor-style')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.scss','resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js','resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')
 @vite(['resources/assets/js/app-ecommerce-product-list.js'])
+<script>
+  function changeStatus(id, status) {
+      if (id) {
+        var publishObj = { 0 : 'publish' , 1 : 'unpublish'};
+        Swal.fire({
+          title: 'Are you sure you want to ' + publishObj[status] + ' this product?',
+          // text: "You won't be able to revert this!",
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, ' + publishObj[status] + ' it!',
+          customClass: {
+            confirmButton: 'btn btn-primary me-3',
+            cancelButton: 'btn btn-label-secondary'
+          },
+          buttonsStyling: false
+        }).then(function (result) {
+          if(result.isConfirmed){
+            window.location.href = baseUrl + 'product/status/change/' + id;
+          }
+        });
+      }
+    }
+</script>
 @endsection
 
 @section('content')
@@ -88,9 +111,9 @@
   <div class="card-header border-bottom">
     <h5 class="card-title">Filter</h5>
     <div class="d-flex justify-content-between align-items-center row pt-4 gap-6 gap-md-0 g-md-6">
-      <div class="col-md-4 product_status"></div>
       <div class="col-md-4 product_category"></div>
-      <div class="col-md-4 product_stock"></div>
+      <div class="col-md-4 product_sub_category"></div>
+      <div class="col-md-4 product_status"></div>
     </div>
   </div>
   <div class="card-datatable">
@@ -101,11 +124,10 @@
           <th></th>
           <th>product</th>
           <th>category</th>
-          <th>stock</th>
+          <th>sub category</th>
           <th>sku</th>
           <th>price</th>
-          <th>qty</th>
-          <th>status</th>
+          <th>is published ?</th>
           <th>actions</th>
         </tr>
       </thead>

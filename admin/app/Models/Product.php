@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    protected $table = 'products';
+
+    protected $fillable = [
+        'name',
+        'sku',
+        'barcode',
+        'price',
+        'discounted_price',
+        'description',
+        'category_id',
+        'sub_category_id',
+        'image',
+        'is_published',
+        'tags'
+    ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function sub_category()
+    {
+        return $this->belongsTo(SubCategory::class);
+    }
+
+    public function setDescriptionAttribute($value)
+    {
+        // Strip HTML tags and check if content is empty
+        $clean = trim(strip_tags($value));
+        // If content is empty or just <p><br></p>, store null
+        $this->attributes['description'] = ($clean === '') ? null : $value;
+    }
+}

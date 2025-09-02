@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Product Category')
+@section('title', 'Product Sub Category')
 
 @section('vendor-style')
   @vite([
@@ -33,20 +33,22 @@
 @endsection
 
 @section('page-script')
-  @vite('resources/assets/js/app-ecommerce-category-list.js')
+  @vite('resources/assets/js/app-ecommerce-sub-category-list.js')
   <script>
     $(document).ready(function () {
-      $('#offcanvasEditCategory').on('show.bs.offcanvas', function (e) {
+
+      $('#offcanvasEditSubCategory').on('show.bs.offcanvas', function (e) {
+      
         var id = $(e.relatedTarget).data('id');
         
         $.ajax({
-          url: "{{ route('category.show.ajax') }}",
+          url: "{{ route('subcategory.show.ajax') }}",
           type: 'GET',
           data: { id: id },
           success: function (response) {
             
-             $('#updateCategoryForm').find('#id').val(response.id);
-            $('#updateCategoryForm').find('#edit-category-title').val(response.name);
+             $('#updateSubCategoryForm').find('#id').val(response.id);
+            $('#updateSubCategoryForm').find('#edit-sub-category-title').val(response.name);
             
             // Initialize Quill editor if not available and set content
             if (typeof window.quillEdit === 'undefined' || !window.quillEdit) {
@@ -58,8 +60,10 @@
             if (window.quillEdit) {
               window.quillEdit.root.innerHTML = response.description;
             }
+
+            $('#updateSubCategoryForm').find('#edit-sub-category-select').val(response.category.id).trigger('change');
             
-            $('#updateCategoryForm').find('#edit-category-status').val(response.status).trigger('change');
+            $('#updateSubCategoryForm').find('#edit-sub-category-status').val(response.status).trigger('change');
           }
         });
       });
@@ -72,12 +76,13 @@
     <!-- Category List Table -->
     <div class="card">
       <div class="card-datatable">
-        <table class="datatables-category-list table">
+        <table class="datatables-sub-category-list table">
           <thead>
             <tr>
               <th></th>
               <th></th>
-              <th>Categories</th>
+              <th>Sub Category</th>
+              <th>Category</th>
               <th>Status</th>
               <th class="text-lg-center">Actions</th>
             </tr>
@@ -85,7 +90,7 @@
         </table>
       </div>
     </div>
-    @include('_partials/_offcanvas/offcanvas-add-category')
-    @include('_partials/_offcanvas/offcanvas-edit-category')
+    @include('_partials/_offcanvas/offcanvas-add-sub-category')
+    @include('_partials/_offcanvas/offcanvas-edit-sub-category')
   </div>
 @endsection

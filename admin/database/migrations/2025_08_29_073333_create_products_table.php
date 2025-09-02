@@ -16,13 +16,14 @@ return new class extends Migration
             $table->string('name');
             $table->string('sku')->unique();
             $table->string('barcode')->nullable();
-            $table->string('category')->nullable(); // or foreignId if you have categories table
-            $table->text('description')->nullable();
-            $table->string('image')->nullable();
-            $table->integer('quantity')->default(0);
-            $table->boolean('is_published')->default(false);
             $table->decimal('price', 10, 2);
-            $table->decimal('discounted_price', 10, 2)->nullable();
+            $table->decimal('discounted_price', 10, 2)->default(0);
+            $table->text('description')->nullable();
+            $table->unsignedBigInteger('category_id'); // or foreignId if you have categories table
+            $table->unsignedBigInteger('sub_category_id');
+            $table->string('image')->nullable();
+            $table->string('tags')->nullable();
+            $table->boolean('is_published')->default(false);
             $table->timestamps();
         });
     }

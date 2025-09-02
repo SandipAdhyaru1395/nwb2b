@@ -26,40 +26,25 @@ $configData = Helper::appClasses();
 
   <ul class="menu-inner py-1">
     @foreach ($sidbarMenuData as $menu)
-    {{-- adding active and open class if child is active --}}
+@php
+    $isActive = \App\Helpers\Helpers::isMenuActive($menu);
+@endphp
 
-    {{-- active menu method --}}
-    @php
-    $activeClass = null;
-    $currentRouteName = Route::currentRouteName();
+<li class="menu-item {{ $isActive ? 'active open' : '' }}">
+    <a href="{{ isset($menu['url']) ? url($menu['url']) : 'javascript:void(0);' }}"
+       class="{{ (!empty($menu['children'])) ? 'menu-link menu-toggle' : 'menu-link' }}">
+       @isset($menu['icon'])
+       <i class="{{ $menu['icon'] }}"></i>
+       @endisset
+       <div>{{ $menu['name'] ?? '' }}</div>
+    </a>
 
-    if ($currentRouteName === $menu['slug']) {
-        $activeClass = 'active';
-    }
-    // $currentRouteName = Route::currentRouteName();
-    // if ($currentRouteName === $menu['slug']) {
-    //     $activeClass = 'active';
-    // }
-    
-    @endphp
-   
-    {{-- main menu --}}
-    <li class="menu-item {{ $activeClass }}">
-      <a href="{{ isset($menu['url']) ? url($menu['url']) : 'javascript:void(0);' }}"
-        class="{{(!empty($menu['children'])) ? 'menu-link menu-toggle' : 'menu-link' }}" >
-        @isset($menu['icon'])
-        <i class="{{ $menu['icon'] }}"></i>
-        @endisset
-        <div>{{ isset($menu['name']) ? $menu['name'] : '' }}</div>
-      </a>
-
-      {{-- submenu --}}
-      @if(!empty($menu['children']))
+    @if(!empty($menu['children']))
         @include('layouts.sections.menu.submenu', ['menu' => $menu['children']])
-      @endif
-    </li>
-    
-    @endforeach
+    @endif
+</li>
+@endforeach
+
   </ul>
 
 </aside>

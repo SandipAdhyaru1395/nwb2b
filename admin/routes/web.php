@@ -31,6 +31,7 @@ use App\Http\Controllers\apps\EcommerceDashboard;
 use App\Http\Controllers\apps\EcommerceProductList;
 use App\Http\Controllers\apps\EcommerceProductAdd;
 use App\Http\Controllers\apps\EcommerceProductCategory;
+use App\Http\Controllers\apps\EcommerceProductSubCategory;
 use App\Http\Controllers\apps\EcommerceOrderList;
 use App\Http\Controllers\apps\EcommerceOrderDetails;
 use App\Http\Controllers\apps\EcommerceCustomerAll;
@@ -173,15 +174,51 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     // Product
     Route::middleware('permission:product-list.read')->group(function () {
-        Route::get('/product/list', [EcommerceProductList::class, 'index'])->name('product-list.read');
+        Route::get('/product/list', [EcommerceProductList::class, 'index'])->name('product-list');
+         Route::get('/product/list/ajax', [EcommerceProductList::class, 'ajaxList'])->name('product-ajax-list');
+         Route::get('/product/edit/{id}', [EcommerceProductAdd::class, 'edit'])->name('product.edit');
     });
 
     Route::middleware('permission:product-add.read')->group(function () {
         Route::get('/product/add', [EcommerceProductAdd::class, 'index'])->name('product-add.read');
     });
 
+    Route::middleware('permission:product-add.create')->group(function () {
+        Route::post('/product/create', [EcommerceProductAdd::class, 'create'])->name('product.create');
+    });
+
+    Route::middleware('permission:product-list.write')->group(function () {
+        Route::get('/product/status/change/{id}', [EcommerceProductList::class, 'changeStatus'])->name('product.change.status');
+        Route::post('/product/update', [EcommerceProductAdd::class, 'update'])->name('product.update');
+    });
+
     Route::middleware('permission:product-category.read')->group(function () {
-        Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('product-category.read');
+        Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('category.read');
+        Route::get('/category/show/ajax', [EcommerceProductCategory::class, 'getCategoryAjax'])->name('category.show.ajax');
+        Route::get('/category/ajax-list', [EcommerceProductCategory::class, 'listAjax'])->name('category.ajax.list');
+    });
+
+    Route::middleware('permission:product-category.create')->group(function () {
+        Route::post('/category/create', [EcommerceProductCategory::class, 'create'])->name('category.create');
+    });
+
+    Route::middleware('permission:product-category.write')->group(function () {
+        Route::post('/category/update', [EcommerceProductCategory::class, 'update'])->name('category.update');
+    });
+
+    Route::middleware('permission:product-sub-category.read')->group(function () {
+        Route::get('/product/subcategory', [EcommerceProductSubCategory::class, 'index'])->name('subcategory.read');
+        Route::get('/subcategory/show/ajax', [EcommerceProductSubCategory::class, 'getSubCategoryAjax'])->name('subcategory.show.ajax');
+        Route::get('/subcategory/ajax-list', [EcommerceProductSubCategory::class, 'listAjax'])->name('subcategory.ajax.list');
+        Route::get('/subcategory/list/by/category/ajax', [EcommerceProductSubCategory::class, 'getSubCategoryListByCategoryAjax'])->name('subcategory.list.by.category.ajax');
+    });
+
+    Route::middleware('permission:product-sub-category.create')->group(function () {
+        Route::post('/subcategory/create', [EcommerceProductSubCategory::class, 'create'])->name('subcategory.create');
+    });
+
+    Route::middleware('permission:product-sub-category.write')->group(function () {
+        Route::post('/subcategory/update', [EcommerceProductSubCategory::class, 'update'])->name('subcategory.update');
     });
 
 
@@ -302,9 +339,9 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
 
     Route::get('/app/ecommerce/customer/details/overview', [EcommerceCustomerDetailsOverview::class, 'index'])->name('app-ecommerce-customer-details-overview');
-Route::get('/app/ecommerce/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
-Route::get('/app/ecommerce/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
-Route::get('/app/ecommerce/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
+    Route::get('/app/ecommerce/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
+    Route::get('/app/ecommerce/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
+    Route::get('/app/ecommerce/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
 });
 
 Route::get('/', [AuthLoginController::class, 'show']);
