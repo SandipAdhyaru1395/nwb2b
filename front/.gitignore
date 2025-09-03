@@ -1,5 +1,9 @@
-# Ignore everything
+# ignore everything at the repo root
 /*
 
-# But not the dist folder
+# but keep the .gitignore itself so it can be committed
+!.gitignore
+
+# allow dist directory and its contents
 !/dist/
+!/dist/**
