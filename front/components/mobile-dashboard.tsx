@@ -1,10 +1,10 @@
 "use client"
-
 import { Button } from "@/components/ui/button"
 import React, { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingBag, Heart, Home, QrCode, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle } from "lucide-react"
+import api from "@/lib/axios"
 
 interface MobileDashboardProps {
   onNavigate: (page: "dashboard" | "shop") => void
@@ -16,8 +16,8 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const res = await fetch('/api/orders', { cache: 'no-store' })
-        const json = await res.json()
+        const res = await api.get('/orders')
+        const json = res.data
         if (json?.success && Array.isArray(json.orders)) {
           setOrders(json.orders)
         }

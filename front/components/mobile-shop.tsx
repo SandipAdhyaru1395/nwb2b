@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
+import api from "@/lib/axios"
 
 interface MobileShopProps {
   onNavigate: (page: "dashboard" | "shop" | "basket") => void
@@ -76,9 +77,8 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, for
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch('/api/products', { cache: 'no-store' })
-        if (!res.ok) throw new Error('Failed to fetch structure')
-        const data = await res.json()
+        const res = await api.get('/products')
+        const data = res.data
         if (Array.isArray(data?.categories)) {
           setCategories(data.categories)
         }

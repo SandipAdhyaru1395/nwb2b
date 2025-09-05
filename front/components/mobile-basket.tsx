@@ -1,5 +1,6 @@
 "use client"
 
+import api from "@/lib/axios"
 import { useState } from "react"
 import { Minus, Plus, Home, QrCode, ShoppingBag, User, Wallet } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -34,20 +35,12 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, f
         quantity: quantity
       }))
 
-      const response = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          items,
-          total: totals.total,
-          units: totals.units,
-          skus: totals.skus
-        })
+      const { data: result } = await api.post('/checkout', {
+        items,
+        total: totals.total,
+        units: totals.units,
+        skus: totals.skus
       })
-
-      const result = await response.json()
       
       if (result.success) {
         toast({
