@@ -21,4 +21,9 @@ class Category extends Model
         // If content is empty or just <p><br></p>, store null
         $this->attributes['description'] = ($clean === '') ? null : $value;
     }
+
+    public function subcategories()
+    {
+        return $this->hasMany(SubCategory::class, 'category_id');
+    }
 }

@@ -27,4 +27,9 @@ class SubCategory extends Model
         // If content is empty or just <p><br></p>, store null
         $this->attributes['description'] = ($clean === '') ? null : $value;
     }
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

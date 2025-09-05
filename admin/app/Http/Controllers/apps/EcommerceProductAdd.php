@@ -109,7 +109,10 @@ class EcommerceProductAdd extends Controller
     ]);
 
     if($request->file('productImage') != null){
-      Storage::disk('public')->delete(Product::find($request->id)->image);
+      $image = Product::find($request->id)->image;  
+      if($image){
+        Storage::disk('public')->delete($image);
+      }
       $path = $request->file('productImage')->store('products', 'public');
     }
    
