@@ -102,31 +102,25 @@
             },
           }
         },
-        productDiscountedPrice: {
+        brand_id: {
           validators: {
-            numeric: {
-              message: 'The discounted price must be a number'
+            notEmpty: {
+              message: 'Brand is required'
             },
-          }
-        },
-        productCategory: {
-          validators: {
-            notEmpty: {
-              message: 'Please select category'
-            }
-          }
-        },
-        productSubCategory: {
-          validators: {
-            notEmpty: {
-              message: 'Please select sub category'
-            }
           }
         },
         productImage: {
           validators: {
             notEmpty: {
               message: 'Please upload product image'
+            }
+          }
+        },
+        categories: {
+          selector: 'input[name="categories[]"]', // target the checkbox group
+          validators: {
+            notEmpty: {
+              message: 'Please select at least one category'
             }
           }
         }
@@ -151,7 +145,7 @@
     fv.on('core.form.valid', function () {
       let content = quill.root.innerHTML;
       if (content === '<p><br></p>') {
-          content = ''; // Treat as empty
+        content = ''; // Treat as empty
       }
       document.getElementById("productDescription").value = content;
       // Submit the form manually

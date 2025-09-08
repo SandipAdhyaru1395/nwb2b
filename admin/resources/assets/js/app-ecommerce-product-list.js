@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
     productAdd = baseUrl + 'product/add',
      productEdit = baseUrl + 'product/edit',
      publishedObj = {
-       0 : { title: 'No', class: 'bg-label-danger' },
-        1 : { title: 'Yes', class: 'bg-label-success' }
+       0 : { title: 'Inactive', class: 'bg-label-danger' },
+        1 : { title: 'Active', class: 'bg-label-success' }
     };
 
   // E-commerce Products datatable
@@ -32,11 +32,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
         { data: 'product_name'},
-        { data: 'category'},
-        { data: 'sub_category'},
+        { data: 'categories'},
         { data: 'sku'},
         { data: 'price'},
-        { data: 'is_published'},
+        { data: 'is_active'},
         // { data: 'status'},
         { data: 'id'}
       ],
@@ -73,13 +72,17 @@ document.addEventListener('DOMContentLoaded', function (e) {
             let name = full['product_name'],
               id = full['id'],
               productBrand = full['product_brand'],
-              image = full['image'];
+              image_url = full['image_url'];
 
             let output;
 
-            if (image) {
+            if (image_url) {
+              if(image_url.includes("https")){
+                output = `<img src="${image_url}" alt="Product-${id}" class="rounded">`;
+              }else{
+                output = `<img src="${baseUrl}storage/${image_url}" alt="Product-${id}" class="rounded">`;
+              }
               // For Product image
-              output = `<img src="${baseUrl}storage/${image}" alt="Product-${id}" class="rounded">`;
             } else {
               // For Product badge
               let stateNum = Math.floor(Math.random() * 6);
@@ -98,7 +101,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 </div>
                 <div class="d-flex flex-column">
                   <h6 class="text-nowrap mb-0">${name}</h6>
-                  <small class="text-truncate d-none d-sm-block">${productBrand}</small>
                 </div>
               </div>
             `;
@@ -111,23 +113,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
           responsivePriority: 5,
           render: function (data, type, full, meta) {
             return `
-              <span class="text-truncate">${full['category']}</span>
+              <span class="text-truncate">${full['categories']}</span>
             `;
           }
         },
-        {
-          targets: 4,
-          orderable: false,
-          responsivePriority: 3,
-          render: function (data, type, full, meta) {
-             return `
-              <span class="text-truncate">${full['sub_category']}</span>
-            `;
-          }
-        },
+        
         {
           // Sku
-          targets: 5,
+          targets: 4,
           render: function (data, type, full, meta) {
             const sku = full['sku'];
 
@@ -136,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         },
         {
           // price
-          targets: 6,
+          targets: 5,
           render: function (data, type, full, meta) {
             const price = full['price'];
 
@@ -144,16 +137,16 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          targets: 7,
+          targets: 6,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
-            const is_published = full['is_published'];
+            const is_active = full['is_active'];
 
              return (
               '<span class="badge ' +
-              publishedObj[is_published].class +
+              publishedObj[is_active].class +
               '" text-capitalized>' +
-              publishedObj[is_published].title +
+              publishedObj[is_active].title +
               '</span>'
             );
           }
@@ -167,12 +160,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return `
               <div class="d-inline-block text-nowrap">
                 <a href="${productEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
-                <button class="btn btn-text-secondary rounded-pill waves-effect btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                  <i class="icon-base ti tabler-dots-vertical icon-22px"></i>
-                </button>
-                <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="javascript:void(0);" onclick="changeStatus(${full['id']}, ${full['is_published']})" class="dropdown-item bg-label-${full['is_published'] ? 'danger' : 'success'}">${full['is_published'] ? 'Unpublish' : 'Publish'}</a>
-                </div>
               </div>
             `;
           }

@@ -6,18 +6,23 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Brian2694\Toastr\Facades\Toastr;
+use Illuminate\Support\Str;
 
 class EcommerceProductList extends Controller
 {
   public function index()
   {
-    return view('content.apps.app-ecommerce-product-list');
+    $data['total_products_count'] = Product::all()->count();
+    $data['active_products_count'] = Product::where('is_active',1)->count();
+    $data['inactive_products_count'] = Product::where('is_active',0)->count();
+
+    return view('content.apps.app-ecommerce-product-list',$data);
   }
 
   public function ajaxList(Request $request) {
     
-    $products=Product::with(['category:id,name','sub_category:id,name'])->select('id','name','description','category_id','sub_category_id',
-            'sku','price','image','is_published')
+    $products=Product::with(['categories'])->select('id','name','description',
+            'sku','price','image_url','is_active')
             ->orderBy('id', 'desc')->get();
     
     $data = [];
@@ -27,13 +32,13 @@ class EcommerceProductList extends Controller
         $data[] = [
           'id' => $product->id,
           'product_name' => $product->name,
-          'product_brand' => $product->description,
-          'category' => $product->category->name,
-          'sub_category' => $product->sub_category->name,
+          'product_brand' => Str::limit($product->description,40),
+          // 'product_brand' => $product->description,
+          'categories' => $product->categories->pluck('name')->implode(', '),
           'sku' => $product->sku,
           'price' => $product->price,
-          'image' => $product->image,
-          'is_published' => $product->is_published,
+          'image_url' => $product->image_url,
+          'is_active' => $product->is_active,
         ];
       }
     }

@@ -12,32 +12,6 @@
 
 @section('page-script')
     @vite(['resources/assets/js/app-ecommerce-product-add.js'])
-    <script>
-        $(document).ready(function() {
-            $('#category').change(function() {
-                var cat_id = $(this).val();
-
-                $.ajax({
-                    url: "{{ route('subcategory.list.by.category.ajax') }}",
-                    type: "GET",
-                    data: {
-                        cat_id: cat_id,
-                    },
-                    success: function(sub_categories) {
-                        $('#sub_category').empty();
-
-                        if (sub_categories.length != 0) {
-                            sub_categories.forEach(function(sub_category) {
-                                $('#sub_category').append('<option value="' +
-                                    sub_category.id + '">' + sub_category.name +
-                                    '</option>');
-                            });
-                        }
-                    }
-                });
-            });
-        });
-    </script>
 @endsection
 
 @section('content')
@@ -54,12 +28,9 @@
                 </div>
                 <div class="d-flex align-content-center flex-wrap gap-4">
                     <div class="d-flex gap-4">
-                        <button type="button" class="btn btn-label-secondary"
-                            onclick="window.location.reload();">Discard</button>
-                        <button name="action" value="0" type="submit" class="btn btn-label-primary">Save
-                            draft</button>
+                        <a href="{{ route('product-list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save</button>
                     </div>
-                    <button name="action" value="1" type="submit" class="btn btn-success">Publish</button>
                 </div>
             </div>
 
@@ -96,16 +67,20 @@
                                         </span>
                                     @enderror
                                 </div>
-                                <div class="col"><label class="form-label"
-                                        for="ecommerce-product-barcode">Barcode</label>
-                                    <input type="text" class="form-control" id="ecommerce-product-barcode"
-                                        placeholder="0123-4567" name="productBarcode" aria-label="Product barcode"
-                                        value="{{ old('productBarcode') }}" autocomplete="off" />
-                                    @error('productBarcode')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
+                                
+                            </div>
+                            <div class="row mb-6">
+                                <div class="col form-control-validation"><label class="form-label"
+                                        for="quantity">Quantity</label>
+                                    <input type="text" class="form-control" id="quantity" placeholder="Enter quantity"
+                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)" aria-label="Product Quantity" value="{{ old('quantity') }}"
+                                        autocomplete="off" />
+                                </div>
+                                <div class="col form-control-validation"><label class="form-label"
+                                        for="min_order_quantity">Min Order Quantity</label>
+                                    <input type="text" class="form-control" id="min_order_quantity" placeholder="Enter minimum order quantity"
+                                        name="min_order_quantity" onkeypress="return /^[0-9]+$/.test(event.key)" value="{{ old('min_order_quantity') }}"
+                                        autocomplete="off" />
                                 </div>
                             </div>
                             <!-- Description -->
@@ -125,9 +100,11 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="comment-editor border-0 pb-6" id="product-description">{!! old('productDescription') !!}</div>
+                                    <div class="comment-editor border-0 pb-6" id="product-description">
+                                        {!! old('productDescription') !!}</div>
                                 </div>
-                                <input type="hidden" name="productDescription" id="productDescription" value="{{ old('productDescription') }}">
+                                <input type="hidden" name="productDescription" id="productDescription"
+                                    value="{{ old('productDescription') }}">
                             </div>
                         </div>
                     </div>
@@ -165,31 +142,23 @@
                         <div class="card-body">
                             <!-- Base Price -->
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="ecommerce-product-price">Base Price <span
+                                <label class="form-label" for="ecommerce-product-price">Price <span
                                         class="text-danger">*</span></label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" id="ecommerce-product-price" placeholder="Price"
-                                    name="productPrice" aria-label="Product price" value="{{ old('productPrice') }}"
-                                    autocomplete="off" />
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
+                                    id="ecommerce-product-price" placeholder="Price" name="productPrice"
+                                    aria-label="Product price" value="{{ old('productPrice') }}" autocomplete="off" />
                                 @error('productPrice')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
                             </div>
-                            <!-- Discounted Price -->
+                            <!-- Cost Price -->
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="ecommerce-product-discount-price">Discounted Price</label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" id="ecommerce-product-discount-price"
-                                    placeholder="Discounted Price" name="productDiscountedPrice"
-                                    aria-label="Product discounted price" value="{{ old('productDiscountedPrice') }}"
-                                    autocomplete="off" />
-                                @error('productDiscountedPrice')
-                                    <span class="text-danger" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                                <label class="form-label" for="cost-price">Cost Price </label>
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
+                                    id="cost-price" placeholder="Price" name="costPrice"
+                                    aria-label="Cost price" value="{{ old('costPrice') }}" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -200,45 +169,70 @@
                             <h5 class="card-title mb-0">Organize</h5>
                         </div>
                         <div class="card-body">
-                            <!-- Category -->
+                             <!-- IS NEW -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">
+                                    <input type="checkbox" class="form-check-input" name="isNew" id="isNew" @selected(old('isNew') == 'on')>
+                                    <label class="form-check-label mb-5" for="isNew">
+                                        Is new
+                                    </label>
+                                </div>
+                            </div>
+                            <!-- Status -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-1" for="category-org">
-                                        <span>Category <span class="text-danger">*</span></span>
+                                    <label class="form-label mb-5" for="productStatus">
+                                        <span>Status <span class="text-danger">*</span></span>
                                     </label>
-                                    <select id="category" name="productCategory" class="select2 form-select"
-                                        data-placeholder="Select Category">
-                                        <option value="" selected>Select Category</option>
-                                        @forelse($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    <select class="form-select select2" name="productStatus" id="productStatus">
+                                        <option value="1" @selected(old('productStatus') == '1')>Active</option> 
+                                        <option value="0" @selected(old('productStatus') == '0')>Inactive</option>
+                                    </select>                                   
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
+                                    <label class="form-label mb-5" for="brand_id">
+                                        <span>Brand <span class="text-danger">*</span></span>
+                                    </label>
+                                    <select class="form-select select2" name="brand_id" id="brand_id">
+                                            <option value="" selected>Select</option>
+                                        @forelse($brands as $brand)
+                                            <option value="{{$brand->id}}" @selected(old('brand_id') == $brand->id)>{{$brand->name}}</option>
                                         @empty
                                         @endforelse
                                     </select>
-                                    @error('productCategory')
+                                    @error('brand_id')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror                                   
+                                </div>
+                            </div>
+                            <!-- Category -->
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
+                                    <label class="form-label mb-5" for="category-org">
+                                        <span>Category <span class="text-danger">*</span></span>
+                                    </label>
+                                    <ul class="list-group">
+                                        @foreach ($categories as $category)
+                                            @include('_partials.category_checkbox', ['category' => $category])
+                                        @endforeach
+                                    </ul>
+
+                                    @error('categories')
                                         <span class="text-danger" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
                                     @enderror
                                 </div>
                             </div>
-                            <!-- Sub Category -->
-                            <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                <label class="form-label mb-1" for="vendor"> Sub Category <span
-                                        class="text-danger">*</span></label>
-                                <select id="sub_category" name="productSubCategory" class="select2 form-select"
-                                    data-placeholder="Select Subcategory">
-                                </select>
-                                @error('productSubCategory')
-                                    <span class="text-danger" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
                             <!-- Tags -->
                             <div>
                                 <label for="ecommerce-product-tags" class="form-label mb-1">Tags</label>
                                 <input id="ecommerce-product-tags" class="form-control" name="productTags"
-                                    aria-label="Product Tags" value="{{ old('productTags') }}"/>
+                                    aria-label="Product Tags" value="" />
                             </div>
                         </div>
                     </div>

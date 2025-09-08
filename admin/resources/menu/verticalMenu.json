@@ -26,13 +26,8 @@
             },
             {
               "url": "product/category",
-              "name": "Category List",
+              "name": "Add Category",
               "slug": "product-category"
-            },
-            {
-              "url": "product/subcategory",
-              "name": "Sub Category List",
-              "slug": "product-sub-category"
             }
           ]
         },

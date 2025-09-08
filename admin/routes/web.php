@@ -31,7 +31,6 @@ use App\Http\Controllers\apps\EcommerceDashboard;
 use App\Http\Controllers\apps\EcommerceProductList;
 use App\Http\Controllers\apps\EcommerceProductAdd;
 use App\Http\Controllers\apps\EcommerceProductCategory;
-use App\Http\Controllers\apps\EcommerceProductSubCategory;
 use App\Http\Controllers\apps\EcommerceOrderList;
 use App\Http\Controllers\apps\EcommerceOrderDetails;
 use App\Http\Controllers\apps\EcommerceCustomerAll;
@@ -194,8 +193,6 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     Route::middleware('permission:product-category.read')->group(function () {
         Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('category.read');
-        Route::get('/category/show/ajax', [EcommerceProductCategory::class, 'getCategoryAjax'])->name('category.show.ajax');
-        Route::get('/category/ajax-list', [EcommerceProductCategory::class, 'listAjax'])->name('category.ajax.list');
     });
 
     Route::middleware('permission:product-category.create')->group(function () {
@@ -204,21 +201,6 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     Route::middleware('permission:product-category.write')->group(function () {
         Route::post('/category/update', [EcommerceProductCategory::class, 'update'])->name('category.update');
-    });
-
-    Route::middleware('permission:product-sub-category.read')->group(function () {
-        Route::get('/product/subcategory', [EcommerceProductSubCategory::class, 'index'])->name('subcategory.read');
-        Route::get('/subcategory/show/ajax', [EcommerceProductSubCategory::class, 'getSubCategoryAjax'])->name('subcategory.show.ajax');
-        Route::get('/subcategory/ajax-list', [EcommerceProductSubCategory::class, 'listAjax'])->name('subcategory.ajax.list');
-        Route::get('/subcategory/list/by/category/ajax', [EcommerceProductSubCategory::class, 'getSubCategoryListByCategoryAjax'])->name('subcategory.list.by.category.ajax');
-    });
-
-    Route::middleware('permission:product-sub-category.create')->group(function () {
-        Route::post('/subcategory/create', [EcommerceProductSubCategory::class, 'create'])->name('subcategory.create');
-    });
-
-    Route::middleware('permission:product-sub-category.write')->group(function () {
-        Route::post('/subcategory/update', [EcommerceProductSubCategory::class, 'update'])->name('subcategory.update');
     });
 
 

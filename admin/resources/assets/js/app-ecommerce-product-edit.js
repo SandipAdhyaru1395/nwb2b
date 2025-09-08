@@ -12,7 +12,7 @@
   const commentEditor = document.querySelector('.comment-editor');
 
   if (commentEditor) {
-     quill = new Quill(commentEditor, {
+    quill = new Quill(commentEditor, {
       modules: {
         toolbar: '.comment-toolbar'
       },
@@ -102,24 +102,18 @@
             },
           }
         },
-        productDiscountedPrice: {
+        brand_id: {
           validators: {
-            numeric: {
-              message: 'The discounted price must be a number'
+            notEmpty: {
+              message: 'Brand is required'
             },
           }
         },
-        productCategory: {
+        categories: {
+          selector: 'input[name="categories[]"]', // target the checkbox group
           validators: {
             notEmpty: {
-              message: 'Please select category'
-            }
-          }
-        },
-        productSubCategory: {
-          validators: {
-            notEmpty: {
-              message: 'Please select sub category'
+              message: 'Please select at least one category'
             }
           }
         }
@@ -142,8 +136,11 @@
 
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {
-
-      document.getElementById("productDescription").value = quill.root.innerHTML;
+      let content = quill.root.innerHTML;
+      if (content === '<p><br></p>') {
+        content = ''; // Treat as empty
+      }
+      document.getElementById("productDescription").value = content;
       // Submit the form manually
       editProductForm.submit();
     });

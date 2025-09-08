@@ -6,24 +6,18 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
+    //
     protected $table = 'categories';
 
-    protected$fillable = [
-        'name',
-        'description',
-        'status',
-    ];
+    protected $fillable = ['name', 'parent_id', 'description', 'image_url','is_active','sort_order'];
 
-    public function setDescriptionAttribute($value)
+    public function products()
     {
-        // Strip HTML tags and check if content is empty
-        $clean = trim(strip_tags($value));
-        // If content is empty or just <p><br></p>, store null
-        $this->attributes['description'] = ($clean === '') ? null : $value;
+        return $this->belongsToMany(Product::class, 'product_categories', 'category_id', 'product_id');
     }
 
-    public function subcategories()
+    public function children()
     {
-        return $this->hasMany(SubCategory::class, 'category_id');
+        return $this->hasMany(Category::class,'parent_id');
     }
 }

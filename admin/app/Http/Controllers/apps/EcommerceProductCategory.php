@@ -11,22 +11,27 @@ class EcommerceProductCategory extends Controller
 {
   public function index()
   {
-    return view('content.apps.app-ecommerce-category-list');
+    $data['categories']=Category::with('children')->whereNull('parent_id')->get();
+    return view('content.apps.app-ecommerce-category-add',$data);
   }
 
   public function create(Request $request){
     
-    $request->validate([
-      'categoryTitle' => 'required',
-      'categoryStatus' => 'required'
-    ]);
+    if($request->categoryImage){
+      $path = $request->file('categoryImage')->store('categories', 'public');
+    }else{
+      $path = null;
+    }
 
-    Category::updateOrCreate([
-      'name' => $request->categoryTitle],[
+    Category::create(
+      ['name' => $request->categoryName,
+      'parent_id'=>$request->parentCategory,
       'description'=>$request->categoryDescription,
-      'status'=>$request->categoryStatus
+      'is_active'=>$request->categoryStatus,
+      'image_url' => $path
     ]);
 
+    
     Toastr::success('Category created successfully!');
 
     return redirect()->back();
