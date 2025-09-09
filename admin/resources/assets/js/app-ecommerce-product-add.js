@@ -78,6 +78,13 @@
     //Add New customer Form Validation
     const fv = FormValidation.formValidation(addProductForm, {
       fields: {
+        collection_id: {
+          validators: {
+            notEmpty: {
+              message: 'Please select collection'
+            }
+          }
+        },
         productTitle: {
           validators: {
             notEmpty: {
@@ -102,25 +109,10 @@
             },
           }
         },
-        brand_id: {
-          validators: {
-            notEmpty: {
-              message: 'Brand is required'
-            },
-          }
-        },
         productImage: {
           validators: {
             notEmpty: {
               message: 'Please upload product image'
-            }
-          }
-        },
-        categories: {
-          selector: 'input[name="categories[]"]', // target the checkbox group
-          validators: {
-            notEmpty: {
-              message: 'Please select at least one category'
             }
           }
         }

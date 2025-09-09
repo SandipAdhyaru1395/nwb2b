@@ -20,6 +20,11 @@
               "slug": "product-list"
             },
             {
+              "url": "collection/list",
+              "name": "Collection List",
+              "slug": "collection-list"
+            },
+            {
               "url": "product/add",
               "name": "Add Product",
               "slug": "product-add"

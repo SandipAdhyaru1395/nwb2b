@@ -21,7 +21,7 @@ class EcommerceProductList extends Controller
 
   public function ajaxList(Request $request) {
     
-    $products=Product::with(['categories'])->select('id','name','description',
+    $products=Product::select('id','name','description',
             'sku','price','image_url','is_active')
             ->orderBy('id', 'desc')->get();
     
@@ -33,8 +33,6 @@ class EcommerceProductList extends Controller
           'id' => $product->id,
           'product_name' => $product->name,
           'product_brand' => Str::limit($product->description,40),
-          // 'product_brand' => $product->description,
-          'categories' => $product->categories->pluck('name')->implode(', '),
           'sku' => $product->sku,
           'price' => $product->price,
           'image_url' => $product->image_url,

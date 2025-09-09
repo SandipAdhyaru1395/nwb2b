@@ -43,6 +43,23 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="collection_id">Collection <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select select2" name="collection_id" id="collection_id">
+                                    <option value="">Select</option>
+                                    @forelse ($collections as $collection)
+                                        <option value="{{ $collection->id }}" @selected($product->collection_id == $collection->id)>
+                                            {{ $collection->name }}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                                @error('collection_id')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="ecommerce-product-name">Name <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="ecommerce-product-name"
@@ -109,7 +126,7 @@
                     </div>
                     <!-- /Product Information -->
                     <!-- Media -->
-                    <div class="card mb-6">
+                    <div class="card mb-6 pt-5">
                         <img class="align-self-center" height="300px" width="400px" src="{{ str_contains($product->image_url, 'https') ? $product->image_url : asset('storage/'.$product->image_url) }}" />
                         <div class="card-body form-control-validation">
                             <input type="file" name="productImage" id="productImage" hidden>
@@ -160,6 +177,13 @@
                                     id="cost-price" placeholder="Price" name="costPrice"
                                     aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
                             </div>
+                            <!-- Wallet Credit -->
+                            <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="wallet-credit">Wallet Credit</label>
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
+                                    id="wallet-credit" placeholder="Credit" name="walletCredit" aria-label="Wallet Credit"
+                                    value="{{ $product->wallet_credit }}" autocomplete="off" />
+                            </div>
                         </div>
                     </div>
                     <!-- /Pricing Card -->
@@ -169,15 +193,6 @@
                             <h5 class="card-title mb-0">Organize</h5>
                         </div>
                         <div class="card-body">
-                             <!-- IS NEW -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <input type="checkbox" class="form-check-input" name="isNew" id="isNew" @checked($product->is_new == 1)>
-                                    <label class="form-check-label mb-5" for="isNew">
-                                        Is new
-                                    </label>
-                                </div>
-                            </div>
                             <!-- Status -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
@@ -189,50 +204,6 @@
                                         <option value="0" @selected($product->is_active == '0')>Inactive</option>
                                     </select>                                   
                                 </div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="brand_id">
-                                        <span>Brand <span class="text-danger">*</span></span>
-                                    </label>
-                                    <select class="form-select select2" name="brand_id" id="brand_id">
-                                            <option value="" selected>Select</option>
-                                        @forelse($brands as $brand)
-                                            <option value="{{$brand->id}}" @selected($product->brand_id == $brand->id)>{{$brand->name}}</option>
-                                        @empty
-                                        @endforelse
-                                    </select>
-                                    @error('brand_id')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror                                   
-                                </div>
-                            </div>
-                            <!-- Category -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="category-org">
-                                        <span>Category <span class="text-danger">*</span></span>
-                                    </label>
-                                    <ul class="list-group">
-                                        @foreach ($categories as $category)
-                                            @include('_partials.edit_category_checkbox', ['category' => $category])
-                                        @endforeach
-                                    </ul>
-
-                                    @error('categories')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <!-- Tags -->
-                            <div>
-                                <label for="ecommerce-product-tags" class="form-label mb-1">Tags</label>
-                                <input id="ecommerce-product-tags" class="form-control" name="productTags"
-                                    aria-label="Product Tags" value="{{ $productTags }}" />
                             </div>
                         </div>
                     </div>

@@ -44,6 +44,23 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="collection_id">Collection <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-select select2" name="collection_id" id="collection_id">
+                                    <option value="" selected>Select</option>
+                                    @forelse ($collections as $collection)
+                                        <option value="{{ $collection->id }}" @selected(old('collection_id') == $collection->id)>
+                                            {{ $collection->name }}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                                @error('collection_id')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="ecommerce-product-name">Name <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="ecommerce-product-name"
@@ -67,20 +84,21 @@
                                         </span>
                                     @enderror
                                 </div>
-                                
+
                             </div>
                             <div class="row mb-6">
                                 <div class="col form-control-validation"><label class="form-label"
                                         for="quantity">Quantity</label>
                                     <input type="text" class="form-control" id="quantity" placeholder="Enter quantity"
-                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)" aria-label="Product Quantity" value="{{ old('quantity') }}"
-                                        autocomplete="off" />
+                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        aria-label="Product Quantity" value="{{ old('quantity') }}" autocomplete="off" />
                                 </div>
                                 <div class="col form-control-validation"><label class="form-label"
                                         for="min_order_quantity">Min Order Quantity</label>
-                                    <input type="text" class="form-control" id="min_order_quantity" placeholder="Enter minimum order quantity"
-                                        name="min_order_quantity" onkeypress="return /^[0-9]+$/.test(event.key)" value="{{ old('min_order_quantity') }}"
-                                        autocomplete="off" />
+                                    <input type="text" class="form-control" id="min_order_quantity"
+                                        placeholder="Enter minimum order quantity" name="min_order_quantity"
+                                        onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        value="{{ old('min_order_quantity') }}" autocomplete="off" />
                                 </div>
                             </div>
                             <!-- Description -->
@@ -101,7 +119,8 @@
                                         </div>
                                     </div>
                                     <div class="comment-editor border-0 pb-6" id="product-description">
-                                        {!! old('productDescription') !!}</div>
+                                        {!! old('productDescription') !!}
+                                    </div>
                                 </div>
                                 <input type="hidden" name="productDescription" id="productDescription"
                                     value="{{ old('productDescription') }}">
@@ -157,8 +176,15 @@
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="cost-price">Cost Price </label>
                                 <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    id="cost-price" placeholder="Price" name="costPrice"
-                                    aria-label="Cost price" value="{{ old('costPrice') }}" autocomplete="off" />
+                                    id="cost-price" placeholder="Price" name="costPrice" aria-label="Cost price"
+                                    value="{{ old('costPrice') }}" autocomplete="off" />
+                            </div>
+                            <!-- Wallet Credit -->
+                            <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="wallet-credit">Wallet Credit</label>
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
+                                    id="wallet-credit" placeholder="Credit" name="walletCredit" aria-label="Wallet Credit"
+                                    value="{{ old('walletCredit') }}" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -169,15 +195,6 @@
                             <h5 class="card-title mb-0">Organize</h5>
                         </div>
                         <div class="card-body">
-                             <!-- IS NEW -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <input type="checkbox" class="form-check-input" name="isNew" id="isNew" @selected(old('isNew') == 'on')>
-                                    <label class="form-check-label mb-5" for="isNew">
-                                        Is new
-                                    </label>
-                                </div>
-                            </div>
                             <!-- Status -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
@@ -185,54 +202,10 @@
                                         <span>Status <span class="text-danger">*</span></span>
                                     </label>
                                     <select class="form-select select2" name="productStatus" id="productStatus">
-                                        <option value="1" @selected(old('productStatus') == '1')>Active</option> 
+                                        <option value="1" @selected(old('productStatus') == '1')>Active</option>
                                         <option value="0" @selected(old('productStatus') == '0')>Inactive</option>
-                                    </select>                                   
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="brand_id">
-                                        <span>Brand <span class="text-danger">*</span></span>
-                                    </label>
-                                    <select class="form-select select2" name="brand_id" id="brand_id">
-                                            <option value="" selected>Select</option>
-                                        @forelse($brands as $brand)
-                                            <option value="{{$brand->id}}" @selected(old('brand_id') == $brand->id)>{{$brand->name}}</option>
-                                        @empty
-                                        @endforelse
                                     </select>
-                                    @error('brand_id')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror                                   
                                 </div>
-                            </div>
-                            <!-- Category -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="category-org">
-                                        <span>Category <span class="text-danger">*</span></span>
-                                    </label>
-                                    <ul class="list-group">
-                                        @foreach ($categories as $category)
-                                            @include('_partials.category_checkbox', ['category' => $category])
-                                        @endforeach
-                                    </ul>
-
-                                    @error('categories')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <!-- Tags -->
-                            <div>
-                                <label for="ecommerce-product-tags" class="form-label mb-1">Tags</label>
-                                <input id="ecommerce-product-tags" class="form-control" name="productTags"
-                                    aria-label="Product Tags" value="" />
                             </div>
                         </div>
                     </div>

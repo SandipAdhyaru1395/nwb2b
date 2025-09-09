@@ -1,30 +1,13 @@
 /**
- * App eCommerce Add Product Script
+ * App eCommerce Add Collection Script
  */
 'use strict';
 
-//Javascript to handle the e-commerce product add page
+//Javascript to handle the e-commerce collection add page
 
 (function () {
-  // Comment editor
 
-  let quill;
-  const commentEditor = document.querySelector('.comment-editor');
-
-  if (commentEditor) {
-    quill = new Quill(commentEditor, {
-      modules: {
-        toolbar: '.comment-toolbar'
-      },
-      placeholder: 'Product Description',
-      theme: 'snow'
-    });
-  }
-
-  // previewTemplate: Updated Dropzone default previewTemplate
-
-  // ! Don't change it unless you really know what you are doing
-
+  // Basic Dropzone
   const previewTemplate = `<div class="dz-preview dz-file-preview">
 <div class="dz-details">
   <div class="dz-thumbnail">
@@ -41,11 +24,6 @@
   <div class="dz-size" data-dz-size></div>
 </div>
 </div>`;
-
-  // ? Start your code from here
-
-  // Basic Dropzone
-
   const dropzoneBasic = document.querySelector('#dropzone-basic');
   if (dropzoneBasic) {
     const myDropzone = new Dropzone(dropzoneBasic, {
@@ -62,51 +40,27 @@
     myDropzone.on("addedfile", function (file) {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      document.getElementById("productImage").files = dataTransfer.files;
+      document.getElementById("collectionImage").files = dataTransfer.files;
     });
   }
 
   // Basic Tags
 
-  const tagifyBasicEl = document.querySelector('#ecommerce-product-tags');
+  const tagifyBasicEl = document.querySelector('#collection-tags');
   const TagifyBasic = new Tagify(tagifyBasicEl);
 
   //For form validation
-  const editProductForm = document.getElementById('editProductForm');
+  const editCollectionForm = document.getElementById('editCollectionForm');
 
-  if (editProductForm) {
+  if (editCollectionForm) {
     //Add New customer Form Validation
-    const fv = FormValidation.formValidation(editProductForm, {
+    const fv = FormValidation.formValidation(editCollectionForm, {
       fields: {
-        collection_id: {
+        collectionTitle: {
           validators: {
             notEmpty: {
-              message: 'Please select collection'
+              message: 'Please enter collection name'
             }
-          }
-        },
-        productTitle: {
-          validators: {
-            notEmpty: {
-              message: 'Please enter product name'
-            }
-          }
-        },
-        productSku: {
-          validators: {
-            notEmpty: {
-              message: 'Please enter product sku'
-            }
-          }
-        },
-        productPrice: {
-          validators: {
-            notEmpty: {
-              message: 'Please enter product price'
-            },
-            numeric: {
-              message: 'The discounted price must be a number'
-            },
           }
         },
         brand_id: {
@@ -143,13 +97,8 @@
 
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {
-      let content = quill.root.innerHTML;
-      if (content === '<p><br></p>') {
-        content = ''; // Treat as empty
-      }
-      document.getElementById("productDescription").value = content;
-      // Submit the form manually
-      editProductForm.submit();
+     
+      editCollectionForm.submit();
     });
   }
 })();

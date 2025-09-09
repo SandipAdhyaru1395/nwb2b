@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
   headingColor = config.colors.headingColor;
 
   // Variable declaration for table
-  const dt_product_table = document.querySelector('.datatables-products'),
-    productAdd = baseUrl + 'product/add',
-     productEdit = baseUrl + 'product/edit',
+  const dt_collection_table = document.querySelector('.datatables-collections'),
+    collectionAdd = baseUrl + 'collection/add',
+     collectionEdit = baseUrl + 'collection/edit',
      publishedObj = {
        0 : { title: 'Inactive', class: 'bg-label-danger' },
         1 : { title: 'Active', class: 'bg-label-success' }
@@ -23,17 +23,17 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // E-commerce Products datatable
 
-  if (dt_product_table) {
-    var dt_products = new DataTable(dt_product_table, {
+  if (dt_collection_table) {
+    var dt_products = new DataTable(dt_collection_table, {
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
-      ajax: baseUrl + 'product/list/ajax',
+      ajax: baseUrl + 'collection/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'product_name'},
-        { data: 'sku'},
-        { data: 'price'},
+        { data: 'collection_name'},
+        { data: 'brand'},
+        { data: 'categories'},
         { data: 'is_active'},
         // { data: 'status'},
         { data: 'id'}
@@ -68,31 +68,19 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 2,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
-            let name = full['product_name'],
+            let name = full['collection_name'],
               id = full['id'],
               productBrand = full['product_brand'],
-              image_url = full['image_url'];
+              image = full['image'];
 
             let output;
 
-            if (image_url) {
-              if(image_url.includes("https")){
-                output = `<img src="${image_url}" alt="Product-${id}" class="rounded">`;
-              }else{
-                output = `<img src="${baseUrl}storage/${image_url}" alt="Product-${id}" class="rounded">`;
-              }
-              // For Product image
-            } else {
-              // For Product badge
-              let stateNum = Math.floor(Math.random() * 6);
-              let states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
-              let state = states[stateNum];
-              let initials = (productBrand.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
-
-              output = `<span class="avatar-initial rounded-2 bg-label-${state}">${initials}</span>`;
+            if(image.includes("https")){
+              output = `<img src="${image}" alt="Product-${id}" class="rounded">`;
+            }else{
+              output = `<img src="${baseUrl}storage/${image}" alt="Product-${id}" class="rounded">`;
             }
-
-            // Creates full output for Product name and product_brand
+             
             let rowOutput = `
               <div class="d-flex justify-content-start align-items-center product-name">
                 <div class="avatar-wrapper">
@@ -108,21 +96,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // Sku
           targets: 3,
+          responsivePriority: 5,
           render: function (data, type, full, meta) {
-            const sku = full['sku'];
-
-            return '<span>' + sku + '</span>';
+            return `
+              <span class="text-truncate">${full['brand']}</span>
+            `;
           }
         },
         {
-          // price
           targets: 4,
+          responsivePriority: 5,
           render: function (data, type, full, meta) {
-            const price = full['price'];
-
-            return '<span>' + price + '</span>';
+            return `
+              <span class="text-truncate">${full['categories']}</span>
+            `;
           }
         },
         {
@@ -148,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             return `
               <div class="d-inline-block text-nowrap">
-                <a href="${productEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
+                <a href="${collectionEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
               </div>
             `;
           }
@@ -390,10 +378,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   ]
                 },
                 {
-                  text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Product</span>',
+                  text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Colection</span>',
                   className: 'add-new btn btn-primary',
                   action: function () {
-                    window.location.href = productAdd;
+                    window.location.href = collectionAdd;
                   }
                 }
               ]
@@ -420,7 +408,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of ' + data['product_name'];
+              return 'Details of ' + data['collection_name'];
             }
           }),
           type: 'column',
