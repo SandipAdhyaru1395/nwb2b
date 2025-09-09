@@ -20,6 +20,14 @@ class UserList extends Controller
       })->orderBy('id', 'desc')->get();
     
     $data['roles'] = Role::where('id','!=',1)->get();
+
+    $all_users_count =User::whereNot('role_id', 1)->count();
+    $active_users_count =User::whereNot('role_id', 1)->where('status', 'active')->count();
+    $inactive_users_count =User::whereNot('role_id', 1)->where('status', 'inactive')->count();
+    
+    $data['all_users_count'] = $all_users_count;
+    $data['active_users_count'] = $active_users_count;
+    $data['inactive_users_count'] = $inactive_users_count;
     return view('content.apps.app-user-list', $data);
   }
 

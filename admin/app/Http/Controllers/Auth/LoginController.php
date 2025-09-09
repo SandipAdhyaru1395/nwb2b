@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Brian2694\Toastr\Facades\Toastr;
 
 class LoginController extends Controller
 {
@@ -29,6 +30,15 @@ class LoginController extends Controller
     if (
       Auth::attempt(['email' => $login, 'password' => $password], $remember) 
     ) {
+
+      if(Auth::user()->status == 'inactive') {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        Toastr::error('Your account is not active');
+        return redirect()->route('login');
+      }
+
       $request->session()->regenerate();
       return redirect()->intended(route('dashboard.read'));
     }

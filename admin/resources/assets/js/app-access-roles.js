@@ -30,8 +30,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
         { data: 'id', orderable: false, render: DataTable.render.select() },
         { data: 'full_name' },
         { data: 'role' },
-        { data: 'current_plan' },
-        { data: 'billing' },
         { data: 'status' },
         { data: 'id' }
       ],
@@ -116,18 +114,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return `<span class='text-truncate d-flex align-items-center'>${roleBadgeObj[role] || ''}${role}</span>`;
           }
         },
-        {
-          // Plans
-          targets: 4,
-          render: function (data, type, full, meta) {
-            let plan = full['current_plan'];
-
-            return '<span class="fw-medium">' + plan + '</span>';
-          }
-        },
+        
         {
           // User Status
-          targets: 6,
+          targets: 4,
           render: function (data, type, full, meta) {
             let status = full['status'];
 

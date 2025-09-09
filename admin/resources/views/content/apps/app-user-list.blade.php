@@ -61,17 +61,15 @@
 
 @section('content')
   <div class="row g-6 mb-6">
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-xl-4">
       <div class="card">
         <div class="card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div class="content-left">
-              <span class="text-heading">Session</span>
+              <span class="text-heading">All Users</span>
               <div class="d-flex align-items-center my-1">
-                <h4 class="mb-0 me-2">{{ count($users) }}</h4>
-                <p class="text-success mb-0">(+29%)</p>
+                <h4 class="mb-0 me-2">{{ $all_users_count }}</h4>
               </div>
-              <small class="mb-0">Total Users</small>
             </div>
             <div class="avatar">
               <span class="avatar-initial rounded bg-label-primary">
@@ -82,17 +80,15 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-xl-4">
       <div class="card">
         <div class="card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div class="content-left">
-              <span class="text-heading">Paid Users</span>
+              <span class="text-heading">InActive Users</span>
               <div class="d-flex align-items-center my-1">
-                <h4 class="mb-0 me-2">4,567</h4>
-                <p class="text-success mb-0">(+18%)</p>
+                <h4 class="mb-0 me-2">{{ $inactive_users_count }}</h4>
               </div>
-              <small class="mb-0">Last week analytics </small>
             </div>
             <div class="avatar">
               <span class="avatar-initial rounded bg-label-danger">
@@ -103,42 +99,19 @@
         </div>
       </div>
     </div>
-    <div class="col-sm-6 col-xl-3">
+    <div class="col-sm-6 col-xl-4">
       <div class="card">
         <div class="card-body">
           <div class="d-flex align-items-start justify-content-between">
             <div class="content-left">
               <span class="text-heading">Active Users</span>
               <div class="d-flex align-items-center my-1">
-                <h4 class="mb-0 me-2">19,860</h4>
-                <p class="text-danger mb-0">(-14%)</p>
+                <h4 class="mb-0 me-2">{{ $active_users_count }}</h4>
               </div>
-              <small class="mb-0">Last week analytics</small>
             </div>
             <div class="avatar">
               <span class="avatar-initial rounded bg-label-success">
                 <i class="icon-base ti tabler-user-check icon-26px"></i>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-sm-6 col-xl-3">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex align-items-start justify-content-between">
-            <div class="content-left">
-              <span class="text-heading">Pending Users</span>
-              <div class="d-flex align-items-center my-1">
-                <h4 class="mb-0 me-2">237</h4>
-                <p class="text-success mb-0">(+42%)</p>
-              </div>
-              <small class="mb-0">Last week analytics</small>
-            </div>
-            <div class="avatar">
-              <span class="avatar-initial rounded bg-label-warning">
-                <i class="icon-base ti tabler-user-search icon-26px"></i>
               </span>
             </div>
           </div>
@@ -164,8 +137,6 @@
             <th></th>
             <th>User</th>
             <th>Role</th>
-            <th>Plan</th>
-            <th>Billing</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>

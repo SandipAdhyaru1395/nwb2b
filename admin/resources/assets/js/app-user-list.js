@@ -44,8 +44,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
         { data: 'id', orderable: false, render: DataTable.render.select() },
         { data: 'full_name' },
         { data: 'role' },
-        { data: 'current_plan' },
-        { data: 'billing' },
         { data: 'status' },
         { data: 'action' }
       ],
@@ -140,17 +138,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // Plans
-          targets: 4,
-          render: function (data, type, full, meta) {
-            const plan = full['current_plan'];
-
-            return '<span class="text-heading">' + plan + '</span>';
-          }
-        },
-        {
           // User Status
-          targets: 6,
+          targets: 4,
           render: function (data, type, full, meta) {
             const status = full['status'];
 
