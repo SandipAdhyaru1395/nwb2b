@@ -311,11 +311,10 @@ CSS;
 
     public static function isMenuActive($menu) {
         $currentUrl = url()->current();
-       
-        if (isset($menu['url']) && url($menu['url']) === $currentUrl) {
+        
+        if (isset($menu['url']) && Str::contains($currentUrl,$menu['url'])) {
             return true;
         }
-
         if (!empty($menu['children'])) {
             foreach ($menu['children'] as $child) {
                 if (\App\Helpers\Helpers::isMenuActive($child)) {

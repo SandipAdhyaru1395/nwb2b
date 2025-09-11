@@ -1,8 +1,3 @@
-@php
-$customizerHidden = 'customizer-hide';
-$configData = Helper::appClasses();
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'Reset Password Cover - Pages')
@@ -38,11 +33,11 @@ $configData = Helper::appClasses();
     <div class="d-none d-xl-flex col-xl-8 p-0">
       <div class="auth-cover-bg d-flex justify-content-center align-items-center">
         <img
-          src="{{ asset('assets/img/illustrations/auth-reset-password-illustration-' . $configData['theme'] . '.png') }}"
+          src="{{ asset('assets/img/illustrations/auth-reset-password-illustration-light.png') }}"
           alt="auth-reset-password-cover" class="my-5 auth-illustration"
           data-app-light-img="illustrations/auth-reset-password-illustration-light.png"
           data-app-dark-img="illustrations/auth-reset-password-illustration-dark.png" />
-        <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['theme'] . '.png') }}"
+        <img src="{{ asset('assets/img/illustrations/bg-shape-image-light.png') }}"
           alt="auth-reset-password-cover" class="platform-bg"
           data-app-light-img="illustrations/bg-shape-image-light.png"
           data-app-dark-img="illustrations/bg-shape-image-dark.png" />

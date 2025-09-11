@@ -78,10 +78,11 @@
     //Add New customer Form Validation
     const fv = FormValidation.formValidation(editProductForm, {
       fields: {
-        collection_id: {
+        brands: {
+          selector: 'select[name="brands[]"]', // target the checkbox group
           validators: {
             notEmpty: {
-              message: 'Please select collection'
+              message: 'Please select at least one brand'
             }
           }
         },

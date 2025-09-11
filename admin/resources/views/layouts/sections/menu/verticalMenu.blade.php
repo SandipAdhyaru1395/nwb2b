@@ -1,14 +1,6 @@
-@php
-use Illuminate\Support\Facades\Route;
-$configData = Helper::appClasses();
-@endphp
+<aside id="layout-menu" class="layout-menu menu-vertical menu">
 
-<aside id="layout-menu" class="layout-menu menu-vertical menu" @foreach ($configData['menuAttributes'] as $attribute=>
-  $value)
-  {{ $attribute }}="{{ $value }}" @endforeach>
-
-  <!-- ! Hide app brand if navbar-full -->
-  @if (!isset($navbarFull))
+  
   <div class="app-brand demo">
     <a href="{{ url('/') }}" class="app-brand-link">
       <span class="app-brand-logo demo">@include('_partials.macros')</span>
@@ -20,12 +12,11 @@ $configData = Helper::appClasses();
       <i class="icon-base ti tabler-x d-block d-xl-none"></i>
     </a>
   </div>
-  @endif
 
   <div class="menu-inner-shadow"></div>
 
   <ul class="menu-inner py-1">
-    @foreach ($sidbarMenuData as $menu)
+    @foreach ($sidebarMenuData as $menu)
 @php
     $isActive = \App\Helpers\Helpers::isMenuActive($menu);
 @endphp

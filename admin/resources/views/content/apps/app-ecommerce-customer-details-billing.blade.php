@@ -1,7 +1,3 @@
-@php
-$configData = Helper::appClasses();
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'eCommerce Customer Details Address & Billing - Apps')
@@ -293,7 +289,7 @@ $configData = Helper::appClasses();
                 aria-controls="headingPaymentMaster" role="button">
                 <span class="accordion-button-information d-flex align-items-center gap-4">
                   <span class="accordion-button-image">
-                    <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+                    <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
                       class="img-fluid w-px-50 h-px-30" alt="master-card"
                       data-app-light-img="icons/payments/master-light.png"
                       data-app-dark-img="icons/payments/master-dark.png" />
@@ -383,7 +379,7 @@ $configData = Helper::appClasses();
                 aria-controls="headingPaymentExpress" role="button">
                 <span class="accordion-button-information d-flex align-items-center gap-4">
                   <span class="accordion-button-image">
-                    <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+                    <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
                       class="img-fluid w-px-50 h-px-30" alt="american-express-card"
                       data-app-light-img="icons/payments/ae-light.png" data-app-dark-img="icons/payments/ae-dark.png" />
                   </span>

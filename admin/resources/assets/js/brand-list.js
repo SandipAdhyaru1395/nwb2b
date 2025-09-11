@@ -13,9 +13,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
   headingColor = config.colors.headingColor;
 
   // Variable declaration for table
-  const dt_collection_table = document.querySelector('.datatables-collections'),
-    collectionAdd = baseUrl + 'collection/add',
-     collectionEdit = baseUrl + 'collection/edit',
+  const dt_brand_table = document.querySelector('.datatables-brands'),
+    brandAdd = baseUrl + 'brand/add',
+     brandEdit = baseUrl + 'brand/edit',
      publishedObj = {
        0 : { title: 'Inactive', class: 'bg-label-danger' },
         1 : { title: 'Active', class: 'bg-label-success' }
@@ -23,15 +23,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // E-commerce Products datatable
 
-  if (dt_collection_table) {
-    var dt_products = new DataTable(dt_collection_table, {
+  if (dt_brand_table) {
+    var dt_products = new DataTable(dt_brand_table, {
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
-      ajax: baseUrl + 'collection/list/ajax',
+      ajax: baseUrl + 'brand/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'collection_name'},
         { data: 'brand'},
         { data: 'categories'},
         { data: 'is_active'},
@@ -68,17 +67,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 2,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
-            let name = full['collection_name'],
+            let name = full['brand'],
               id = full['id'],
-              productBrand = full['product_brand'],
               image = full['image'];
 
             let output;
-
-            if(image.includes("https")){
-              output = `<img src="${image}" alt="Product-${id}" class="rounded">`;
-            }else{
+            
+            if(image){
               output = `<img src="${baseUrl}storage/${image}" alt="Product-${id}" class="rounded">`;
+            }else{
+               // For Avatar badge
+              const stateNum = Math.floor(Math.random() * 6) + 1;
+              const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
+              const state = states[stateNum];
+              const initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+              output = `<span class="avatar-initial rounded-circle bg-label-${state}">${initials}</span>`;
             }
              
             let rowOutput = `
@@ -100,21 +103,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
           responsivePriority: 5,
           render: function (data, type, full, meta) {
             return `
-              <span class="text-truncate">${full['brand']}</span>
-            `;
-          }
-        },
-        {
-          targets: 4,
-          responsivePriority: 5,
-          render: function (data, type, full, meta) {
-            return `
               <span class="text-truncate">${full['categories']}</span>
             `;
           }
         },
         {
-          targets: 5,
+          targets: 4,
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             const is_active = full['is_active'];
@@ -136,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             return `
               <div class="d-inline-block text-nowrap">
-                <a href="${collectionEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
+                <a href="${brandEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
               </div>
             `;
           }
@@ -155,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             {
               search: {
                 className: 'me-5 ms-n4 pe-5 mb-n6 mb-md-0',
-                placeholder: 'Search Product',
+                placeholder: 'Search Brand',
                 text: '_INPUT_'
               }
             }
@@ -378,10 +372,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   ]
                 },
                 {
-                  text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Colection</span>',
+                  text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Brand</span>',
                   className: 'add-new btn btn-primary',
                   action: function () {
-                    window.location.href = collectionAdd;
+                    window.location.href = brandAdd;
                   }
                 }
               ]

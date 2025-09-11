@@ -1,9 +1,9 @@
 /**
- * App eCommerce Add Collection Script
+ * App eCommerce Edit Brand Script
  */
 'use strict';
 
-//Javascript to handle the e-commerce collection add page
+//Javascript to handle the e-commerce brand edit page
 
 (function () {
 
@@ -40,38 +40,31 @@
     myDropzone.on("addedfile", function (file) {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      document.getElementById("collectionImage").files = dataTransfer.files;
+      document.getElementById("brandImage").files = dataTransfer.files;
     });
   }
 
   // Basic Tags
 
-  const tagifyBasicEl = document.querySelector('#collection-tags');
+  const tagifyBasicEl = document.querySelector('#brand-tags');
   const TagifyBasic = new Tagify(tagifyBasicEl);
 
   //For form validation
-  const editCollectionForm = document.getElementById('editCollectionForm');
+  const editBrandForm = document.getElementById('editBrandForm');
 
-  if (editCollectionForm) {
+  if (editBrandForm) {
     //Add New customer Form Validation
-    const fv = FormValidation.formValidation(editCollectionForm, {
+    const fv = FormValidation.formValidation(editBrandForm, {
       fields: {
-        collectionTitle: {
+        brandTitle: {
           validators: {
             notEmpty: {
-              message: 'Please enter collection name'
+              message: 'Please enter brand name'
             }
           }
         },
-        brand_id: {
-          validators: {
-            notEmpty: {
-              message: 'Brand is required'
-            },
-          }
-        },
         categories: {
-          selector: 'input[name="categories[]"]', // target the checkbox group
+          selector: 'select[name="categories[]"]', // target the checkbox group
           validators: {
             notEmpty: {
               message: 'Please select at least one category'
@@ -98,7 +91,7 @@
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {
      
-      editCollectionForm.submit();
+      editBrandForm.submit();
     });
   }
 })();

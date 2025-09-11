@@ -15,7 +15,7 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/app-ecommerce-product-list.js'])
+@vite(['resources/assets/js/product-list.js'])
 <script>
   function changeStatus(id, status) {
       if (id) {
@@ -55,7 +55,7 @@
             </div>
             <span class="avatar me-sm-6">
               <span class="avatar-initial rounded"><i
-                  class="icon-base ti tabler-smart-home icon-28px text-heading"></i></span>
+                  class="icon-base ti tabler-cube icon-28px text-heading"></i></span>
             </span>
           </div>
           <hr class="d-none d-sm-block d-lg-none me-6" />
@@ -68,7 +68,7 @@
             </div>
             <span class="avatar p-2 me-lg-6">
               <span class="avatar-initial rounded"><i
-                  class="icon-base ti tabler-device-laptop icon-28px text-heading"></i></span>
+                  class="icon-base ti tabler-checks icon-28px text-heading"></i></span>
             </span>
           </div>
           <hr class="d-none d-sm-block d-lg-none" />
@@ -81,7 +81,7 @@
             </div>
             <span class="avatar p-2 me-sm-6">
               <span class="avatar-initial rounded"><i
-                  class="icon-base ti tabler-gift icon-28px text-heading"></i></span>
+                  class="icon-base ti tabler-ban icon-28px text-heading"></i></span>
             </span>
           </div>
         </div>

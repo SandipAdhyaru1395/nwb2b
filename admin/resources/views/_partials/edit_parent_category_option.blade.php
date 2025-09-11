@@ -1,12 +1,12 @@
-<option value="{{ $category->id }}" >
+<option value="{{ $category->id }}" @selected($category->id == $main_category->parent_id)>
     {{ $prefix . $category->name }}
 </option>
 
 @if ($category->children && $category->children->count())
     @foreach ($category->children as $child)
-        @include('content.apps.app-ecommerce-sub-category-add', [
+        @include('_partials.edit_parent_category_option', [
             'category' => $child,
-            'prefix' => $prefix . '--- '
+            'prefix' => $prefix . '---------- '
         ])
     @endforeach
 @endif

@@ -1,12 +1,6 @@
-@php
-    use Illuminate\Support\Facades\Route;
-    $configData = Helper::appClasses();
-@endphp
 <!-- Horizontal Menu -->
-<aside id="layout-menu" class="layout-menu-horizontal menu-horizontal  menu bg-menu-theme flex-grow-0"
-    @foreach ($configData['menuAttributes'] as $attribute => $value)
-  {{ $attribute }}="{{ $value }}" @endforeach>
-    <div class="{{ $containerNav }} d-flex h-100">
+<aside id="layout-menu" class="layout-menu-horizontal menu-horizontal  menu bg-menu-theme flex-grow-0">
+    <div class="container-xxl d-flex h-100">
         <ul class="menu-inner">
             @foreach ($menuData[1]->menu as $menu)
                 {{-- active menu method --}}

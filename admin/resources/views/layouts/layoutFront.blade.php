@@ -1,8 +1,3 @@
-@php
-  $configData = Helper::appClasses();
-  $isFront = true;
-@endphp
-
 @section('layoutContent')
   @extends('layouts/commonMaster')
 

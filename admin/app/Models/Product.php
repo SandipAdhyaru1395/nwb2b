@@ -11,7 +11,6 @@ class Product extends Model
     protected $fillable = [
         'name',
         'sku',
-        'collection_id',
         'description',
         'price',
         'cost_price',
@@ -23,5 +22,8 @@ class Product extends Model
         'is_active',
     ];
 
-   
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class, 'product_brand', 'product_id', 'brand_id');
+    }
 }

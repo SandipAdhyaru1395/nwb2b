@@ -14,19 +14,19 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="master-card"
               data-app-light-img="icons/payments/master-light.png"
               data-app-dark-img="icons/payments/master-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/dc-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/dc-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="diners-club-card"
               data-app-light-img="icons/payments/dc-light.png"
               data-app-dark-img="icons/payments/dc-dark.png" />
@@ -37,15 +37,15 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/dc-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/dc-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="diners-club-card"
               data-app-light-img="icons/payments/dc-light.png"
               data-app-dark-img="icons/payments/dc-dark.png" />
@@ -56,15 +56,15 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="master-card"
               data-app-light-img="icons/payments/master-light.png"
               data-app-dark-img="icons/payments/master-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
@@ -74,15 +74,15 @@
           <h6 class="m-0 mb-2 mb-md-0">Authorize.net</h6>
 
           <div class="d-flex flex-wrap gap-4">
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/dc-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/dc-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="diners-club-card"
               data-app-light-img="icons/payments/dc-light.png"
               data-app-dark-img="icons/payments/dc-dark.png" />
@@ -92,15 +92,15 @@
           <h6 class="m-0 mb-2 mb-md-0">Bambora</h6>
 
           <div class="d-flex flex-wrap gap-4">
-            <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="master-card"
               data-app-light-img="icons/payments/master-light.png"
               data-app-dark-img="icons/payments/master-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
@@ -112,19 +112,19 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="master-card"
               data-app-light-img="icons/payments/master-light.png"
               data-app-dark-img="icons/payments/master-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/dc-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/dc-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="diners-club-card"
               data-app-light-img="icons/payments/dc-light.png"
               data-app-dark-img="icons/payments/dc-dark.png" />
@@ -136,15 +136,15 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/ae-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/ae-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="american-express-card"
               data-app-light-img="icons/payments/ae-light.png"
               data-app-dark-img="icons/payments/ae-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/jcb-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/jcb-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="jcb-card"
               data-app-light-img="icons/payments/jcb-light.png"
               data-app-dark-img="icons/payments/jcb-dark.png" />
-            <img src="{{ asset('assets/img/icons/payments/dc-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/dc-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="diners-club-card"
               data-app-light-img="icons/payments/dc-light.png"
               data-app-dark-img="icons/payments/dc-dark.png" />
@@ -155,7 +155,7 @@
           <div class="d-flex flex-wrap gap-4">
             <img src="{{ asset('assets/img/icons/payments/visa-img.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="visa-card" />
-            <img src="{{ asset('assets/img/icons/payments/master-' . $configData['theme'] . '.png') }}"
+            <img src="{{ asset('assets/img/icons/payments/master-light.png') }}"
               class="img-fluid w-px-50 h-px-30" alt="master-card"
               data-app-light-img="icons/payments/master-light.png"
               data-app-dark-img="icons/payments/master-dark.png" />

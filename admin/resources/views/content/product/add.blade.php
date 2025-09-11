@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Edit Product')
+@section('title', 'Product Add')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/tagify/tagify.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
@@ -11,23 +11,24 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/app-ecommerce-product-edit.js'])
+    @vite(['resources/assets/js/product-add.js'])
 @endsection
 
 @section('content')
     <div class="app-ecommerce">
         <!-- Add Product -->
-        <form id="editProductForm" method="POST" action="{{ route('product.update') }}" enctype="multipart/form-data">
+        <form id="addProductForm" method="POST" action="{{ route('product.create') }}" enctype="multipart/form-data">
             @csrf
-            <input type="hidden" name="id" value="{{ $product->id }}">
+
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
-                    <h4 class="mb-1">Edit Product</h4>
+                    <h4 class="mb-1">Add a new Product</h4>
+                    <p class="mb-0">Orders placed across your store</p>
                 </div>
                 <div class="d-flex align-content-center flex-wrap gap-4">
                     <div class="d-flex gap-4">
-                        <a href="{{ route('product-list') }}" class="btn btn-secondary">Cancel</a>
+                        <a href="{{ route('product.list') }}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
@@ -42,29 +43,13 @@
                             <h5 class="card-tile mb-0">Product information</h5>
                         </div>
                         <div class="card-body">
-                            <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="collection_id">Collection <span
-                                        class="text-danger">*</span></label>
-                                <select class="form-select select2" name="collection_id" id="collection_id">
-                                    <option value="">Select</option>
-                                    @forelse ($collections as $collection)
-                                        <option value="{{ $collection->id }}" @selected($product->collection_id == $collection->id)>
-                                            {{ $collection->name }}</option>
-                                    @empty
-                                    @endforelse
-                                </select>
-                                @error('collection_id')
-                                    <span class="text-danger" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
+                            
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="ecommerce-product-name">Name <span
                                         class="text-danger">*</span></label>
                                 <input type="text" class="form-control" id="ecommerce-product-name"
                                     placeholder="Product title" name="productTitle" aria-label="Product title"
-                                    value="{{ $product->name }}" autocomplete="off" />
+                                    value="{{ old('productTitle') }}" autocomplete="off" />
                                 @error('productTitle')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -75,7 +60,7 @@
                                 <div class="col form-control-validation"><label class="form-label"
                                         for="ecommerce-product-sku">SKU <span class="text-danger">*</span></label>
                                     <input type="text" class="form-control" id="ecommerce-product-sku" placeholder="SKU"
-                                        name="productSku" aria-label="Product SKU" value="{{ $product->sku }}"
+                                        name="productSku" aria-label="Product SKU" value="{{ old('productSku') }}"
                                         autocomplete="off" />
                                     @error('productSku')
                                         <span class="text-danger" role="alert">
@@ -83,20 +68,21 @@
                                         </span>
                                     @enderror
                                 </div>
-                                
+
                             </div>
                             <div class="row mb-6">
                                 <div class="col form-control-validation"><label class="form-label"
                                         for="quantity">Quantity</label>
                                     <input type="text" class="form-control" id="quantity" placeholder="Enter quantity"
-                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)" aria-label="Product Quantity" value="{{ $product->stock_quantity }}"
-                                        autocomplete="off" />
+                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        aria-label="Product Quantity" value="{{ old('quantity') }}" autocomplete="off" />
                                 </div>
                                 <div class="col form-control-validation"><label class="form-label"
                                         for="min_order_quantity">Min Order Quantity</label>
-                                    <input type="text" class="form-control" id="min_order_quantity" placeholder="Enter minimum order quantity"
-                                        name="min_order_quantity" onkeypress="return /^[0-9]+$/.test(event.key)" value="{{ $product->min_order_quantity }}"
-                                        autocomplete="off" />
+                                    <input type="text" class="form-control" id="min_order_quantity"
+                                        placeholder="Enter minimum order quantity" name="min_order_quantity"
+                                        onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        value="{{ old('min_order_quantity') }}" autocomplete="off" />
                                 </div>
                             </div>
                             <!-- Description -->
@@ -117,17 +103,17 @@
                                         </div>
                                     </div>
                                     <div class="comment-editor border-0 pb-6" id="product-description">
-                                        {!! $product->description !!}</div>
+                                        {!! old('productDescription') !!}
+                                    </div>
                                 </div>
                                 <input type="hidden" name="productDescription" id="productDescription"
-                                    value="{{ $product->description }}">
+                                    value="{{ old('productDescription') }}">
                             </div>
                         </div>
                     </div>
                     <!-- /Product Information -->
                     <!-- Media -->
-                    <div class="card mb-6 pt-5">
-                        <img class="align-self-center" height="300px" width="400px" src="{{ str_contains($product->image_url, 'https') ? $product->image_url : asset('storage/'.$product->image_url) }}" />
+                    <div class="card mb-6">
                         <div class="card-body form-control-validation">
                             <input type="file" name="productImage" id="productImage" hidden>
                             <div class="dropzone needsclick p-0" id="dropzone-basic">
@@ -163,7 +149,7 @@
                                         class="text-danger">*</span></label>
                                 <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
                                     id="ecommerce-product-price" placeholder="Price" name="productPrice"
-                                    aria-label="Product price" value="{{ $product->price }}" autocomplete="off" />
+                                    aria-label="Product price" value="{{ old('productPrice') }}" autocomplete="off" />
                                 @error('productPrice')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -174,15 +160,15 @@
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="cost-price">Cost Price </label>
                                 <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    id="cost-price" placeholder="Price" name="costPrice"
-                                    aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
+                                    id="cost-price" placeholder="Price" name="costPrice" aria-label="Cost price"
+                                    value="{{ old('costPrice') }}" autocomplete="off" />
                             </div>
                             <!-- Wallet Credit -->
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="wallet-credit">Wallet Credit</label>
                                 <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
                                     id="wallet-credit" placeholder="Credit" name="walletCredit" aria-label="Wallet Credit"
-                                    value="{{ $product->wallet_credit }}" autocomplete="off" />
+                                    value="{{ old('walletCredit') }}" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -190,7 +176,7 @@
                     <!-- Organize Card -->
                     <div class="card mb-6">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Organize</h5>
+                            <h5 class="card-title mb-0">Product Label</h5>
                         </div>
                         <div class="card-body">
                             <!-- Status -->
@@ -200,10 +186,26 @@
                                         <span>Status <span class="text-danger">*</span></span>
                                     </label>
                                     <select class="form-select select2" name="productStatus" id="productStatus">
-                                        <option value="1" @selected($product->is_active == '1')>Active</option> 
-                                        <option value="0" @selected($product->is_active == '0')>Inactive</option>
-                                    </select>                                   
+                                        <option value="1" @selected(old('productStatus') == '1')>Active</option>
+                                        <option value="0" @selected(old('productStatus') == '0')>Inactive</option>
+                                    </select>
                                 </div>
+                            </div>
+                            <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="brand_id">Brands <span
+                                        class="text-danger">*</span></label>
+                                <select class="form-control select2" name="brands[]" multiple>
+                                    @forelse ($brands as $brand)
+                                        <option value="{{ $brand->id }}" @selected(old('brand_id') == $brand->id)>
+                                            {{ $brand->name }}</option>
+                                    @empty
+                                    @endforelse
+                                </select>
+                                @error('brands')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
                             </div>
                         </div>
                     </div>

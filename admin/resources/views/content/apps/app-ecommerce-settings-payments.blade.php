@@ -1,9 +1,3 @@
-@php
-$configData = Helper::appClasses();
-@endphp
-
-@extends('layouts/layoutMaster')
-
 @section('title', 'Settings Payments')
 
 @section('page-style')

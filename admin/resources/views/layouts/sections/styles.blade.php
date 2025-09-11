@@ -12,9 +12,6 @@
 <!-- BEGIN: Vendor CSS-->
 @vite(['resources/assets/vendor/libs/node-waves/node-waves.scss'])
 
-@if ($configData['hasCustomizer'])
-  @vite(['resources/assets/vendor/libs/pickr/pickr-themes.scss'])
-@endif
 
 <!-- Core CSS -->
 @vite(['resources/assets/vendor/scss/core.scss', 'resources/assets/css/demo.css', 'resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.scss'])

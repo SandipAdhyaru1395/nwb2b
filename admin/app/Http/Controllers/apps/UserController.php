@@ -7,8 +7,9 @@ use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
+use Illuminate\Support\Facades\Validator;
 
-class UserList extends Controller
+class UserController extends Controller
 {
   public function index()
   {
@@ -146,6 +147,26 @@ class UserList extends Controller
 
   public function create(Request $request)
   {
+    $validator = Validator::make($request->all(), [
+      'modalAddUserName' => 'required',
+      'modalAddUserEmail' => 'required|email|unique:users,email',
+      'modalAddUserPhone' => 'nullable|unique:users,phone|digits:10',
+      'modalAddUserStatus' => 'required',
+      'newPassword' => 'required',
+    ],[
+      'modalAddUserName.required' => 'Name is required',
+      'modalAddUserEmail.required' => 'Email is required',
+      'modalAddUserEmail.email' => 'Must be valid email',
+      'modalAddUserEmail.unique' => 'Email already exists',
+      'modalAddUserPhone.unique' => 'Number already exists',
+      'modalAddUserPhone.digits' => 'Number must be 10 digits',
+      'modalAddUserStatus.required' => 'Status is required',
+      'newPassword.required' => 'Password is required',
+    ]);
+
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator,'addModal')->withInput();
+    }
 
     User::create([
       'name' => $request->modalAddUserName,
@@ -170,5 +191,41 @@ class UserList extends Controller
 
     Toastr::success('User deleted successfully!');
     return redirect()->back();
+  }
+
+  public function viewAccount($id){
+
+    $data['user'] = User::findOrFail($id);
+    $data['roles'] = Role::where('id','!=',1)->get();
+    
+    return view('content.apps.app-user-view-account',$data);
+  }
+
+  public function viewSecurity($id){
+    $data['user'] = User::findOrFail($id);
+     $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-security',$data);
+  }
+
+  public function viewBilling($id){
+    $data['user'] = User::findOrFail($id);
+     $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-billing',$data);
+  }
+
+  public function viewNotifications($id){
+    $data['user'] = User::findOrFail($id);
+    $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-notifications',$data);
+  }
+
+  public function viewConnections($id){
+    $data['user'] = User::findOrFail($id);
+    $data['roles'] = Role::where('id','!=',1)->get();
+
+    return view('content.apps.app-user-view-connections',$data);
   }
 }

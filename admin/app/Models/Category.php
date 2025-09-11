@@ -9,7 +9,7 @@ class Category extends Model
     //
     protected $table = 'categories';
 
-    protected $fillable = ['name', 'parent_id', 'description', 'image_url','is_active','sort_order'];
+    protected $fillable = ['name', 'parent_id', 'description','is_active','sort_order'];
 
     public function products()
     {
@@ -19,5 +19,26 @@ class Category extends Model
     public function children()
     {
         return $this->hasMany(Category::class,'parent_id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Category::class,'parent_id');
+    }
+
+    /**
+     * Recursively eager-load children categories.
+     */
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
+    /**
+     * Brands directly attached to this category via pivot.
+     */
+    public function brands()
+    {
+        return $this->belongsToMany(Brand::class, 'brand_category', 'category_id', 'brand_id');
     }
 }

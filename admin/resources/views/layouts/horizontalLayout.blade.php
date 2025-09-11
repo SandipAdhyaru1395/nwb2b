@@ -1,42 +1,15 @@
 @isset($pageConfigs)
   {!! Helper::updatePageConfig($pageConfigs) !!}
 @endisset
-@php
-  $configData = Helper::appClasses();
-@endphp
 
 @extends('layouts/commonMaster')
-@php
-  $menuHorizontal = true;
-  $navbarFull = true;
-
-  /* Display elements */
-  $isNavbar = $isNavbar ?? true;
-  $isMenu = $isMenu ?? true;
-  $isFlex = $isFlex ?? false;
-  $isFooter = $isFooter ?? true;
-  $customizerHidden = $customizerHidden ?? '';
-
-  /* HTML Classes */
-  $menuFixed = isset($configData['menuFixed']) ? $configData['menuFixed'] : '';
-  $navbarType = isset($configData['navbarType']) ? $configData['navbarType'] : '';
-  $footerFixed = isset($configData['footerFixed']) ? $configData['footerFixed'] : '';
-  $menuCollapsed = isset($configData['menuCollapsed']) ? $configData['menuCollapsed'] : '';
-
-  /* Content classes */
-  $container = $configData['contentLayout'] === 'compact' ? 'container-xxl' : 'container-fluid';
-  $containerNav = $configData['contentLayout'] === 'compact' ? 'container-xxl' : 'container-fluid';
-
-@endphp
 
 @section('layoutContent')
   <div class="layout-wrapper layout-navbar-full layout-horizontal layout-without-menu">
     <div class="layout-container">
 
       <!-- BEGIN: Navbar-->
-      @if ($isNavbar)
-        @include('layouts/sections/navbar/navbar')
-      @endif
+      @include('layouts/sections/navbar/navbar')
       <!-- END: Navbar-->
 
       <!-- Layout page -->
@@ -45,27 +18,14 @@
         {{-- <x-banner /> --}}
         <!-- Content wrapper -->
         <div class="content-wrapper">
-          @if ($isMenu)
-            @include('layouts/sections/menu/horizontalMenu')
-          @endif
+          @include('layouts/sections/menu/horizontalMenu')
 
-          <!-- Content -->
-          @if ($isFlex)
-            <div class="{{ $container }} d-flex align-items-stretch flex-grow-1 p-0">
-            @else
-              <div class="{{ $container }} flex-grow-1 container-p-y">
-          @endif
+          <div class="container-xxl flex-grow-1 container-p-y">
 
           @yield('content')
 
         </div>
         <!-- / Content -->
-
-        <!-- Footer -->
-        @if ($isFooter)
-          @include('layouts/sections/footer/footer')
-        @endif
-        <!-- / Footer -->
         <div class="content-backdrop fade"></div>
       </div>
       <!--/ Content wrapper -->
@@ -74,10 +34,8 @@
   </div>
   <!-- / Layout Container -->
 
-  @if ($isMenu)
-    <!-- Overlay -->
-    <div class="layout-overlay layout-menu-toggle"></div>
-  @endif
+  <!-- Overlay -->
+  <div class="layout-overlay layout-menu-toggle"></div>
   <!-- Drag Target Area To SlideIn Menu On Small Screens -->
   <div class="drag-target"></div>
   </div>

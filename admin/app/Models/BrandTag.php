@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class CollectionTag extends Model
+class BrandTag extends Model
 {
-    protected $table = 'collection_tag';
+    protected $table = 'brand_tag';
 
     protected $fillable = [
-        'collection_id',
+        'brand_id',
         'tag_id',
     ];
 }

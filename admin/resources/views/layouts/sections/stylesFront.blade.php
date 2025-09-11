@@ -8,9 +8,6 @@
 
 @vite(['resources/assets/vendor/fonts/iconify/iconify.css'])
 
-@if ($configData['hasCustomizer'])
-  @vite(['resources/assets/vendor/libs/pickr/pickr-themes.scss'])
-@endif
 
 <!-- Vendor Styles -->
 @yield('vendor-style')

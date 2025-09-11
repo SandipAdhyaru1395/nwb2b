@@ -18,7 +18,7 @@ class SidebarMiddleware
     public function handle(Request $request, Closure $next): Response
     {
 
-        $sidbarMenuData = Menu::with([
+        $sidebarMenuData = Menu::with([
             'children' => function ($query) {
                 $query->with('children');
             }
@@ -26,9 +26,9 @@ class SidebarMiddleware
 
         if(auth()->user()->role_id != 1){
 
-            if (!empty($sidbarMenuData)) {
+            if (!empty($sidebarMenuData)) {
 
-                foreach ($sidbarMenuData as $key => &$menu) {
+                foreach ($sidebarMenuData as $key => &$menu) {
 
                     if (!empty($menu['children'])) {
 
@@ -68,7 +68,7 @@ class SidebarMiddleware
     
                         // Remove menu if all children are gone
                         if (empty($menu['children'])) {
-                            unset($sidbarMenuData[$key]);
+                            unset($sidebarMenuData[$key]);
                         }
 
                     } else {
@@ -79,7 +79,7 @@ class SidebarMiddleware
                             ->exists();
     
                         if (!$hasPermission) {
-                            unset($sidbarMenuData[$key]);
+                            unset($sidebarMenuData[$key]);
                         }
                     }
                 }
@@ -88,7 +88,7 @@ class SidebarMiddleware
             }
         }
 
-        view()->share('sidbarMenuData', $sidbarMenuData);
+        view()->share('sidebarMenuData', $sidebarMenuData);
 
         return $next($request);
     }

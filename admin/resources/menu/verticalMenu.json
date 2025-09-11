@@ -1,192 +1,58 @@
 {
   "menu": [
     {
-      "name": "eCommerce",
+      "url": "dashboard",
+      "icon": "menu-icon icon-base ti tabler-home",
+      "name": "Dashboard",
+      "slug": "dashboard"
+    },
+    {
+      "url": "category",
+      "icon": "menu-icon icon-base ti tabler-category",
+      "name": "Categories",
+      "slug": "category"
+    },
+    {
+      "url": "brand",
+      "icon": "menu-icon icon-base ti tabler-tags",
+      "name": "Brands",
+      "slug": "brand"
+    },
+    {
+      "url": "product",
+      "icon": "menu-icon icon-base ti tabler-cube",
+      "name": "Products",
+      "slug": "product"
+    },
+    {
+      "url": "order",
       "icon": "menu-icon icon-base ti tabler-shopping-cart",
-      "slug": "app-ecommerce",
-      "submenu": [
-        {
-          "url": "dashboard",
-          "name": "Dashboard",
-          "slug": "dashboard"
-        },
-        {
-          "name": "Products",
-          "slug": "product",
-          "submenu": [
-            {
-              "url": "product/list",
-              "name": "Product List",
-              "slug": "product-list"
-            },
-            {
-              "url": "collection/list",
-              "name": "Collection List",
-              "slug": "collection-list"
-            },
-            {
-              "url": "product/add",
-              "name": "Add Product",
-              "slug": "product-add"
-            },
-            {
-              "url": "product/category",
-              "name": "Add Category",
-              "slug": "product-category"
-            }
-          ]
-        },
-        {
-          "name": "Order",
-          "slug": "order",
-          "submenu": [
-            {
-              "url": "order/list",
-              "name": "Order List",
-              "slug": "order-list"
-            },
-            {
-              "url": "order/details",
-              "name": "Order Details",
-              "slug": "order-details"
-            }
-          ]
-        },
-        {
-          "name": "Customer",
-          "slug": "customer",
-          "submenu": [
-            {
-              "url": "customer/all",
-              "name": "All Customers",
-              "slug": "customer-all"
-            },
-            {
-              "name": "Customer Details",
-              "slug": "customer-details",
-              "submenu": [
-                {
-                  "url": "customer/details/overview",
-                  "name": "Overview",
-                  "slug": "customer-details-overview"
-                },
-                {
-                  "url": "customer/details/security",
-                  "name": "Security",
-                  "slug": "customer-details-security"
-                },
-                {
-                  "url": "customer/details/billing",
-                  "name": "Address & Billing",
-                  "slug": "customer-details-billing"
-                },
-                {
-                  "url": "customer/details/notifications",
-                  "name": "Notifications",
-                  "slug": "customer-details-notifications"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "url": "manage/reviews",
-          "name": "Manage Reviews",
-          "slug": "manage-reviews"
-        },
-        {
-          "url": "referrals",
-          "name": "Referrals",
-          "slug": "referrals"
-        },
-        {
-          "name": "Settings",
-          "slug": "settings",
-          "submenu": [
-            {
-              "url": "settings/details",
-              "name": "Store Details",
-              "slug": "settings-details"
-            },
-            {
-              "url": "settings/payments",
-              "name": "Payments",
-              "slug": "settings-payments"
-            },
-            {
-              "url": "settings/checkout",
-              "name": "Checkout",
-              "slug": "settings-checkout"
-            },
-            {
-              "url": "settings/shipping",
-              "name": "Shipping & Delivery",
-              "slug": "settings-shipping"
-            },
-            {
-              "url": "settings/locations",
-              "name": "Locations",
-              "slug": "settings-locations"
-            },
-            {
-              "url": "settings/notifications",
-              "name": "Notifications",
-              "slug": "settings-notifications"
-            }
-          ]
-        }
-      ]
+      "name": "Orders",
+      "slug": "order"
     },
     {
-      "name": "Invoice",
+      "url": "customer",
+      "icon": "menu-icon icon-base ti tabler-id",
+      "name": "Customers",
+      "slug": "customer"
+    },
+    {
+      "url": "invoice",
       "icon": "menu-icon icon-base ti tabler-file-dollar",
-      "slug": "invoice",
-      "submenu": [
-        {
-          "url": "invoice/list",
-          "name": "List",
-          "slug": "invoice-list"
-        },
-        {
-          "url": "invoice/preview",
-          "name": "Preview",
-          "slug": "invoice-preview"
-        },
-        {
-          "url": "invoice/edit",
-          "name": "Edit",
-          "slug": "invoice-edit"
-        },
-        {
-          "url": "invoice/add",
-          "name": "Add",
-          "slug": "invoice-add"
-        }
-      ]
+      "name": "Invoices",
+      "slug": "invoice"
     },
     {
-      "name": "Users",
+      "url": "user",
       "icon": "menu-icon icon-base ti tabler-users",
-      "slug": "user",
-      "submenu": [
-        {
-          "url": "user/list",
-          "name": "List",
-          "slug": "user-list"
-        }
-      ]
+      "name": "Users",
+      "slug": "user"
     },
     {
-      "name": "Roles & Permissions",
+      "url": "access-roles",
       "icon": "menu-icon icon-base ti tabler-settings",
-      "slug": "access",
-      "submenu": [
-        {
-          "url": "access-roles",
-          "name": "Roles",
-          "slug": "access-roles"
-        }
-      ]
+      "name": "Roles",
+      "slug": "access-roles"
     }
   ]
 }

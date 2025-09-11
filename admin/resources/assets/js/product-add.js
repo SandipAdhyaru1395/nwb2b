@@ -1,13 +1,30 @@
 /**
- * App eCommerce Add Collection Script
+ * App eCommerce Add Product Script
  */
 'use strict';
 
-//Javascript to handle the e-commerce collection add page
+//Javascript to handle the e-commerce product add page
 
 (function () {
+  // Comment editor
 
-  // Basic Dropzone
+  let quill;
+  const commentEditor = document.querySelector('.comment-editor');
+
+  if (commentEditor) {
+    quill = new Quill(commentEditor, {
+      modules: {
+        toolbar: '.comment-toolbar'
+      },
+      placeholder: 'Product Description',
+      theme: 'snow'
+    });
+  }
+
+  // previewTemplate: Updated Dropzone default previewTemplate
+
+  // ! Don't change it unless you really know what you are doing
+
   const previewTemplate = `<div class="dz-preview dz-file-preview">
 <div class="dz-details">
   <div class="dz-thumbnail">
@@ -24,6 +41,11 @@
   <div class="dz-size" data-dz-size></div>
 </div>
 </div>`;
+
+  // ? Start your code from here
+
+  // Basic Dropzone
+
   const dropzoneBasic = document.querySelector('#dropzone-basic');
   if (dropzoneBasic) {
     const myDropzone = new Dropzone(dropzoneBasic, {
@@ -40,48 +62,58 @@
     myDropzone.on("addedfile", function (file) {
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(file);
-      document.getElementById("collectionImage").files = dataTransfer.files;
+      document.getElementById("productImage").files = dataTransfer.files;
     });
   }
 
   // Basic Tags
 
-  const tagifyBasicEl = document.querySelector('#collection-tags');
+  const tagifyBasicEl = document.querySelector('#ecommerce-product-tags');
   const TagifyBasic = new Tagify(tagifyBasicEl);
 
   //For form validation
-  const addCollectionForm = document.getElementById('addCollectionForm');
+  const addProductForm = document.getElementById('addProductForm');
 
-  if (addCollectionForm) {
+  if (addProductForm) {
     //Add New customer Form Validation
-    const fv = FormValidation.formValidation(addCollectionForm, {
+    const fv = FormValidation.formValidation(addProductForm, {
       fields: {
-        collectionTitle: {
+        brands: {
+          selector: 'select[name="brands[]"]', // target the checkbox group
           validators: {
             notEmpty: {
-              message: 'Please enter collection name'
+              message: 'Please select at least one brand'
             }
           }
         },
-        brand_id: {
+        productTitle: {
           validators: {
             notEmpty: {
-              message: 'Brand is required'
+              message: 'Please enter product name'
+            }
+          }
+        },
+        productSku: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter product sku'
+            }
+          }
+        },
+        productPrice: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter product price'
+            },
+            numeric: {
+              message: 'The discounted price must be a number'
             },
           }
         },
-        collectionImage: {
+        productImage: {
           validators: {
             notEmpty: {
-              message: 'Please upload collection image'
-            }
-          }
-        },
-        categories: {
-          selector: 'input[name="categories[]"]', // target the checkbox group
-          validators: {
-            notEmpty: {
-              message: 'Please select at least one category'
+              message: 'Please upload product image'
             }
           }
         }
@@ -104,8 +136,13 @@
 
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {
-     
-      addCollectionForm.submit();
+      let content = quill.root.innerHTML;
+      if (content === '<p><br></p>') {
+        content = ''; // Treat as empty
+      }
+      document.getElementById("productDescription").value = content;
+      // Submit the form manually
+      addProductForm.submit();
     });
   }
 })();

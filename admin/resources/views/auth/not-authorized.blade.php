@@ -1,7 +1,3 @@
-@php
-$customizerHidden = 'customizer-hide';
-$configData = Helper::appClasses();
-@endphp
 
 @extends('layouts/layoutMaster')
 
@@ -27,7 +23,7 @@ $configData = Helper::appClasses();
   </div>
 </div>
 <div class="container-fluid misc-bg-wrapper">
-  <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['theme'] . '.png') }}" height="355" alt="page-misc-not-authorized" data-app-light-img="illustrations/bg-shape-image-light.png" data-app-dark-img="illustrations/bg-shape-image-dark.png" />
+  <img src="{{ asset('assets/img/illustrations/bg-shape-image-light.png') }}" height="355" alt="page-misc-not-authorized" data-app-light-img="illustrations/bg-shape-image-light.png" data-app-dark-img="illustrations/bg-shape-image-dark.png" />
 </div>
 <!-- /Not Authorized -->
 @endsection

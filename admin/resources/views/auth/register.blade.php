@@ -1,7 +1,3 @@
-@php
-    $customizerHidden = 'customizer-hide';
-    $configData = Helper::appClasses();
-@endphp
 
 @extends('layouts/layoutMaster')
 
@@ -35,11 +31,11 @@
             <!-- /Left Text -->
             <div class="d-none d-xl-flex col-xl-8 p-0">
                 <div class="auth-cover-bg d-flex justify-content-center align-items-center">
-                    <img src="{{ asset('assets/img/illustrations/auth-register-illustration-' . $configData['theme'] . '.png') }}"
+                    <img src="{{ asset('assets/img/illustrations/auth-register-illustration-light.png') }}"
                         alt="auth-register-cover" class="my-5 auth-illustration"
                         data-app-light-img="illustrations/auth-register-illustration-light.png"
                         data-app-dark-img="illustrations/auth-register-illustration-dark.png" />
-                    <img src="{{ asset('assets/img/illustrations/bg-shape-image-' . $configData['theme'] . '.png') }}"
+                    <img src="{{ asset('assets/img/illustrations/bg-shape-image-light.png') }}"
                         alt="auth-register-cover" class="platform-bg"
                         data-app-light-img="illustrations/bg-shape-image-light.png"
                         data-app-dark-img="illustrations/bg-shape-image-dark.png" />
@@ -114,28 +110,6 @@
                             <span>Sign in instead</span>
                         </a>
                     </p>
-
-                    <div class="divider my-6">
-                        <div class="divider-text">or</div>
-                    </div>
-
-                    <div class="d-flex justify-content-center">
-                        <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-facebook me-1_5">
-                            <i class="icon-base ti tabler-brand-facebook-filled icon-20px"></i>
-                        </a>
-
-                        <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-twitter me-1_5">
-                            <i class="icon-base ti tabler-brand-twitter-filled icon-20px"></i>
-                        </a>
-
-                        <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-github me-1_5">
-                            <i class="icon-base ti tabler-brand-github-filled icon-20px"></i>
-                        </a>
-
-                        <a href="javascript:;" class="btn btn-icon rounded-circle btn-text-google-plus">
-                            <i class="icon-base ti tabler-brand-google-filled icon-20px"></i>
-                        </a>
-                    </div>
                 </div>
             </div>
             <!-- /Register -->

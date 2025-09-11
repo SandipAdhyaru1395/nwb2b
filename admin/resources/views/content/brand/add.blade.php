@@ -1,6 +1,6 @@
 @extends('layouts/layoutMaster')
 
-@section('title', 'Add Collection')
+@section('title', 'Add Brand')
 
 @section('vendor-style')
     @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/tagify/tagify.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
@@ -11,23 +11,23 @@
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/app-ecommerce-collection-add.js'])
+    @vite(['resources/assets/js/brand-add.js'])
 @endsection
 
 @section('content')
     <div class="app-ecommerce">
-        <!-- Add Collection -->
-        <form id="addCollectionForm" method="POST" action="{{ route('collection.create') }}" enctype="multipart/form-data">
+        <!-- Add Brand -->
+        <form id="addBrandForm" method="POST" action="{{ route('brand.create') }}" enctype="multipart/form-data">
             @csrf
 
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
                 <div class="d-flex flex-column justify-content-center">
-                    <h4 class="mb-1">Add a new Collection</h4>
+                    <h4 class="mb-1">Add a new Brand</h4>
                 </div>
                 <div class="d-flex align-content-center flex-wrap gap-4">
                     <div class="d-flex gap-4">
-                        <a href="{{ route('collection-list') }}" class="btn btn-secondary">Cancel</a>
+                        <a href="{{ route('brand.list') }}" class="btn btn-secondary">Cancel</a>
                         <button type="submit" class="btn btn-primary">Save</button>
                     </div>
                 </div>
@@ -36,16 +36,16 @@
             <div class="row">
                 <!-- First column-->
                 <div class="col-12 col-lg-8">
-                    <!-- Collection Information -->
+                    <!-- Brand Information -->
                     <div class="card mb-6">
                         <div class="card-body">
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="collection-name">Name <span
+                                <label class="form-label" for="brand-name">Name <span
                                         class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="collection-name"
-                                    placeholder="Collection title" name="collectionTitle" aria-label="Collection title"
-                                    value="{{ old('collectionTitle') }}" autocomplete="off" />
-                                @error('collectionTitle')
+                                <input type="text" class="form-control" id="brand-name"
+                                    placeholder="Brand title" name="brandTitle" aria-label="Brand title"
+                                    value="{{ old('brandTitle') }}" autocomplete="off" />
+                                @error('brandTitle')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
                                     </span>
@@ -53,11 +53,11 @@
                             </div>
                         </div>
                     </div>
-                    <!-- /Collection Information -->
+                    <!-- /Brand Information -->
                     <!-- Media -->
                     <div class="card mb-6">
                         <div class="card-body form-control-validation">
-                            <input type="file" name="collectionImage" id="collectionImage" hidden>
+                            <input type="file" name="brandImage" id="brandImage" hidden>
                             <div class="dropzone needsclick p-0" id="dropzone-basic">
                                 <div class="dz-message needsclick">
                                     <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
@@ -67,7 +67,7 @@
                                 </div>
                             </div>
                         </div>
-                        @error('collectionImage')
+                        @error('brandImage')
                             <span class="text-danger text-center mb-5" role="alert">
                                 <strong>{{ $message }}</strong>
                             </span>
@@ -82,7 +82,7 @@
                     <!-- Organize Card -->
                     <div class="card mb-6">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Organize</h5>
+                            <h5 class="card-title mb-0">Label</h5>
                         </div>
                         <div class="card-body">
                              <!-- IS NEW -->
@@ -109,32 +109,13 @@
                             <!-- Status -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="collectionStatus">
+                                    <label class="form-label mb-5" for="brandStatus">
                                         <span>Status <span class="text-danger">*</span></span>
                                     </label>
-                                    <select class="form-select select2" name="collectionStatus" id="collectionStatus">
-                                        <option value="1" @selected(old('collectionStatus') == '1')>Active</option> 
-                                        <option value="0" @selected(old('collectionStatus') == '0')>Inactive</option>
+                                    <select class="form-select select2" name="brandStatus" id="brandStatus">
+                                        <option value="1" @selected(old('brandStatus') == '1')>Active</option> 
+                                        <option value="0" @selected(old('brandStatus') == '0')>Inactive</option>
                                     </select>                                   
-                                </div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <label class="form-label mb-5" for="brand_id">
-                                        <span>Brand <span class="text-danger">*</span></span>
-                                    </label>
-                                    <select class="form-select select2" name="brand_id" id="brand_id">
-                                            <option value="" selected>Select</option>
-                                        @forelse($brands as $brand)
-                                            <option value="{{$brand->id}}" @selected(old('brand_id') == $brand->id)>{{$brand->name}}</option>
-                                        @empty
-                                        @endforelse
-                                    </select>
-                                    @error('brand_id')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror                                   
                                 </div>
                             </div>
                             <!-- Category -->
@@ -143,11 +124,11 @@
                                     <label class="form-label mb-5" for="category-org">
                                         <span>Category <span class="text-danger">*</span></span>
                                     </label>
-                                    <ul class="list-group">
+                                    <select class="form-control select2" name="categories[]" multiple>
                                         @foreach ($categories as $category)
-                                            @include('_partials.category_checkbox', ['category' => $category])
+                                            @include('_partials.category_option', ['category' => $category])
                                         @endforeach
-                                    </ul>
+                                    </select>
 
                                     @error('categories')
                                         <span class="text-danger" role="alert">
@@ -158,9 +139,9 @@
                             </div>
                             <!-- Tags -->
                             <div>
-                                <label for="collection-tags" class="form-label mb-1">Tags</label>
-                                <input id="collection-tags" class="form-control" name="collectionTags"
-                                    aria-label="Collection Tags" value="" />
+                                <label for="brand-tags" class="form-label mb-1">Tags</label>
+                                <input id="brand-tags" class="form-control" name="brandTags"
+                                    aria-label="Brand Tags" value="" />
                             </div>
                         </div>
                     </div>

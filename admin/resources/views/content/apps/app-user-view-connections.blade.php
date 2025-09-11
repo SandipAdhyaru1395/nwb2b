@@ -1,7 +1,3 @@
-@php
-$configData = Helper::appClasses();
-@endphp
-
 @extends('layouts/layoutMaster')
 
 @section('title', 'User View - Pages')
@@ -163,7 +159,7 @@ $configData = Helper::appClasses();
         </div>
         <div class="d-flex mb-4 align-items-center">
           <div class="flex-shrink-0">
-            <img src="{{ asset('assets/img/icons/brands/twitter-' . $configData['theme'] . '.png') }}" alt="twitter" class="me-4" height="36" data-app-dark-img="icons/brands/twitter-dark.png" data-app-light-img="icons/brands/twitter-light.png" />
+            <img src="{{ asset('assets/img/icons/brands/twitter-light.png') }}" alt="twitter" class="me-4" height="36" data-app-dark-img="icons/brands/twitter-dark.png" data-app-light-img="icons/brands/twitter-light.png" />
           </div>
           <div class="flex-grow-1 row align-items-center me-n1">
             <div class="col-7 mb-sm-0 mb-2">

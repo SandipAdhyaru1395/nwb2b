@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Route;
     {{-- active menu method --}}
     @php
       $activeClass = null;
-      $active = $configData["layout"] === 'vertical' ? 'active open':'active';
       $currentRouteName =  Route::currentRouteName();
    
       if ($currentRouteName === $submenu['slug']) {

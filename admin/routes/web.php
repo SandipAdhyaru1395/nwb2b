@@ -2,10 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\apps\EcommerceDashboard;
-use App\Http\Controllers\apps\EcommerceProductList;
-use App\Http\Controllers\apps\EcommerceCollectionList;
-use App\Http\Controllers\apps\EcommerceProductAdd;
-use App\Http\Controllers\apps\EcommerceProductCategory;
+use App\Http\Controllers\apps\ProductController;
+use App\Http\Controllers\apps\BrandController;
+use App\Http\Controllers\apps\CategoryController;
 use App\Http\Controllers\apps\EcommerceOrderList;
 use App\Http\Controllers\apps\EcommerceOrderDetails;
 use App\Http\Controllers\apps\EcommerceCustomerAll;
@@ -26,7 +25,7 @@ use App\Http\Controllers\apps\InvoicePreview;
 use App\Http\Controllers\apps\InvoicePrint;
 use App\Http\Controllers\apps\InvoiceEdit;
 use App\Http\Controllers\apps\InvoiceAdd;
-use App\Http\Controllers\apps\UserList;
+use App\Http\Controllers\apps\UserController;
 use App\Http\Controllers\apps\UserViewAccount;
 use App\Http\Controllers\apps\UserViewSecurity;
 use App\Http\Controllers\apps\UserViewBilling;
@@ -51,56 +50,56 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     // Product
     Route::middleware('permission:product-list.read')->group(function () {
-        Route::get('/product/list', [EcommerceProductList::class, 'index'])->name('product-list');
-        Route::get('/product/list/ajax', [EcommerceProductList::class, 'ajaxList'])->name('product-ajax-list');
-        Route::get('/product/edit/{id}', [EcommerceProductAdd::class, 'edit'])->name('product.edit');
+        Route::get('/product', [ProductController::class, 'index'])->name('product.list');
+        Route::get('/product/list/ajax', [ProductController::class, 'ajaxList'])->name('product.list.ajax');
+        Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
     });
-
-    Route::middleware('permission:product-add.read')->group(function () {
-        Route::get('/product/add', [EcommerceProductAdd::class, 'index'])->name('product-add.read');
-    });
-
-    Route::middleware('permission:product-add.create')->group(function () {
-        Route::post('/product/create', [EcommerceProductAdd::class, 'create'])->name('product.create');
+    
+    Route::middleware('permission:product-list.create')->group(function () {
+        Route::get('/product/add', [ProductController::class, 'add'])->name('product.add');
+        Route::post('/product/create', [ProductController::class, 'create'])->name('product.create');
     });
 
     Route::middleware('permission:product-list.write')->group(function () {
-        Route::get('/product/status/change/{id}', [EcommerceProductList::class, 'changeStatus'])->name('product.change.status');
-        Route::post('/product/update', [EcommerceProductAdd::class, 'update'])->name('product.update');
+        Route::post('/product/update', [ProductController::class, 'update'])->name('product.update');
     });
 
-    Route::middleware('permission:collection-list.read')->group(function () {
-        Route::get('/collection/list', [EcommerceCollectionList::class, 'index'])->name('collection-list');
-       Route::get('/collection/edit/{id}', [EcommerceCollectionList::class, 'edit'])->name('collection.edit');
-        Route::get('/collection/list/ajax', [EcommerceCollectionList::class, 'ajaxList'])->name('collection-ajax-list');
+    Route::middleware('permission:brand-list.read')->group(function () {
+        Route::get('/brand', [BrandController::class, 'index'])->name('brand.list');
+       Route::get('/brand/edit/{id}', [BrandController::class, 'edit'])->name('brand.edit');
+        Route::get('/brand/list/ajax', [BrandController::class, 'ajaxList'])->name('brand.list.ajax');
     });
 
-    Route::middleware('permission:collection-list.write')->group(function () {
-         Route::post('/collection/update', [EcommerceCollectionList::class, 'update'])->name('collection.update');
+    Route::middleware('permission:brand-list.write')->group(function () {
+         Route::post('/brand/update', [BrandController::class, 'update'])->name('brand.update');
     });
 
-    Route::middleware('permission:collection-list.create')->group(function () {
-        Route::get('/collection/add', [EcommerceCollectionList::class, 'add'])->name('collection.add');
-         Route::post('/collection/create', [EcommerceCollectionList::class, 'create'])->name('collection.create');
+    Route::middleware('permission:brand-list.create')->group(function () {
+        Route::get('/brand/add', [BrandController::class, 'add'])->name('brand.add');
+         Route::post('/brand/create', [BrandController::class, 'create'])->name('brand.create');
     });
 
 
-    Route::middleware('permission:product-category.read')->group(function () {
-        Route::get('/product/category', [EcommerceProductCategory::class, 'index'])->name('category.read');
+    Route::middleware('permission:category-list.read')->group(function () {
+        Route::get('/category', [CategoryController::class, 'index'])->name('category.list');
+        Route::get('/category/list/ajax', [CategoryController::class, 'ajaxList'])->name('category.list.ajax');
+        Route::get('/category/edit/{id}', [CategoryController::class, 'edit'])->name('category.edit');
+        
     });
 
-    Route::middleware('permission:product-category.create')->group(function () {
-        Route::post('/category/create', [EcommerceProductCategory::class, 'create'])->name('category.create');
+    Route::middleware('permission:category-list.create')->group(function () {
+        Route::get('/category/add', [CategoryController::class, 'add'])->name('category.add');
+        Route::post('/category/create', [CategoryController::class, 'create'])->name('category.create');
     });
 
-    Route::middleware('permission:product-category.write')->group(function () {
-        Route::post('/category/update', [EcommerceProductCategory::class, 'update'])->name('category.update');
+    Route::middleware('permission:category-list.write')->group(function () {
+        Route::post('/category/update', [CategoryController::class, 'update'])->name('category.update');
     });
 
 
     //Order
     Route::middleware('permission:order-list.read')->group(function () {
-        Route::get('/order/list', [EcommerceOrderList::class, 'index'])->name('order-list.read');
+        Route::get('/order', [EcommerceOrderList::class, 'index'])->name('order-list.read');
     });
 
     Route::middleware('permission:order-details.read')->group(function () {
@@ -109,7 +108,7 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     //Customer
     Route::middleware('permission:customer-all.read')->group(function () {
-        Route::get('/customer/all', [EcommerceCustomerAll::class, 'index'])->name('customer-all.read');
+        Route::get('/customer', [EcommerceCustomerAll::class, 'index'])->name('customer-all.read');
     });
 
     Route::middleware('permission:manage-reviews.read')->group(function () {
@@ -147,7 +146,7 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     // Invoice
     Route::middleware('permission:invoice-list.read')->group(function () {
-        Route::get('/invoice/list', [InvoiceList::class, 'index'])->name('invoice-list.read');
+        Route::get('/invoice', [InvoiceList::class, 'index'])->name('invoice-list.read');
     });
 
     Route::middleware('permission:invoice-preview.read')->group(function () {
@@ -170,28 +169,29 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     // Users
     Route::middleware('permission:user-list.read')->group(function () {
 
-        Route::get('/user/list', [UserList::class, 'index'])->name('user-list.read');
-        Route::get('/ajax/user/list/with/roles', [UserList::class, 'ajaxUserListWithRoles'])->name('user-ajax.read');
-        Route::get('/ajax/user/list/all', [UserList::class, 'ajaxUserAll'])->name('user-ajax.all');
-        Route::get('/user/ajax/show', [UserList::class, 'ajaxShow'])->name('user-ajax.show');
+        Route::get('/user', [UserController::class, 'index'])->name('user.list');
+        Route::get('/user/list/ajax', [UserController::class, 'ajaxUserAll'])->name('user.list.ajax');
 
-        Route::get('/user/view/account/{id}', [UserViewAccount::class, 'index'])->name('user-view-account.read');
-        Route::get('/user/view/security/{id}', [UserViewSecurity::class, 'index'])->name('user-view-security.read');
-        Route::get('/user/view/billing/{id}', [UserViewBilling::class, 'index'])->name('user-view-billing.read');
-        Route::get('/user/view/notifications/{id}', [UserViewNotifications::class, 'index'])->name('user-view-notifications.read');
-        Route::get('/user/view/connections/{id}', [UserViewConnections::class, 'index'])->name('user-view-connections.read');
+        Route::get('/user/ajax/list/with/roles', [UserController::class, 'ajaxUserListWithRoles'])->name('user.list.ajax.with.roles');
+        
+        Route::get('/user/ajax/show', [UserController::class, 'ajaxShow'])->name('user-ajax.show');
+
+        Route::get('/user/view/account/{id}', [UserController::class, 'viewAccount'])->name('user-view-account.read');
+        Route::get('/user/view/security/{id}', [UserController::class, 'viewSecurity'])->name('user-view-security.read');
+        Route::get('/user/view/billing/{id}', [UserController::class, 'viewBilling'])->name('user-view-billing.read');
+        Route::get('/user/view/notifications/{id}', [UserController::class, 'viewNotifications'])->name('user-view-notifications.read');
+        Route::get('/user/view/connections/{id}', [UserController::class, 'viewConnections'])->name('user-view-connections.read');
     });
 
     Route::middleware('permission:user-list.write')->group(function () {
-        Route::post('/user/update', [UserList::class, 'update'])->name('user.update');
-        Route::post('/user/update/password', [UserList::class, 'updatePassword'])->name('user.update-password');
-        Route::get('user/change/status/{id}', [UserList::class, 'changeStatus'])->name('user.change-status');
-
+        Route::post('/user/update', [UserController::class, 'update'])->name('user.update');
+        Route::post('/user/update/password', [UserController::class, 'updatePassword'])->name('user.update-password');
+        Route::get('user/change/status/{id}', [UserController::class, 'changeStatus'])->name('user.change-status');
     });
 
     Route::middleware('permission:user-list.create')->group(function () {
-        Route::post('/user/create', [UserList::class, 'create'])->name('user.create');
-        Route::get('/user/delete/{id}', [UserList::class, 'delete'])->name('user.delete');
+        Route::post('/user/create', [UserController::class, 'create'])->name('user.create');
+        Route::get('/user/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
     });
 
     // Roles & Permissions
@@ -214,10 +214,10 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     Route::get('/profile-connections', [UserConnections::class, 'index'])->name('profile-connections.read');
 
 
-    Route::get('/app/ecommerce/customer/details/overview', [EcommerceCustomerDetailsOverview::class, 'index'])->name('app-ecommerce-customer-details-overview');
-    Route::get('/app/ecommerce/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
-    Route::get('/app/ecommerce/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
-    Route::get('/app/ecommerce/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
+    Route::get('/customer/details/overview', [EcommerceCustomerDetailsOverview::class, 'index'])->name('app-ecommerce-customer-details-overview');
+    Route::get('/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
+    Route::get('/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
+    Route::get('/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
 });
 
 Route::get('/', [AuthLoginController::class, 'show']);

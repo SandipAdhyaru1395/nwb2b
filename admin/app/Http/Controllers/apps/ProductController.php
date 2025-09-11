@@ -3,38 +3,36 @@
 namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
-use App\Models\CollectionCategory;
-use App\Models\ProductCategory;
-use App\Models\ProductTag;
-use App\Models\Tag;
+use App\Models\ProductBrand;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\Product;
-use App\Models\Category;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Collection;
 use App\Models\Brand;
+use Illuminate\Support\Str;
 
-class EcommerceProductAdd extends Controller
+class ProductController extends Controller
 {
   public function index()
   {
-    $data['collections'] = Collection::all();
+    $data['total_products_count'] = Product::all()->count();
+    $data['active_products_count'] = Product::where('is_active',1)->count();
+    $data['inactive_products_count'] = Product::where('is_active',0)->count();
 
-    return view('content.apps.app-ecommerce-product-add',$data);
+    return view('content.product.list',$data);
   }
 
   public function create(Request $request)
   {
    
     $validated = $request->validate([
-       'collection_id' => ['required'],
+      'brands' => ['required'],
       'productTitle' => ['required'],
       'productSku' => ['required','unique:products,sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
     ],[
-      'collection_id.required' => 'Collection is required',
+      'brands.required' => 'Brand is required',
       'productTitle.required' => 'Name is required',
       'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
@@ -48,7 +46,7 @@ class EcommerceProductAdd extends Controller
 
     $path = $request->file('productImage')->store('products', 'public');
    
-    Product::create([
+    $product =Product::create([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
       'description' => $request->productDescription ?? null,
@@ -59,32 +57,41 @@ class EcommerceProductAdd extends Controller
       'stock_quantity' => $request->quantity ?? 0,
       'min_order_quantity' => $request->min_order_quantity ?? 0,
       'is_active' => $request->productStatus ?? 0,
-      'collection_id' => $request->collection_id,
+      'brand_id' => $request->brand_id,
     ]);
 
+    foreach ($request->brands as $brand) {
+      ProductBrand::create([
+        'product_id' => $product->id,
+        'brand_id' => $brand
+      ]);
+    }
+
     Toastr::success('Product created successfully!');
-    return redirect()->route('product-list');
+    return redirect()->route('product.list');
   }
 
   public function edit($id){
     
     $data['product'] = Product::findOrFail($id);
-    $data['collections'] = Collection::all();
+    $data['brands'] = Brand::all();
 
-    return view('content.apps.app-ecommerce-product-edit',$data);
+    $data['productBrands'] = ProductBrand::where('product_id', $id)->pluck('brand_id')->toArray();
+
+    return view('content.product.edit',$data);
   }
   
   public function update(Request $request){
     
     
      $validated = $request->validate([
-      'collection_id' => ['required'],
+      'brands' => ['required'],
       'productTitle' => ['required'],
       'productSku' => ['required','unique:products,sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
     ],[
-      'collection_id.required' => 'Collection is required',
+      'brands.required' => 'Brand is required',
       'productTitle.required' => 'Name is required',
       'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
@@ -120,11 +127,51 @@ class EcommerceProductAdd extends Controller
       'stock_quantity' => $request->quantity ?? 0,
       'min_order_quantity' => $request->min_order_quantity ?? 0,
       'is_active' => $request->productStatus ?? 0,
-      'collection_id' => $request->collection_id,
     ]);
 
+    ProductBrand::where('product_id', $request->id)->delete();
+
+    foreach ($request->brands as $brand) {
+
+      ProductBrand::create([
+        'product_id' => $request->id,
+        'brand_id' => $brand
+      ]);
+    }
+
     Toastr::success('Product updated successfully!');
-    return redirect()->route('product-list');
+    return redirect()->route('product.list');
 
   }
+
+  public function add(){
+    $data['brands'] = Brand::all();
+    return view('content.product.add',$data);
+  }
+
+  public function ajaxList(Request $request) {
+    
+    $products=Product::select('id','name','description',
+            'sku','price','image_url','is_active')
+            ->orderBy('id', 'desc')->get();
+    
+    $data = [];
+
+    if($products){
+      foreach($products as $product){
+        $data[] = [
+          'id' => $product->id,
+          'product_name' => $product->name,
+          'product_brand' => Str::limit($product->description,40),
+          'sku' => $product->sku,
+          'price' => $product->price,
+          'image_url' => $product->image_url,
+          'is_active' => $product->is_active,
+        ];
+      }
+    }
+
+    return response()->json(['data' => $data]);
+  }
+ 
 }

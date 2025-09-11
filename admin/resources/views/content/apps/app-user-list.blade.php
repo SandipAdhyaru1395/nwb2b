@@ -14,7 +14,19 @@
   @vite(['resources/assets/js/modal-ajax-edit-user.js', 'resources/assets/js/app-user-list.js'])
 
   <script>
+    @if ($errors->addModal->any())
+          document.addEventListener("DOMContentLoaded", function () {
+              let addOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasAddUser'));
+              addOffcanvas.show();
+          });
+    @endif
+  
+
     $(document).ready(function () {
+      @if ($errors->editModal->any())
+            $('#editModal').modal('show');
+      @endif
+
       $('#ajaxEditUserModal').on('show.bs.modal', function (e) {
 
         var id = $(e.relatedTarget).data('id');
