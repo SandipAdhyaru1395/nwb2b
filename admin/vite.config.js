@@ -83,6 +83,10 @@ export default defineConfig({
     stringify: true // Helps with JSON import compatibility
   },
   build: {
+    target: 'es2017',     // modern JS output
+    minify: 'esbuild',    // fastest minifier
+    sourcemap: false,     // disable if not debugging
+    chunkSizeWarningLimit: 1000, // prevent warnings
     commonjsOptions: {
       include: [/node_modules/] // Helps with importing CommonJS modules
     }
