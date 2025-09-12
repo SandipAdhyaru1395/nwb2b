@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <h6 class="text-nowrap mb-0">${name}</h6>
+                  <span class="text-nowrap mb-0">${name}</span>
                 </div>
               </div>
             `;
@@ -436,56 +436,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       initComplete: function () {
         const api = this.api();
 
-        // Adding status filter once table is initialized
-        api.columns(-2).every(function () {
-          const column = this;
-          const select = document.createElement('select');
-          select.id = 'ProductCategory';
-          select.className = 'form-select text-capitalize';
-          select.innerHTML = '<option value="">Category</option>';
-
-          document.querySelector('.product_category').appendChild(select);
-
-          select.addEventListener('change', function () {
-            const val = select.value ? `^${select.value}$` : '';
-            column.search(val, true, false).draw();
-          });
-
-        });
-
-        // Adding category filter once table is initialized
-        api.columns(3).every(function () {
-          const column = this;
-          const select = document.createElement('select');
-          select.id = 'ProductSubCategory';
-          select.className = 'form-select text-capitalize';
-          select.innerHTML = '<option value="">Sub Category</option>';
-
-          document.querySelector('.product_sub_category').appendChild(select);
-
-          select.addEventListener('change', function () {
-            const val = select.value ? `^${select.value}$` : '';
-            column.search(val, true, false).draw();
-          });
-        });
-
-        // Adding is published once table is initialized
-        api.columns(7).every(function () {
-          const column = this;
-          const select = document.createElement('select');
-          select.id = 'IsPublished';
-          select.className = 'form-select text-capitalize';
-          select.innerHTML = '<option value="">Is Published ?</option>';
-
-          document.querySelector('.product_status').appendChild(select);
-
-          select.addEventListener('change', function () {
-            const val = select.value ? `^${select.value}$` : '';
-            column.search(val, true, false).draw();
-          });
-          
-        });
-      }
+             }
     });
   }
 

@@ -3,7 +3,8 @@
   $height = $height ?? '22';
 @endphp
 
-<span class="text-primary">
+<img src="{{ asset('logo.png') }}" alt="Logo" width="39" height="29">
+<!-- <span class="text-primary">
   <svg width="{{ $width }}" height="{{ $height }}" viewBox="0 0 32 22" fill="none"
     xmlns="http://www.w3.org/2000/svg">
     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -17,4 +18,4 @@
       d="M7.77295 16.3566L23.6563 0H32V6.88383C32 6.88383 31.8262 9.17836 30.6591 10.4057L19.7824 22H13.6938L7.77295 16.3566Z"
       fill="currentColor" />
   </svg>
-</span>
+</span> -->

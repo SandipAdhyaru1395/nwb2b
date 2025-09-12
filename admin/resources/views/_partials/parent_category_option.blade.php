@@ -6,7 +6,7 @@
     @foreach ($category->children as $child)
         @include('_partials.parent_category_option', [
             'category' => $child,
-            'prefix' => $prefix . '---------- '
+            'prefix' => $prefix . '- '
         ])
     @endforeach
 @endif

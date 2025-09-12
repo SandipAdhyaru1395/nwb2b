@@ -126,7 +126,7 @@
                                     </label>
                                     <select class="form-control select2" name="categories[]" multiple>
                                         @foreach ($categories as $category)
-                                            @include('_partials.category_option', ['category' => $category])
+                                            @include('_partials.category_option', ['category' => $category,'prefix' => ''])
                                         @endforeach
                                     </select>
 

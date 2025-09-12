@@ -155,19 +155,79 @@
   }
 })();
 
-//Jquery to handle the e-commerce product add page
-
+//Jquery to handle the e-commerce product edit page
 $(function () {
-  // Select2
+  // Select2 for all dropdowns
   var select2 = $('.select2');
   if (select2.length) {
     select2.each(function () {
       var $this = $(this);
+      var isBrandsDropdown = $this.attr('name') === 'brands[]';
+
       $this.wrap('<div class="position-relative"></div>').select2({
         dropdownParent: $this.parent(),
-        placeholder: $this.data('placeholder') // for dynamic placeholder
+        placeholder: $this.data('placeholder'), // for dynamic placeholder
+        closeOnSelect: isBrandsDropdown ? false : true, // keep dropdown open only for brands
+        templateResult: function (data) {
+          if (!data.id) {
+            return data.text;
+          }
+          
+          // Only add checkboxes for brands dropdown
+          if (isBrandsDropdown) {
+            // Create the checkbox input
+            var $result = $('<span class="brand-option"></span>');
+            var checkbox = $('<input class="form-check-input" type="checkbox" style="margin-right:5px;" data-value="' + data.id + '" />');
+
+            // Check if the option is selected and update checkbox state
+            if (data.selected) {
+              checkbox.prop('checked', true);
+            }
+
+            $result.append(checkbox);
+            $result.append(' ' + data.text); // Add the option text
+
+            return $result;
+          } else {
+            // Regular dropdown without checkboxes
+            return data.text;
+          }
+        },
+        templateSelection: function (data) {
+          return data.text;
+        }
       });
+
+      // Only add checkbox event handlers for brands dropdown
+      if (isBrandsDropdown) {
+        // Keep checkboxes in sync with selections
+        $this.on('select2:select', function (e) {
+          var el = $(e.params.data.element);
+          el.prop('selected', true);
+          
+          // Clear the search input after selection
+          setTimeout(function() {
+            $this.select2('close');
+            // Clear the search input
+            $('.select2-search__field').val('');
+          }, 50);
+          
+          // Update the specific checkbox in the dropdown to show as checked
+          setTimeout(function() {
+            $('.select2-dropdown').find('input[data-value="' + e.params.data.id + '"]').prop('checked', true);
+          }, 10);
+        });
+
+        $this.on('select2:unselect', function (e) {
+          var el = $(e.params.data.element);
+          el.prop('selected', false);
+
+          // Uncheck the specific checkbox when the item is unselected
+          setTimeout(function() {
+            $('.select2-dropdown').find('input[data-value="' + e.params.data.id + '"]').prop('checked', false);
+          }, 10);
+        });
+      }
     });
   }
-
 });

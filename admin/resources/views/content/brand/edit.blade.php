@@ -126,8 +126,8 @@
                                         <span>Category <span class="text-danger">*</span></span>
                                     </label>
                                     <select class="form-control select2" name="categories[]" multiple>
-                                        @foreach ($categories as $category)
-                                            @include('_partials.edit_category_option', ['category' => $category])
+                                    @foreach ($categories as $category)
+                                            @include('_partials.edit_category_option', ['category' => $category,'prefix' => ''])
                                         @endforeach
                                     </select>
 

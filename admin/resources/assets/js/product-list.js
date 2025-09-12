@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <h6 class="text-nowrap mb-0">${name}</h6>
+                  <span class="text-nowrap mb-0">${name}</span>
                 </div>
               </div>
             `;

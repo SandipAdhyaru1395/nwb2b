@@ -1,12 +1,13 @@
+<option value="{{ $category->id }}" @selected(in_array($category->id, $brandCategories))>
+    {{ $prefix . $category->name }}
+</option>
+
 @if ($category->children && $category->children->count())
-    <optgroup label="{{ $category->name }}">
-        @foreach ($category->children as $child)
-            @include('_partials.edit_category_option', ['category' => $child])
-        @endforeach
-    </optgroup>
-@else
-    <option value="{{ $category->id }}"
-        @selected(in_array($category->id, $brandCategories))>
-        {{ $category->name }}
-    </option>
+    @foreach ($category->children as $child)
+        @include('_partials.edit_category_option', [
+            'category' => $child,
+            'prefix' => $prefix . '- '
+        ])
+    @endforeach
 @endif
+

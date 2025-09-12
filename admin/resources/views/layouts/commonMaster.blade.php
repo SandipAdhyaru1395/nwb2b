@@ -1,5 +1,5 @@
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
-  
+
   class="@if(isset($sidebarMenuData)) layout-navbar-fixed layout-compact layout-menu-fixed @else customizer-hide layout-menu-fixed @endif"
   dir="ltr" data-skin="default" data-assets-path="{{ asset('/assets') . '/' }}"
   data-base-url="{{ url('/') }}" data-framework="laravel" data-template="@if(isset($sidebarMenuData)) vertical-menu-template @else blank-menu-template @endif"
@@ -12,7 +12,7 @@
 
   <title>
     @yield('title') | {{ config('variables.templateName') ? config('variables.templateName') : 'TemplateName' }}
-     {{ config('variables.templateSuffix') ? config('variables.templateSuffix') : 'TemplateSuffix' }}
+    {{ config('variables.templateSuffix') ? config('variables.templateSuffix') : 'TemplateSuffix' }}
   </title>
   <meta name="description"
     content="{{ config('variables.templateDescription') ? config('variables.templateDescription') : '' }}" />
@@ -32,7 +32,7 @@
   <!-- Canonical SEO -->
   <link rel="canonical" href="{{ config('variables.productPage') ? config('variables.productPage') : '' }}" />
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />
+  <link rel="icon" type="image/x-icon" href="{{ asset('logo.png') }}" />
 
   <!-- Include Styles -->
   @include('layouts/sections/styles')
@@ -40,6 +40,110 @@
   <!-- Include Scripts for customizer, helper, analytics, config -->
   @include('layouts/sections/scriptsIncludes')
   <link rel="stylesheet" href="{{ asset('css/toastr.min.css') }}">
+
+  <style>
+    :root {
+      --logo-color: #134570;
+      --sidebar-font-color: #444050;
+      --table-odd-row-color: #444050;
+      --table-odd-row-font-color: #fff;
+      --table-even-row-color: #fff;
+      --table-even-row-font-color: #444050;
+      --table-odd-row-button-color: #fff;
+      --table-odd-row-button-hover-color: #1e1e1e;
+      --table-even-row-button-hover-color: #444050;
+      --table-odd-row-button-hover-background-color: #fff;
+      --table-even-row-button-hover-font-color: #fff;
+    }
+
+    .btn-primary,
+    .menu-item.active a {
+      background: var(--logo-color) !important;
+    }
+
+    /* Odd rows (excluding empty row) */
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) {
+      background-color: var(--table-odd-row-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td {
+      color: var(--table-odd-row-font-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td.dt-select input {
+      border-color: var(--table-odd-row-font-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(even):not(:has(td.dt-empty)) td.dt-select input {
+      border-color: var(--table-even-row-font-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td:last-child button {
+      color: var(--table-odd-row-button-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td:last-child button:hover {
+      background-color: var(--table-odd-row-button-hover-background-color) !important;
+      /* border : none !important; */
+      color: var(--table-odd-row-button-hover-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(even):not(:has(td.dt-empty)) td:last-child button:hover {
+      background-color: var(--table-even-row-button-hover-color) !important;
+      color: var(--table-even-row-button-hover-font-color) !important;
+    }
+
+    /* Even rows */
+    table.dataTable tbody tr:nth-child(even) {
+      background-color: var(--table-even-row-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(even) td {
+      color: var(--table-even-row-font-color) !important;
+    }
+
+    /* Prevent "selected" from changing colors (keep zebra striping) */
+    table.dataTable tbody tr.selected,
+    table.dataTable tbody tr.selected>td {
+      background-color: inherit !important;
+      /* color: inherit !important; */
+    }
+
+
+    .badge {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .badge.bg-label-success {
+      background-color: #28a745 !important;
+      color: #fff !important;
+    }
+
+    .badge.bg-label-danger {
+      background-color: #dc3545 !important;
+      /* Bootstrap danger red */
+      color: #fff !important;
+    }
+
+    .table .avatar{
+      max-height:30px !important;
+      max-width:30px !important;
+    }
+
+    .table td{
+      font-size:14px;
+      padding: 5px 20px;
+      max-height:10px;
+    }
+
+    .card-datatable .pagination .active button{
+      background-color: var(--logo-color);
+      color: #fff;
+    }
+    
+  </style>
 </head>
 
 <body>
@@ -47,14 +151,14 @@
   @yield('layoutContent')
   <!--/ Layout Content -->
 
-  
+
 
   <script src="{{ asset('js/jquery.min.js') }}"></script>
-  
-  <!-- Include Scripts -->
-   @include('layouts/sections/scripts')
 
-  
+  <!-- Include Scripts -->
+  @include('layouts/sections/scripts')
+
+
   <script src="{{ asset('js/toastr.min.js') }}"></script>
   {!! Toastr::message() !!}
 
