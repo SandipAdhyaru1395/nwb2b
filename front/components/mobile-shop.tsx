@@ -1,118 +1,51 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import {
-  Search,
-  Filter,
-  X,
-  ShoppingBag,
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Minus,
-  Star,
-  Home,
-  QrCode,
-  Wallet,
-  User,
-} from "lucide-react"
+import { useState } from "react"
+import { Search, Filter, X, ShoppingBag, ChevronDown, ChevronUp, Plus, Star, Home, Wallet, User } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { useToast } from "@/hooks/use-toast"
-import api from "@/lib/axios"
 
 interface MobileShopProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket") => void
-  cart: Record<number, { product: ProductItem; quantity: number }>
-  increment: (product: ProductItem) => void
-  decrement: (product: ProductItem) => void
-  totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
-  formatMoney: (n: number) => string
+  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account") => void
 }
 
-interface ProductItem {
-  id: number
-  name: string
-  image: string
-  price: string
-  discount?: string
-}
+const categories = [
+  { name: "Deals & Offers", color: "bg-yellow-400", expanded: false },
+  { name: "Vaping", color: "bg-green-500", expanded: true },
+  { name: "Big Puff Devices", color: "bg-green-200", expanded: false },
+  { name: "NEW Compliant 600 Puffs", color: "bg-green-200", expanded: false },
+  { name: "E-liquids", color: "bg-green-200", expanded: true },
+]
 
-interface SubcategoryItem {
-  name: string
-  badge?: string
-  badgeColor?: string
-  products: ProductItem[]
-}
+const brands = [
+  { name: "IVG Intense Nic Salts", badge: "NEW", badgeColor: "bg-green-500", expanded: false },
+  { name: "Elux Legend Nic Salt", badge: "HOT", badgeColor: "bg-red-500", expanded: true },
+]
 
-interface CategoryItem {
-  name: string
-  color: string
-  subcategories: SubcategoryItem[]
-}
+const products = [
+  { id: 1, name: "Purple Vape", image: "/placeholder-5tl12.png", price: "£1.20", discount: "£0.05" },
+  { id: 2, name: "Black Vape", image: "/black-vape-bottle.png", price: "£1.20", discount: "£0.05" },
+  { id: 3, name: "Vape Device", image: "/placeholder-8ylx0.png", price: "£1.20", discount: "£0.05" },
+  { id: 4, name: "Blue Vape", image: "/placeholder-yjfge.png", price: "£1.20", discount: "£0.05" },
+  { id: 5, name: "Grey Vape", image: "/placeholder-9g5qg.png", price: "£1.20", discount: "£0.05" },
+  { id: 6, name: "Vape Kit", image: "/placeholder-95zws.png", price: "£1.20", discount: "£0.05" },
+]
 
-// fetched categories state
-const initialCategories: CategoryItem[] = []
-
-export function MobileShop({ onNavigate, cart, increment, decrement, totals, formatMoney }: MobileShopProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [categories, setCategories] = useState<CategoryItem[]>(initialCategories)
+export function MobileShop({ onNavigate }: MobileShopProps) {
+  const [searchQuery, setSearchQuery] = useState("Grape")
   const [expandedCategories, setExpandedCategories] = useState<string[]>(["Vaping", "E-liquids"])
-  const [expandedSubcategories, setExpandedSubcategories] = useState<string[]>(["Vaping::Disposables", "E-liquids::Nic Salts"])
-  const { toast } = useToast()
+  const [expandedBrands, setExpandedBrands] = useState<string[]>(["Elux Legend Nic Salt"])
 
   const toggleCategory = (categoryName: string) => {
     setExpandedCategories((prev) =>
-      prev.includes(categoryName) ? [] : [categoryName] // only keep one open
+      prev.includes(categoryName) ? prev.filter((name) => name !== categoryName) : [...prev, categoryName],
     )
-    // also collapse all subcategories when switching category
-    setExpandedSubcategories([])
   }
 
-  const toggleSubcategory = (categoryName: string, subcategoryName: string) => {
-    const key = `${categoryName}::${subcategoryName}`
-    setExpandedSubcategories((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]))
-  }
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await api.get('/products')
-        const data = res.data
-        if (Array.isArray(data?.categories)) {
-          setCategories(data.categories)
-        }
-      } catch (e) {
-        // keep categories empty on error
-      }
-    }
-    fetchData()
-  }, [])
-
-  // cart and totals are provided by parent
-
-  const handleIncrement = (product: ProductItem) => {
-    increment(product)
-    toast({
-      title: "Added to Cart",
-      description: `${product.name} added to your basket`,
-    })
-  }
-
-  const handleDecrement = (product: ProductItem) => {
-    const currentQuantity = cart[product.id]?.quantity || 0
-    decrement(product)
-    if (currentQuantity === 1) {
-      toast({
-        title: "Removed from Cart",
-        description: `${product.name} removed from your basket`,
-      })
-    } else {
-      toast({
-        title: "Quantity Updated",
-        description: `${product.name} quantity decreased`,
-      })
-    }
+  const toggleBrand = (brandName: string) => {
+    setExpandedBrands((prev) =>
+      prev.includes(brandName) ? prev.filter((name) => name !== brandName) : [...prev, brandName],
+    )
   }
 
   return (
@@ -150,12 +83,12 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, for
       </div>
 
       {/* Categories */}
-      <div className="px-4 py-4 space-y-2 pb-48">
+      <div className="flex-1 px-4 py-4 space-y-2">
         {categories.map((category) => (
           <div key={category.name} className="space-y-2">
             <button
               onClick={() => toggleCategory(category.name)}
-              className={`w-full bg-green-500 px-4 py-3 rounded-lg flex items-center justify-between font-medium`}
+              className={`w-full ${category.color} text-white px-4 py-3 rounded-lg flex items-center justify-between font-medium`}
             >
               <span>{category.name}</span>
               {expandedCategories.includes(category.name) ? (
@@ -164,136 +97,87 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, for
                 <ChevronDown className="w-5 h-5" />
               )}
             </button>
-
-            {expandedCategories.includes(category.name) && (
-              <div className="space-y-2 mt-2">
-                {category.subcategories.map((subcategory) => {
-                  const key = `${category.name}::${subcategory.name}`
-                  const isOpen = expandedSubcategories.includes(key)
-                  return (
-                    <div key={key} className="space-y-2">
-                      <button
-                        onClick={() => toggleSubcategory(category.name, subcategory.name)}
-                        className="w-full bg-green-100 px-4 py-3 rounded-lg flex items-center justify-between"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-white rounded border flex items-center justify-center">
-                            <div className="w-6 h-6 bg-gray-300 rounded"></div>
-                          </div>
-                          <span className="font-medium text-gray-800">{subcategory.name}</span>
-                          {subcategory.badge && (
-                            <Badge className={`${subcategory.badgeColor} text-white text-xs px-2 py-1`}>{subcategory.badge}</Badge>
-                          )}
-                        </div>
-                        {isOpen ? (
-                          <ChevronUp className="w-5 h-5 text-gray-600" />
-                        ) : (
-                          <ChevronDown className="w-5 h-5 text-gray-600" />
-                        )}
-                      </button>
-
-                      {isOpen && (
-                        <div className="grid grid-cols-3 gap-3 px-2">
-                          {subcategory.products.map((product) => (
-                            <div key={product.id} className="bg-white rounded-lg p-3 border relative">
-                              {/* Add / Quantity controls */}
-                              {cart[product.id]?.quantity ? (
-                                <div className="absolute top-2 right-2 flex items-center gap-1 bg-white border rounded-full px-2 py-1 shadow-sm">
-                                  <button onClick={() => handleDecrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                                    <Minus className="w-4 h-4" />
-                                  </button>
-                                  <span className="min-w-[1.5rem] text-center text-sm font-medium">{cart[product.id]?.quantity}</span>
-                                  <button onClick={() => handleIncrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
-                                    <Plus className="w-4 h-4" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <button onClick={() => handleIncrement(product)} className="absolute top-2 right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                                  <Plus className="w-4 h-4 text-white" />
-                                </button>
-                              )}
-
-                              <div className="aspect-square mb-2 flex items-center justify-center">
-                                <img
-                                  src={product.image || "/placeholder.svg"}
-                                  alt={product.name}
-                                  className="w-full h-full object-contain"
-                                />
-                              </div>
-
-                              <div className="space-y-1">
-                                <div className="justify-items-end">
-                                  <Star className="w-5 h-5 text-gray-300 fill-gray-300" />
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="font-semibold text-sm">{product.price}</span>
-                                  {product.discount && (
-                                    <div className="bg-green-500 text-white text-xs px-1 py-0.5 rounded">{product.discount}</div>
-                                  )}
-                                </div>
-                                <div className="text-center">
-                                  <span className="text-xs text-gray-600">{product.name}</span>
-                                </div>
-
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
           </div>
         ))}
+
+        {/* Brand Sections */}
+        <div className="space-y-2 mt-4">
+          {brands.map((brand) => (
+            <div key={brand.name} className="space-y-2">
+              <button
+                onClick={() => toggleBrand(brand.name)}
+                className="w-full bg-gray-100 px-4 py-3 rounded-lg flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-white rounded border flex items-center justify-center">
+                    <div className="w-6 h-6 bg-gray-300 rounded"></div>
+                  </div>
+                  <span className="font-medium text-gray-800">{brand.name}</span>
+                  <Badge className={`${brand.badgeColor} text-white text-xs px-2 py-1`}>{brand.badge}</Badge>
+                </div>
+                {expandedBrands.includes(brand.name) ? (
+                  <ChevronUp className="w-5 h-5 text-gray-600" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-600" />
+                )}
+              </button>
+
+              {/* Product Grid - Only show for expanded brands */}
+              {expandedBrands.includes(brand.name) && (
+                <div className="grid grid-cols-3 gap-3 px-2">
+                  {products.map((product) => (
+                    <div key={product.id} className="bg-white rounded-lg p-3 border relative">
+                      <button className="absolute top-2 right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                        <Plus className="w-4 h-4 text-white" />
+                      </button>
+
+                      <div className="aspect-square mb-2 flex items-center justify-center">
+                        <img
+                          src={product.image || "/placeholder.svg"}
+                          alt={product.name}
+                          className="w-full h-full object-contain"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-sm">{product.price}</span>
+                          <div className="bg-green-500 text-white text-xs px-1 py-0.5 rounded">{product.discount}</div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Star className="w-3 h-3 text-gray-300 fill-gray-300" />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
-
-
-
-
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
-        {/* Basket Summary (shows when items in cart) */}
-        {totals.units > 0 && (
-          <div className="bg-white border-t px-4 py-3 space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">{totals.units} Units | {totals.skus} SKUs</span>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{formatMoney(totals.total)}</span>
-                {totals.totalDiscount > 0 && (
-                  <span className="text-green-600 text-xs">{formatMoney(totals.totalDiscount)} off</span>
-                )}
-              </div>
-            </div>
-            <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-medium">View Basket</button>
-            <div className="text-[11px] text-center text-gray-500">Spend £4.50 more for FREE delivery</div>
-          </div>
-        )}
-        <div className="grid grid-cols-5 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Dashboard</span>
+      <div className="bg-white border-t px-4 py-2">
+        <div className="grid grid-cols-4">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center gap-1 py-2">
+            <Home className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-600">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="text-xs mt-1">Shop</span>
+          <button className="flex flex-col items-center gap-1 py-2">
+            <ShoppingBag className="w-6 h-6 text-gray-800" />
+            <span className="text-xs text-gray-800 font-medium">Shop</span>
           </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <QrCode className="w-5 h-5" />
-            <span className="text-xs mt-1">Scan</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center gap-1 py-2">
+            <Wallet className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-600">Wallet</span>
           </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <Wallet className="w-5 h-5" />
-            <span className="text-xs mt-1">Wallet</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center gap-1 py-2">
+            <User className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-600">Account</span>
           </button>
         </div>
-      </nav>
+      </div>
     </div>
   )
 }
