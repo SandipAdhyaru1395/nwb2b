@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar-sm me-3">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <a href="${customerView}" class="text-heading"><span class="fw-medium">${name}</span></a>
+                  <span class="fw-medium">${name}</span>
                   <small>${email}</small>
                 </div>
               </div>`;
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const id = full['customer_id'];
 
-            return "<span class='text-heading'>#" + id + '</span>';
+            return "<span>#" + id + '</span>';
           }
         },
         {
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const spent = full['total_spent'];
 
-            return '<span class="fw-medium text-heading">' + spent + '</span>';
+            return '<span class="fw-medium">' + spent + '</span>';
           }
         }
       ],

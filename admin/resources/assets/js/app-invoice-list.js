@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         {
           targets: 2,
           render: function (data, type, full) {
-            return `<a href="${baseUrl}app/invoice/preview">#${full['invoice_id']}</a>`;
+            return `#${full['invoice_id']}`;
           }
         },
         {
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   </div>
                 </div>
                 <div class="d-flex flex-column">
-                  <a href="${baseUrl}pages/profile-user" class="text-heading text-truncate"><span class="fw-medium">${name}</span></a>
+                 <span class="fw-medium">${name}</span>
                   <small class="text-truncate">${service}</small>
                 </div>
               </div>
@@ -162,18 +162,18 @@ document.addEventListener('DOMContentLoaded', function () {
           render: function () {
             return (
               '<div class="d-flex align-items-center">' +
-              '<a href="javascript:;" data-bs-toggle="tooltip" class="btn btn-icon btn-text-secondary rounded-pill waves-effect delete-record" data-bs-placement="top" title="Delete"><i class="icon-base ti tabler-trash icon-22px"></i></a>' +
+              '<a href="javascript:;" data-bs-toggle="tooltip" class="btn btn-icon rounded-pill waves-effect delete-record" data-bs-placement="top" title="Delete"><i class="icon-base ti tabler-trash icon-22px"></i></a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-22px"></i></a>' +
+              'app/invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon rounded-pill waves-effect" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-22px"></i></a>' +
               '<div class="dropdown">' +
-              '<a href="javascript:;" class="btn dropdown-toggle hide-arrow btn-icon btn-text-secondary rounded-pill waves-effect p-0" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-22px"></i></a>' +
+              '<a href="javascript:;" class="btn dropdown-toggle hide-arrow btn-icon rounded-pill waves-effect p-0" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-22px"></i></a>' +
               '<div class="dropdown-menu dropdown-menu-end">' +
-              '<a href="javascript:;" class="dropdown-item">Download</a>' +
+              '<a href="javascript:;" class="dropdown-item text-body">Download</a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/edit" class="dropdown-item">Edit</a>' +
-              '<a href="javascript:;" class="dropdown-item">Duplicate</a>' +
+              'app/invoice/edit" class="dropdown-item text-body">Edit</a>' +
+              '<a href="javascript:;" class="dropdown-item text-body">Duplicate</a>' +
               '</div>' +
               '</div>'
             );
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
                   text: '<i class="icon-base  ti tabler-plus icon-16px me-md-2"></i><span class="d-md-inline-block d-none">Create Invoice</span>',
                   className: 'btn btn-primary',
                   action: function () {
-                    window.location = baseUrl + 'app/invoice/add';
+                    window.location = baseUrl + 'invoice/add';
                   }
                 }
               ]

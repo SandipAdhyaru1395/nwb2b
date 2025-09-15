@@ -16,6 +16,28 @@
 
 @section('page-script')
 @vite(['resources/assets/js/brand-list.js'])
+<script>
+  function deleteBrand(id) {
+    if (id) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        customClass: {
+          confirmButton: 'btn btn-primary me-3',
+          cancelButton: 'btn btn-label-secondary'
+        },
+        buttonsStyling: false
+      }).then(function (result) {
+        if(result.isConfirmed){
+          window.location.href = baseUrl + 'brand/delete/' + id;
+        }
+      });
+    }
+  }
+</script>
 @endsection
 
 @section('content')

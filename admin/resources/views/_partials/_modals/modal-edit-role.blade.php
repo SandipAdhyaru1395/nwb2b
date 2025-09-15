@@ -9,7 +9,7 @@
                     <p class="text-body-secondary">Set role permissions</p>
                 </div>
                 <!-- Add role form -->
-                <form id="editRoleForm" class="row g-3" onsubmit="return false" method="POST" action="{{ route('access-roles.update') }}">
+                <form id="editRoleForm" class="row g-3" onsubmit="return false" method="POST" action="{{ route('role.update') }}">
                     @csrf
                     <input type="hidden" name="role_id" id="role_id">
                     
@@ -62,21 +62,21 @@
                                                                 <div class="d-flex justify-content-end">
                                                                     <div class="form-check mb-0 me-4 me-lg-12">
                                                                         <input class="form-check-input" type="checkbox"
-                                                                            name="{{ $subChild['slug']}}[read]" id="{{ $subChild['slug']}}_read" />
+                                                                            name="{{ $subChild['slug']}}[read]" id="edit_{{ $subChild['slug']}}_read" />
                                                                         <label class="form-check-label"
-                                                                            for="{{ $subChild['slug']}}_read"> Read </label>
+                                                                            for="edit_{{ $subChild['slug']}}_read"> Read </label>
                                                                     </div>
                                                                     <div class="form-check mb-0 me-4 me-lg-12">
                                                                         <input class="form-check-input" type="checkbox"
-                                                                            name="{{ $subChild['slug']}}[write]" id="{{ $subChild['slug']}}_write" />
+                                                                            name="{{ $subChild['slug']}}[write]" id="edit_{{ $subChild['slug']}}_write" />
                                                                         <label class="form-check-label"
-                                                                            for="{{ $subChild['slug']}}_write"> Write </label>
+                                                                            for="edit_{{ $subChild['slug']}}_write"> Write </label>
                                                                     </div>
                                                                     <div class="form-check mb-0">
                                                                         <input class="form-check-input" type="checkbox"
-                                                                           name="{{ $subChild['slug']}}[create]" id="{{ $subChild['slug']}}_create" />
+                                                                           name="{{ $subChild['slug']}}[create]" id="edit_{{ $subChild['slug']}}_create" />
                                                                         <label class="form-check-label"
-                                                                            for="{{ $subChild['slug']}}_create"> Create </label>
+                                                                            for="edit_{{ $subChild['slug']}}_create"> Create </label>
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -92,23 +92,23 @@
                                                             <div class="d-flex justify-content-end">
                                                                 <div class="form-check mb-0 me-4 me-lg-12">
                                                                     <input class="form-check-input" type="checkbox"
-                                                                        name="{{ $child['slug']}}[read]" id="{{ $child['slug']}}_read" />
+                                                                        name="{{ $child['slug']}}[read]" id="edit_{{ $child['slug']}}_read" />
                                                                     <label class="form-check-label"
-                                                                        for="{{ $child['slug']}}_read">
+                                                                        for="edit_{{ $child['slug']}}_read">
                                                                         Read </label>
                                                                 </div>
                                                                 <div class="form-check mb-0 me-4 me-lg-12">
                                                                     <input class="form-check-input" type="checkbox"
-                                                                        name="{{ $child['slug']}}[write]" id="{{ $child['slug']}}_write" />
+                                                                        name="{{ $child['slug']}}[write]" id="edit_{{ $child['slug']}}_write" />
                                                                     <label class="form-check-label"
-                                                                        for="{{ $child['slug']}}_write">
+                                                                        for="edit_{{ $child['slug']}}_write">
                                                                         Write </label>
                                                                 </div>
                                                                 <div class="form-check mb-0">
                                                                     <input class="form-check-input" type="checkbox"
-                                                                       name="{{ $child['slug']}}[create]" id="{{ $child['slug']}}_create" />
+                                                                       name="{{ $child['slug']}}[create]" id="edit_{{ $child['slug']}}_create" />
                                                                     <label class="form-check-label"
-                                                                        for="{{ $child['slug']}}_create">
+                                                                        for="edit_{{ $child['slug']}}_create">
                                                                         Create </label>
                                                                 </div>
                                                             </div>
@@ -125,21 +125,21 @@
                                                     <div class="d-flex justify-content-end">
                                                         <div class="form-check mb-0 me-4 me-lg-12">
                                                             <input class="form-check-input" type="checkbox"
-                                                                name="{{ $menu['slug']}}[read]" id="{{ $menu['slug']}}_read" />
-                                                            <label class="form-check-label" for="{{ $menu['slug']}}_read">
+                                                                name="{{ $menu['slug']}}[read]" id="edit_{{ $menu['slug']}}_read" />
+                                                            <label class="form-check-label" for="edit_{{ $menu['slug']}}_read">
                                                                 Read </label>
                                                         </div>
                                                         <div class="form-check mb-0 me-4 me-lg-12">
                                                             <input class="form-check-input" type="checkbox"
-                                                                name="{{ $menu['slug']}}[write]" id="{{ $menu['slug']}}_write" />
-                                                            <label class="form-check-label" for="{{ $menu['slug']}}_write">
+                                                                name="{{ $menu['slug']}}[write]" id="edit_{{ $menu['slug']}}_write" />
+                                                            <label class="form-check-label" for="edit_{{ $menu['slug']}}_write">
                                                                 Write </label>
                                                         </div>
                                                         <div class="form-check mb-0">
                                                             <input class="form-check-input" type="checkbox"
-                                                               name="{{ $menu['slug']}}[create]" id="{{ $menu['slug']}}_create" />
+                                                               name="{{ $menu['slug']}}[create]" id="edit_{{ $menu['slug']}}_create" />
                                                             <label class="form-check-label"
-                                                                for="{{ $menu['slug']}}_create">
+                                                                for="edit_{{ $menu['slug']}}_create">
                                                                 Create </label>
                                                         </div>
                                                     </div>

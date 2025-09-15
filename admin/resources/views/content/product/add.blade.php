@@ -12,6 +12,36 @@
 
 @section('page-script')
 @vite(['resources/assets/js/product-add.js'])
+<script>
+    $(document).ready(function() {
+        
+        $('#stepPlus').click(function() {
+            
+            var step = $('#step').val();
+
+            if(step > 0) {
+                step = parseInt(step) + 1;
+                $('#step').val(step);
+            }else{
+                $('#step').val(1);
+            }
+        });
+
+        $('#stepMinus').click(function() {
+             var step = $('#step').val();
+
+            if(step > 1) {
+                step = parseInt(step) - 1;
+                $('#step').val(step);
+            }else{
+                $('#step').val(1);
+            }
+        });
+        $('#step').on('paste', function(e) {
+            e.preventDefault();
+        });
+    });
+</script>
 @endsection
 
 @section('content')
@@ -21,7 +51,7 @@
         @csrf
 
         <div
-            class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+                style="background: var(--bs-body-bg);" class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
             <div class="d-flex flex-column justify-content-center">
                 <h4 class="mb-1">Add a new Product</h4>
                 <p class="mb-0">Orders placed across your store</p>
@@ -100,31 +130,36 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-6 mb-5 form-control-validation"><label class="form-label"
+                            <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                     for="quantity">Quantity</label>
                                 <input type="text" class="form-control" id="quantity" placeholder="Enter quantity"
                                     name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)"
                                     aria-label="Product Quantity" value="{{ old('quantity') }}" autocomplete="off" />
                             </div>
-                            <div class="col-lg-6 mb-5 form-control-validation"><label class="form-label"
+                            <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                     for="min_order_quantity">Min Order Quantity</label>
                                 <input type="text" class="form-control" id="min_order_quantity"
-                                    placeholder="Enter minimum order quantity" name="min_order_quantity"
+                                    placeholder="Enter quantity" name="min_order_quantity"
                                     onkeypress="return /^[0-9]+$/.test(event.key)"
                                     value="{{ old('min_order_quantity') }}" autocomplete="off" />
                             </div>
-                            <!-- <div class="col-8 text-center col-lg-4 mb-5 form-control-validation"><label class="form-label"
-                                    <label for="userQuantity" class="form-label">Set Step Quantity</label>
-                                <div class="d-flex gap-4">
-                                    <button class="btn btn-sm btn-primary" type="button" id="btnMinus">
+                            <div class="col-md-4 col-8 mx-auto mb-5 form-control-validation"><label class="form-label"
+                                     for="step_quantity" class="form-label">Step Quantity</label>
+                                <div class="position-relative d-flex gap-2 align-items-center w-75">
+                                    <button style="width:25px; left:10;" class="left-0 position-absolute btn btn-sm btn-danger h-75" type="button" id="stepMinus">
                                         <i class="flex-shrink-0 ti tabler-minus"></i>
                                     </button>
-                                    <input type="text" id="userQuantity" class="form-control text-center">
-                                    <button class="btn btn-sm btn-primary" type="button" id="btnMinus">
+                                    <input type="text" name="step" id="step" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control text-center" value="1" autocomplete="off">
+                                    <button style="width:25px; right:10;" class="position-absolute btn btn-sm btn-success h-75" type="button" id="stepPlus">
                                         <i class="flex-shrink-0 ti tabler-plus"></i>
                                     </button>
                                 </div>
-                            </div> -->
+                                @error('step')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
                         </div>
                         <!-- Description -->
                         <div>

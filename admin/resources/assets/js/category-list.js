@@ -141,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return `
               <div class="d-inline-block text-nowrap">
                 <a href="${categoryEdit}/${full['id']}"><button class="btn btn-text-secondary rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-edit icon-22px"></i></button></a>
+                <a href="javascript:;" onclick="deleteCategory(${full['id']})"><button class="btn btn-text-danger rounded-pill waves-effect btn-icon"><i class="icon-base ti tabler-trash icon-22px"></i></button></a>
               </div>
             `;
           }

@@ -24,10 +24,11 @@
         var id = $(e.relatedTarget).data('id');
 
         $.ajax({
-          url: "{{ route('access-roles.show') }}",
+          url: "{{ route('role.show') }}",
           type: 'GET',
           data: { id: id },
           success: function (response) {
+            $('#editRoleForm').find('input[type="checkbox"]').prop('checked', false);
             $('#editRoleForm').find('#role_id').val(response.id);
             $('#editRoleForm').find('#modalRoleName').val(response.role_name);
 
@@ -35,7 +36,7 @@
 
               Object.keys(response.menus).forEach(function (key) {
                 Object.keys(response.menus[key]).forEach(function (action) {
-                  $('#editRoleForm').find('#' + key + '_' + action).prop('checked', true);
+                  $('#editRoleForm').find('#edit_' + key + '_' + action).prop('checked', true);
                 });
               });
             }
@@ -49,7 +50,7 @@
 
         if (id) {
           $.ajax({
-            url: "{{ route('access-roles.show') }}",
+            url: "{{ route('role.show') }}",
             type: 'GET',
             data: { id: id },
             success: function (response) {
@@ -101,7 +102,9 @@
           },
           buttonsStyling: false
         }).then(function (result) {
-          window.location.href = baseUrl + 'user/delete/' + id;
+          if(result.isConfirmed){
+            window.location.href = baseUrl + 'user/delete/' + id;
+          }
         });
       }
     }

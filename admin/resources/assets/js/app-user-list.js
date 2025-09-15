@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               '<div class="d-flex flex-column">' +
               '<a href="' +
               userView + '/' + full['id'] +
-              '" class="text-heading text-truncate"><span class="fw-medium">' +
+              '" ><span class="fw-medium">' +
               name +
               '</span></a>' +
               '<small>' +
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               "Administrator": '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>'
             };
             return (
-              "<span class='text-truncate d-flex align-items-center text-heading'>" +
+              "<span class='d-flex align-items-center'>" +
               (roleBadgeObj[role] || '') + // Ensures badge exists for the role
               role +
               '</span>'
@@ -160,14 +160,20 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: (data, type, full, meta) => {
             return `
               <div class="d-flex align-items-center">
-                <a href="javascript:;" class="btn btn-text-secondary rounded-pill waves-effect btn-icon" onclick="deleteRecord(${full['id']})">
+                <a href="javascript:;"  onclick="deleteRecord(${full['id']})">
+                  <button class="btn rounded-pill waves-effect btn-icon">
                   <i class="icon-base ti tabler-trash icon-22px"></i>
+                  </button>
                 </a>
-                <a href="${userView}/${full['id']}" class="btn btn-text-secondary rounded-pill waves-effect btn-icon">
-                  <i class="icon-base ti tabler-eye icon-22px"></i>
+                <a href="${userView}/${full['id']}" >
+                  <button class="btn rounded-pill waves-effect btn-icon">
+                    <i class="icon-base ti tabler-eye icon-22px"></i>
+                  </button>
                 </a>
-                <a href="javascript:;" class="btn btn-text-secondary rounded-pill waves-effect btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
-                  <i class="icon-base ti tabler-dots-vertical icon-22px"></i>
+                <a href="javascript:;"  data-bs-toggle="dropdown">
+                  <button class="btn rounded-pill waves-effect btn-icon dropdown-toggle hide-arrow">
+                    <i class="icon-base ti tabler-dots-vertical icon-22px"></i>
+                  </button>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end m-0">
                   <a href="javascript:;" class="dropdown-item" data-id="${full['id']}" data-bs-target="#ajaxEditUserModal" data-bs-toggle="modal">Edit</a>

@@ -93,6 +93,8 @@
       color: var(--table-even-row-button-hover-font-color) !important;
     }
 
+    
+
     /* Even rows */
     table.dataTable tbody tr:nth-child(even) {
       background-color: var(--table-even-row-color) !important;
@@ -142,7 +144,34 @@
       background-color: var(--logo-color);
       color: #fff;
     }
-    
+
+    table.dataTable tbody tr:nth-child(even) a {
+      color: var(--table-even-row-font-color);
+    }
+
+    table.dataTable tbody tr:nth-child(odd) a {
+      color: var(--table-odd-row-font-color);
+    }
+
+    table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) button:hover {
+      background-color: var(--table-odd-row-button-hover-background-color) !important;
+      /* border : none !important; */
+      color: var(--table-odd-row-button-hover-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(even):not(:has(td.dt-empty)) button:hover {
+      /* background-color: var(--table-even-row-button-hover-color); */
+      color: var(--table-even-row-button-hover-font-color);
+    }
+
+    table.dataTable tbody tr:nth-child(even) .dropdown-menu a {
+      color: var(--table-even-row-font-color);
+    }
+
+    table.dataTable tbody tr:nth-child(odd) .dropdown-menu a {
+      color: var(--table-even-row-font-color);
+    }
+
   </style>
 </head>
 

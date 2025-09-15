@@ -20,7 +20,7 @@
 
 @section('content')
 <div class="row">
-  @include('content.apps.user-account-sidebar')
+  @include('content.user.account-sidebar')
 
   <!-- User Content -->
   <div class="col-xl-8 col-lg-7 order-0 order-md-1">

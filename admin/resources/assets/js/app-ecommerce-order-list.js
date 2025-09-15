@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             const order_id = full['order'];
             // Creates full output for row
             const row_output =
-              '<a href=" ' + baseUrl + 'app/ecommerce/order/details"><span>#' + order_id + '</span></a>';
+              '<span>#' + order_id + '</span>';
             return row_output;
           }
         },
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   </div>
                 </div>
                 <div class="d-flex flex-column">
-                  <h6 class="m-0"><a href="${baseUrl}pages/profile-user" class="text-heading">${name}</a></h6>
+                  <span class="m-0">${name}</span>
                   <small>${email}</small>
                 </div>
               </div>`;
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <i class="icon-base ti tabler-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="${baseUrl}app/ecommerce/order/details" class="dropdown-item">View</a>
+                  <a href="${baseUrl}order/details" class="dropdown-item">View</a>
                   <a href="javascript:void(0);" class="dropdown-item delete-record">Delete</a>
                 </div>
               </div>`;

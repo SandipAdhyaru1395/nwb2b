@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
+    use SoftDeletes;
     protected $table = 'products';
 
     protected $fillable = [
@@ -17,6 +19,7 @@ class Product extends Model
         'image_url',
         'wallet_credit',
         'stock_quantity',
+        'step_quantity',
         'notification_request_count',
         'min_order_quantity',
         'is_active',

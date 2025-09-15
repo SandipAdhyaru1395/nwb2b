@@ -27,12 +27,16 @@ class ProductController extends Controller
    
     $validated = $request->validate([
       'brands' => ['required'],
+      'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
       'productSku' => ['required','unique:products,sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
     ],[
       'brands.required' => 'Brand is required',
+      'step.required' => 'Step quantity is required',
+      'step.numeric' => 'Must be valid number',
+      'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
       'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
@@ -49,6 +53,7 @@ class ProductController extends Controller
     $product =Product::create([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
+      'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
       'price' => $validated['productPrice'] ?? 0,
       'cost_price' => $request->costPrice ?? 0,
@@ -86,12 +91,16 @@ class ProductController extends Controller
     
      $validated = $request->validate([
       'brands' => ['required'],
+      'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
       'productSku' => ['required','unique:products,sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
     ],[
       'brands.required' => 'Brand is required',
+      'step.required' => 'Step quantity is required',
+      'step.numeric' => 'Must be valid number',
+      'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
       'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
@@ -119,6 +128,7 @@ class ProductController extends Controller
     Product::find($request->id)->update([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
+      'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
       'price' => $validated['productPrice'] ?? 0,
       'cost_price' => $request->costPrice ?? 0,
@@ -174,4 +184,11 @@ class ProductController extends Controller
     return response()->json(['data' => $data]);
   }
  
+  public function delete($id)
+  {
+    $product = Product::findOrFail($id);
+    $product->delete();
+    Toastr::success('Product deleted successfully!');
+    return redirect()->back();
+  }
 }

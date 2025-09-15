@@ -9,7 +9,7 @@
                     <p class="text-body-secondary">Set role permissions</p>
                 </div>
                 <!-- Add role form -->
-                <form id="addRoleForm" class="row g-3" onsubmit="return false" method="POST" action="{{ route('access-roles.store') }}">
+                <form id="addRoleForm" class="row g-3" onsubmit="return false" method="POST" action="{{ route('role.store') }}">
                     @csrf
                     <div class="col-12 form-control-validation mb-3">
                         <label class="form-label" for="modalRoleName">Role Name</label>

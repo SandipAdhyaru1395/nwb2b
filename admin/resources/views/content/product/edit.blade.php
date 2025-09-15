@@ -12,6 +12,36 @@
 
 @section('page-script')
     @vite(['resources/assets/js/product-edit.js'])
+<script>
+    $(document).ready(function() {
+        
+        $('#stepPlus').click(function() {
+            
+            var step = $('#step').val();
+
+            if(step > 0) {
+                step = parseInt(step) + 1;
+                $('#step').val(step);
+            }else{
+                $('#step').val(1);
+            }
+        });
+
+        $('#stepMinus').click(function() {
+             var step = $('#step').val();
+
+            if(step > 1) {
+                step = parseInt(step) - 1;
+                $('#step').val(step);
+            }else{
+                $('#step').val(1);
+            }
+        });
+        $('#step').on('paste', function(e) {
+            e.preventDefault();
+        });
+    });
+</script>
 @endsection
 
 @section('content')
@@ -21,7 +51,7 @@
             @csrf
             <input type="hidden" name="id" value="{{ $product->id }}">
             <div
-                class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
+                style="background: var(--bs-body-bg);" class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                 <div class="d-flex flex-column justify-content-center">
                     <h4 class="mb-1">Edit Product</h4>
                 </div>
@@ -42,7 +72,7 @@
                             <h5 class="card-tile mb-0">Product information</h5>
                         </div>
                         <div class="card-body">
-                           
+
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="ecommerce-product-name">Name <span
                                         class="text-danger">*</span></label>
@@ -67,20 +97,43 @@
                                         </span>
                                     @enderror
                                 </div>
-                                
+
                             </div>
                             <div class="row mb-6">
-                                <div class="col form-control-validation"><label class="form-label"
+                                <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                         for="quantity">Quantity</label>
                                     <input type="text" class="form-control" id="quantity" placeholder="Enter quantity"
-                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)" aria-label="Product Quantity" value="{{ $product->stock_quantity }}"
+                                        name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        aria-label="Product Quantity" value="{{ $product->stock_quantity }}"
                                         autocomplete="off" />
                                 </div>
-                                <div class="col form-control-validation"><label class="form-label"
+                                <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                         for="min_order_quantity">Min Order Quantity</label>
-                                    <input type="text" class="form-control" id="min_order_quantity" placeholder="Enter minimum order quantity"
-                                        name="min_order_quantity" onkeypress="return /^[0-9]+$/.test(event.key)" value="{{ $product->min_order_quantity }}"
-                                        autocomplete="off" />
+                                    <input type="text" class="form-control" id="min_order_quantity"
+                                        placeholder="Enter minimum order quantity" name="min_order_quantity"
+                                        onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        value="{{ $product->min_order_quantity }}" autocomplete="off" />
+                                </div>
+                                <div class="col-md-4 col-8 mx-auto mb-5 form-control-validation"><label class="form-label"
+                                        for="step_quantity" class="form-label">Step Quantity</label>
+                                    <div class="position-relative d-flex gap-2 align-items-center w-75">
+                                        <button style="width:25px; left:10;" class="position-absolute btn btn-sm btn-danger h-75" type="button"
+                                            id="stepMinus">
+                                            <i class="flex-shrink-0 ti tabler-minus"></i>
+                                        </button>
+                                        <input type="text" name="step" id="step"
+                                            onkeypress="return /^[0-9]+$/.test(event.key)"
+                                            class="form-control text-center" value="{{ $product->step_quantity ?? 1 }}" autocomplete="off">
+                                        <button style="width:25px; right:10;" class="position-absolute btn btn-sm btn-success h-75" type="button"
+                                            id="stepPlus">
+                                            <i class="flex-shrink-0 ti tabler-plus"></i>
+                                        </button>
+                                    </div>
+                                    @error('step')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
                                 </div>
                             </div>
                             <!-- Description -->
@@ -111,7 +164,8 @@
                     <!-- /Product Information -->
                     <!-- Media -->
                     <div class="card mb-6 pt-5">
-                        <img class="align-self-center" height="300px" width="400px" src="{{ str_contains($product->image_url, 'https') ? $product->image_url : asset('storage/'.$product->image_url) }}" />
+                        <img class="align-self-center" height="300px" width="400px"
+                            src="{{ str_contains($product->image_url, 'https') ? $product->image_url : asset('storage/' . $product->image_url) }}" />
                         <div class="card-body form-control-validation">
                             <input type="file" name="productImage" id="productImage" hidden>
                             <div class="dropzone needsclick p-0" id="dropzone-basic">
@@ -145,9 +199,10 @@
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="ecommerce-product-price">Price <span
                                         class="text-danger">*</span></label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    id="ecommerce-product-price" placeholder="Price" name="productPrice"
-                                    aria-label="Product price" value="{{ $product->price }}" autocomplete="off" />
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                    class="form-control" id="ecommerce-product-price" placeholder="Price"
+                                    name="productPrice" aria-label="Product price" value="{{ $product->price }}"
+                                    autocomplete="off" />
                                 @error('productPrice')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -157,17 +212,19 @@
                             <!-- Cost Price -->
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="cost-price">Cost Price </label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    id="cost-price" placeholder="Price" name="costPrice"
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                    class="form-control" id="cost-price" placeholder="Price" name="costPrice"
                                     aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
                             </div>
                             <!-- Wallet Credit -->
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="wallet-credit">Wallet Credit</label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
-                                    id="wallet-credit" placeholder="Credit" name="walletCredit" aria-label="Wallet Credit"
-                                    value="{{ $product->wallet_credit }}" autocomplete="off" />
+                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                    class="form-control" id="wallet-credit" placeholder="Credit" name="walletCredit"
+                                    aria-label="Wallet Credit" value="{{ $product->wallet_credit }}"
+                                    autocomplete="off" />
                             </div>
+
                         </div>
                     </div>
                     <!-- /Pricing Card -->
@@ -184,17 +241,16 @@
                                         <span>Status <span class="text-danger">*</span></span>
                                     </label>
                                     <select class="form-select select2" name="productStatus" id="productStatus">
-                                        <option value="1" @selected($product->is_active == '1')>Active</option> 
+                                        <option value="1" @selected($product->is_active == '1')>Active</option>
                                         <option value="0" @selected($product->is_active == '0')>Inactive</option>
-                                    </select>                                   
+                                    </select>
                                 </div>
                             </div>
-                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="brand_id">Brand <span
-                                        class="text-danger">*</span></label>
-                                 <select class="form-control select2" name="brands[]" multiple>
+                            <div class="mb-6 form-control-validation">
+                                <label class="form-label" for="brand_id">Brand <span class="text-danger">*</span></label>
+                                <select class="form-control select2" name="brands[]" multiple>
                                     @forelse ($brands as $brand)
-                                        <option value="{{ $brand->id }}" @selected(in_array($brand->id,$productBrands))>
+                                        <option value="{{ $brand->id }}" @selected(in_array($brand->id, $productBrands))>
                                             {{ $brand->name }}</option>
                                     @empty
                                     @endforelse

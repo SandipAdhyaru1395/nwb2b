@@ -29,7 +29,7 @@ class UserController extends Controller
     $data['all_users_count'] = $all_users_count;
     $data['active_users_count'] = $active_users_count;
     $data['inactive_users_count'] = $inactive_users_count;
-    return view('content.apps.app-user-list', $data);
+    return view('content.user.list', $data);
   }
 
   public function ajaxUserAll()
@@ -198,34 +198,34 @@ class UserController extends Controller
     $data['user'] = User::findOrFail($id);
     $data['roles'] = Role::where('id','!=',1)->get();
     
-    return view('content.apps.app-user-view-account',$data);
+    return view('content.user.account',$data);
   }
 
   public function viewSecurity($id){
     $data['user'] = User::findOrFail($id);
      $data['roles'] = Role::where('id','!=',1)->get();
 
-    return view('content.apps.app-user-view-security',$data);
+    return view('content.user.security',$data);
   }
 
   public function viewBilling($id){
     $data['user'] = User::findOrFail($id);
      $data['roles'] = Role::where('id','!=',1)->get();
 
-    return view('content.apps.app-user-view-billing',$data);
+    return view('content.user.billing',$data);
   }
 
   public function viewNotifications($id){
     $data['user'] = User::findOrFail($id);
     $data['roles'] = Role::where('id','!=',1)->get();
 
-    return view('content.apps.app-user-view-notifications',$data);
+    return view('content.user.notifications',$data);
   }
 
   public function viewConnections($id){
     $data['user'] = User::findOrFail($id);
     $data['roles'] = Role::where('id','!=',1)->get();
 
-    return view('content.apps.app-user-view-connections',$data);
+    return view('content.user.connections',$data);
   }
 }

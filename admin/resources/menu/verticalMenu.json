@@ -49,10 +49,10 @@
       "slug": "user"
     },
     {
-      "url": "access-roles",
+      "url": "role",
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Roles",
-      "slug": "access-roles"
+      "slug": "role"
     }
   ]
 }

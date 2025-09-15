@@ -131,4 +131,12 @@ class CategoryController extends Controller
 
     return redirect()->route('category.list');
   }
+
+  public function delete($id)
+  {
+    $category = Category::findOrFail($id);
+    $category->delete();
+    Toastr::success('Category deleted successfully!');
+    return redirect()->back();
+  }
 }

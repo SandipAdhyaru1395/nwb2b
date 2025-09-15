@@ -86,6 +86,20 @@
             }
           }
         },
+        step: {
+          validators: {
+            notEmpty: {
+              message: 'Step quantity is required'
+            },
+            numeric: {
+              message: 'Step quantity must be a number'
+            },
+            greaterThan: {
+              message: 'Must be greater than 0',
+              min: 1
+            }
+          }
+        },
         productTitle: {
           validators: {
             notEmpty: {

@@ -215,4 +215,12 @@ class BrandController extends Controller
     Toastr::success('Brand updated successfully!');
     return redirect()->route('brand.list');
   }
+
+  public function delete($id)
+  {
+    $brand = Brand::findOrFail($id);
+    $brand->delete();
+    Toastr::success('Brand deleted successfully!');
+    return redirect()->back();
+  }
 }

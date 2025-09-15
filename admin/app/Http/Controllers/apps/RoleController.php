@@ -8,13 +8,13 @@ use Illuminate\Http\Request;
 use App\Models\Role;
 use Brian2694\Toastr\Facades\Toastr;
 
-class AccessRoles extends Controller
+class RoleController extends Controller
 {
   public function index()
   {
     $data['roles'] = Role::where('id','!=',1)->get();
 
-    return view('content.apps.app-access-roles', $data);
+    return view('content.role.list', $data);
   }
 
   public function store(Request $request)
@@ -26,13 +26,16 @@ class AccessRoles extends Controller
     $slugs = $request->except(['_token', 'modalRoleName']);
 
     if ($slugs) {
+
       foreach ($slugs as $key => $slug) {
+        
         foreach ($slug as $permission => $value) {
+          
           Permission::create([
             'role_id' => $role->id,
             'slug' => $key,
             'action' => $permission,
-            'route' => $slug.'.'.$permission
+            'route' => $key.'.'.$permission
           ]);
         }
       }

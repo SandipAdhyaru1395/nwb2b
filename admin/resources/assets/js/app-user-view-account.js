@@ -82,10 +82,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
               '</div>' +
               '</div>' +
               '<div class="d-flex flex-column gap-50">' +
-              '<span class="text-truncate fw-medium text-heading">' +
+              '<span class="fw-medium">' +
               name +
               '</span>' +
-              '<small class="text-truncate">' +
+              '<small>' +
               date +
               '</small>' +
               '</div>' +
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 3,
           render: function (data, type, full, meta) {
             var task = full['project_leader'];
-            return '<span class="text-heading">' + task + '</span>';
+            return '<span>' + task + '</span>';
           }
         },
         {

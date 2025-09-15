@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar-sm me-3">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <h6 class="text-body mb-0">${name}</h6>
+                  <span class="mb-0">${name}</span>
                   <small>${productBrand}</small>
                 </div>
               </div>`;
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           orderable: false,
           render: function (data, type, full, meta) {
             const qty = full['qty'];
-            const output = '<span class="text-body">' + qty + '</span>';
+            const output = '<span>' + qty + '</span>';
             return output;
           }
         },
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           orderable: false,
           render: function (data, type, full, meta) {
             const total = full['qty'] * full['price'];
-            const output = '<span class="text-body">' + total + '</span>';
+            const output = '<span>' + total + '</span>';
             return output;
           }
         }

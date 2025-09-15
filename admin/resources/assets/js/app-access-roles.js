@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     const userPlan = document.createElement('div');
     userPlan.classList.add('user_plan');
     dt_User = new DataTable(dtUserTable, {
-      ajax: baseUrl + 'ajax/user/list/with/roles', // JSON file to add data
+      ajax: baseUrl + 'user/ajax/list/with/roles', // JSON file to add data
       columns: [
         // columns according to JSON
         { data: 'id' },
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   </div>
                 </div>
                 <div class="d-flex flex-column">
-                  <a href="${userView}/${full['id']}" class="text-heading text-truncate"><span class="fw-medium">${name}</span></a>
+                  <a href="${userView}/${full['id']}"><span class="fw-medium">${name}</span></a>
                   <small>${email}</small>
                 </div>
               </div>
@@ -138,13 +138,25 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             return `
               <div class="d-flex align-items-center">
-                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect" onclick="deleteRecord(${full['id']})"><i class="icon-base ti tabler-trash icon-md"></i></a>
-                <a href="${userView}/${full['id']}" class="btn btn-icon btn-text-secondary rounded-pill waves-effect"><i class="icon-base ti tabler-eye icon-md"></i></a>
-                <a href="javascript:;" class="btn btn-icon btn-text-secondary rounded-pill waves-effect dropdown-toggle hide-arrow" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-md"></i></a>
-                <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="javascript:;" class="dropdown-item" data-id="${full['id']}" data-bs-target="#ajaxEditUserModal" data-bs-toggle="modal">Edit</a>
-                  <a href="${changeStatus}/${full['id']}" class="dropdown-item">${full['status'] == 'active' ? 'Inactive' : 'Active'}</a>
-                </div>
+                <a href="javascript:;"  onclick="deleteRecord(${full['id']})">
+                  <button class="btn btn-icon  rounded-pill waves-effect">
+                  <i class="icon-base ti tabler-trash icon-md"></i>
+                  </button>
+                </a>
+                <a href="${userView}/${full['id']}" >
+                  <button class="btn btn-icon  rounded-pill waves-effect">
+                    <i class="icon-base ti tabler-eye icon-md"></i>
+                    </button>
+                </a>
+                <a href="javascript:;"  data-bs-toggle="dropdown">
+                  <button class="btn btn-icon  rounded-pill waves-effect dropdown-toggle hide-arrow">
+                    <i class="icon-base ti tabler-dots-vertical icon-md"></i>
+                  </button>
+                </a>
+                  <div class="dropdown-menu dropdown-menu-end m-0">
+                    <a href="javascript:;" class="dropdown-item" data-id="${full['id']}" data-bs-target="#ajaxEditUserModal" data-bs-toggle="modal">Edit</a>
+                    <a href="${changeStatus}/${full['id']}" class="dropdown-item">${full['status'] == 'active' ? 'Inactive' : 'Active'}</a>
+                  </div>
               </div>
             `;
           }
