@@ -155,9 +155,9 @@ $(function () {
           
           // Clear the search input after selection
           setTimeout(function() {
-            $this.select2('close');
+            // $this.select2('close');
             // Clear the search input
-            $('.select2-search__field').val('');
+            $('.select2-search__field').val('').focus();
           }, 50);
           
           // Update the specific checkbox in the dropdown to show as checked

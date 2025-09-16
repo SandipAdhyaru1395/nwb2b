@@ -12,36 +12,36 @@
 
 @section('page-script')
     @vite(['resources/assets/js/product-edit.js'])
-<script>
-    $(document).ready(function() {
-        
-        $('#stepPlus').click(function() {
-            
-            var step = $('#step').val();
+    <script>
+        $(document).ready(function() {
 
-            if(step > 0) {
-                step = parseInt(step) + 1;
-                $('#step').val(step);
-            }else{
-                $('#step').val(1);
-            }
-        });
+            $('#stepPlus').click(function() {
 
-        $('#stepMinus').click(function() {
-             var step = $('#step').val();
+                var step = $('#step').val();
 
-            if(step > 1) {
-                step = parseInt(step) - 1;
-                $('#step').val(step);
-            }else{
-                $('#step').val(1);
-            }
+                if (step > 0) {
+                    step = parseInt(step) + 1;
+                    $('#step').val(step);
+                } else {
+                    $('#step').val(1);
+                }
+            });
+
+            $('#stepMinus').click(function() {
+                var step = $('#step').val();
+
+                if (step > 1) {
+                    step = parseInt(step) - 1;
+                    $('#step').val(step);
+                } else {
+                    $('#step').val(1);
+                }
+            });
+            $('#step').on('paste', function(e) {
+                e.preventDefault();
+            });
         });
-        $('#step').on('paste', function(e) {
-            e.preventDefault();
-        });
-    });
-</script>
+    </script>
 @endsection
 
 @section('content')
@@ -50,8 +50,8 @@
         <form id="editProductForm" method="POST" action="{{ route('product.update') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id" value="{{ $product->id }}">
-            <div
-                style="background: var(--bs-body-bg);" class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
+            <div style="background: var(--bs-body-bg);"
+                class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                 <div class="d-flex flex-column justify-content-center">
                     <h4 class="mb-1">Edit Product</h4>
                 </div>
@@ -99,6 +99,37 @@
                                 </div>
 
                             </div>
+                            <div class="row">
+                                <!-- Base Price -->
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="ecommerce-product-price">Price <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                        class="form-control" id="ecommerce-product-price" placeholder="Price"
+                                        name="productPrice" aria-label="Product price" value="{{ $product->price }}"
+                                        autocomplete="off" />
+                                    @error('productPrice')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <!-- Cost Price -->
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="cost-price">Purchase Price </label>
+                                    <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                        class="form-control" id="cost-price" placeholder="Price" name="costPrice"
+                                        aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
+                                </div>
+                                <!-- Wallet Credit -->
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="wallet-credit">Wallet Credit</label>
+                                    <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
+                                        class="form-control" id="wallet-credit" placeholder="Credit" name="walletCredit"
+                                        aria-label="Wallet Credit" value="{{ $product->wallet_credit }}"
+                                        autocomplete="off" />
+                                </div>
+                            </div>
                             <div class="row mb-6">
                                 <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                         for="quantity">Quantity</label>
@@ -117,14 +148,17 @@
                                 <div class="col-md-4 col-8 mx-auto mb-5 form-control-validation"><label class="form-label"
                                         for="step_quantity" class="form-label">Step Quantity</label>
                                     <div class="position-relative d-flex gap-2 align-items-center w-75">
-                                        <button style="width:25px; left:10;" class="position-absolute btn btn-sm btn-danger h-75" type="button"
+                                        <button style="width:25px; left:10;"
+                                            class="position-absolute btn btn-sm btn-danger h-75" type="button"
                                             id="stepMinus">
                                             <i class="flex-shrink-0 ti tabler-minus"></i>
                                         </button>
                                         <input type="text" name="step" id="step"
                                             onkeypress="return /^[0-9]+$/.test(event.key)"
-                                            class="form-control text-center" value="{{ $product->step_quantity ?? 1 }}" autocomplete="off">
-                                        <button style="width:25px; right:10;" class="position-absolute btn btn-sm btn-success h-75" type="button"
+                                            class="form-control text-center" value="{{ $product->step_quantity ?? 1 }}"
+                                            autocomplete="off">
+                                        <button style="width:25px; right:10;"
+                                            class="position-absolute btn btn-sm btn-success h-75" type="button"
                                             id="stepPlus">
                                             <i class="flex-shrink-0 ti tabler-plus"></i>
                                         </button>
@@ -189,45 +223,6 @@
 
                 <!-- Second column -->
                 <div class="col-12 col-lg-4">
-                    <!-- Pricing Card -->
-                    <div class="card mb-6">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Pricing</h5>
-                        </div>
-                        <div class="card-body">
-                            <!-- Base Price -->
-                            <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="ecommerce-product-price">Price <span
-                                        class="text-danger">*</span></label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" id="ecommerce-product-price" placeholder="Price"
-                                    name="productPrice" aria-label="Product price" value="{{ $product->price }}"
-                                    autocomplete="off" />
-                                @error('productPrice')
-                                    <span class="text-danger" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                            <!-- Cost Price -->
-                            <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="cost-price">Cost Price </label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" id="cost-price" placeholder="Price" name="costPrice"
-                                    aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
-                            </div>
-                            <!-- Wallet Credit -->
-                            <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="wallet-credit">Wallet Credit</label>
-                                <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                    class="form-control" id="wallet-credit" placeholder="Credit" name="walletCredit"
-                                    aria-label="Wallet Credit" value="{{ $product->wallet_credit }}"
-                                    autocomplete="off" />
-                            </div>
-
-                        </div>
-                    </div>
-                    <!-- /Pricing Card -->
                     <!-- Organize Card -->
                     <div class="card mb-6">
                         <div class="card-header">

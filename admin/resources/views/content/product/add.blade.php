@@ -116,7 +116,7 @@
                             </div>
                             <!-- Cost Price -->
                             <div class="col-lg-4 mb-5 form-control-validation">
-                                <label class="form-label" for="cost-price">Cost Price </label>
+                                <label class="form-label" for="cost-price">Purchase Price </label>
                                 <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control"
                                     id="cost-price" placeholder="Price" name="costPrice" aria-label="Cost price"
                                     value="{{ old('costPrice') }}" autocomplete="off" />
