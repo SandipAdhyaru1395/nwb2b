@@ -10,9 +10,6 @@
 @vite('resources/assets/vendor/scss/pages/app-invoice.scss')
 @endsection
 
-@section('vendor-script')
-@vite(['resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js', 'resources/assets/vendor/libs/jquery-repeater/jquery-repeater.js'])
-@endsection
 
 @section('page-script')
 @vite(['resources/assets/js/offcanvas-send-invoice.js', 'resources/assets/js/app-invoice-add.js'])
@@ -240,7 +237,7 @@
         <button class="btn btn-primary d-grid w-100 mb-4" data-bs-toggle="offcanvas" data-bs-target="#sendInvoiceOffcanvas">
           <span class="d-flex align-items-center justify-content-center text-nowrap"><i class="icon-base ti tabler-send icon-xs me-2"></i>Send Invoice</span>
         </button>
-        <a href="{{ url('app/invoice/preview') }}" class="btn btn-label-secondary d-grid w-100 mb-4">Preview</a>
+        <a href="{{ url('invoice/preview') }}" class="btn btn-label-secondary d-grid w-100 mb-4">Preview</a>
         <button type="button" class="btn btn-label-secondary d-grid w-100">Save</button>
       </div>
     </div>

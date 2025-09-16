@@ -346,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return `
               <div class="d-flex align-items-center">
                 <a href="javascript:;" class="btn btn-text-secondary rounded-pill waves-effect btn-icon delete-record"><i class="ti tabler-trash icon-22px"></i></a>
-                <a href="${baseUrl}app/invoice/preview" class="btn btn-text-secondary rounded-pill waves-effect btn-icon" data-bs-toggle="tooltip" title="Preview">
+                <a href="${baseUrl}invoice/preview" class="btn btn-text-secondary rounded-pill waves-effect btn-icon" data-bs-toggle="tooltip" title="Preview">
                   <i class="icon-base ti tabler-eye icon-22px"></i>
                 </a>
                 <div class="d-inline-block">

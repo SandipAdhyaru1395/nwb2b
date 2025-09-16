@@ -10,11 +10,6 @@
 @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
 @endsection
 
-@section('vendor-script')
-@vite(['resources/assets/vendor/libs/@form-validation/popular.js',
-'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
-'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
-@endsection
 
 @section('page-script')
 @vite(['resources/assets/js/auth-login.js'])

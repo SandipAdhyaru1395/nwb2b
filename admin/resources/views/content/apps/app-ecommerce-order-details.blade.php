@@ -11,13 +11,6 @@
 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
-@section('vendor-script')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
-'resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js',
-'resources/assets/vendor/libs/@form-validation/popular.js',
-'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
-'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/select2/select2.js'])
-@endsection
 
 @section('page-script')
 @vite(['resources/assets/js/app-ecommerce-order-details.js', 'resources/assets/js/modal-add-new-address.js',

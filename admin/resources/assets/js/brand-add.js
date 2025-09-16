@@ -47,7 +47,10 @@
   // Basic Tags
 
   const tagifyBasicEl = document.querySelector('#brand-tags');
-  const TagifyBasic = new Tagify(tagifyBasicEl);
+  if (tagifyBasicEl) {
+    const TagifyBasic = new Tagify(tagifyBasicEl);
+    void TagifyBasic;
+  }
 
   //For form validation
   const addBrandForm = document.getElementById('addBrandForm');

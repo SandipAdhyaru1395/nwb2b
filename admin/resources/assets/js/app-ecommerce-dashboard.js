@@ -819,7 +819,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           targets: 2,
           render: function (data, type, full) {
-            return `<a href="${baseUrl}app/invoice/preview">#${full['invoice_id']}</a>`;
+            return `<a href="${baseUrl}invoice/preview">#${full['invoice_id']}</a>`;
           }
         },
         {
@@ -889,14 +889,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
               '<a href="javascript:;" data-bs-toggle="tooltip" class="btn btn-icon delete-record" data-bs-placement="top" title="Delete"><i class="icon-base ti tabler-trash icon-md"></i></a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-md"></i></a>' +
+              'invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-md"></i></a>' +
               '<div class="dropdown">' +
               '<a href="javascript:;" class="btn dropdown-toggle hide-arrow btn-icon p-0" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-md"></i></a>' +
               '<div class="dropdown-menu dropdown-menu-end">' +
               '<a href="javascript:;" class="dropdown-item">Download</a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/edit" class="dropdown-item">Edit</a>' +
+              'invoice/edit" class="dropdown-item">Edit</a>' +
               '<a href="javascript:;" class="dropdown-item">Duplicate</a>' +
               '</div>' +
               '</div>'

@@ -60,7 +60,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
 
     // Edit user form validation
-    FormValidation.formValidation(document.getElementById('addUserForm'), {
+    const addUserFormEl = document.getElementById('addUserForm');
+    if (!addUserFormEl) return;
+    FormValidation.formValidation(addUserFormEl, {
       fields: {
         modalAddUserName: {
           validators: {

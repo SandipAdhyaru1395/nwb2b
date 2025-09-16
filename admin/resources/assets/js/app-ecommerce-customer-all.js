@@ -501,6 +501,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     });
   }
   // Add New customer Form Validation
+  if (!eCommerceCustomerAddForm) return;
   const fv = FormValidation.formValidation(eCommerceCustomerAddForm, {
     fields: {
       customerName: {

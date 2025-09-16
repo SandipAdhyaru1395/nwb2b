@@ -58,15 +58,16 @@ export default defineConfig({
         'resources/assets/css/demo.css',
         'resources/js/app.js',
         ...pageJsFiles,
-        ...vendorJsFiles,
-        ...LibsJsFiles,
-        'resources/js/laravel-user-management.js', // Processing Laravel User Management CRUD JS File
+        // ...vendorJsFiles,
+        // ...LibsJsFiles,
+        // 'resources/js/laravel-user-management.js', // Processing Laravel User Management CRUD JS File
         ...CoreScssFiles,
         ...LibsScssFiles,
         ...LibsCssFiles,
         ...FontsScssFiles,
-        ...FontsJsFiles,
-        ...FontsCssFiles
+        // ...FontsJsFiles,
+        ...FontsCssFiles,
+        'resources/assets/assets.js'
       ],
       refresh: true
     }),
@@ -86,9 +87,9 @@ export default defineConfig({
     target: 'es2017',     // modern JS output
     minify: 'esbuild',    // fastest minifier
     sourcemap: false,     // disable if not debugging
-    chunkSizeWarningLimit: 1000, // prevent warnings
-    commonjsOptions: {
-      include: [/node_modules/] // Helps with importing CommonJS modules
-    }
+    chunkSizeWarningLimit: 5000, // prevent warnings
+    // commonjsOptions: {
+    //   include: [/node_modules/] // Helps with importing CommonJS modules
+    // }
   }
 });

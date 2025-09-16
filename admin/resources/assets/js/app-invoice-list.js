@@ -165,14 +165,14 @@ document.addEventListener('DOMContentLoaded', function () {
               '<a href="javascript:;" data-bs-toggle="tooltip" class="btn btn-icon rounded-pill waves-effect delete-record" data-bs-placement="top" title="Delete"><i class="icon-base ti tabler-trash icon-22px"></i></a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon rounded-pill waves-effect" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-22px"></i></a>' +
+              'invoice/preview" data-bs-toggle="tooltip" class="btn btn-icon rounded-pill waves-effect" data-bs-placement="top" title="Preview Invoice"><i class="icon-base ti tabler-eye icon-22px"></i></a>' +
               '<div class="dropdown">' +
               '<a href="javascript:;" class="btn dropdown-toggle hide-arrow btn-icon rounded-pill waves-effect p-0" data-bs-toggle="dropdown"><i class="icon-base ti tabler-dots-vertical icon-22px"></i></a>' +
               '<div class="dropdown-menu dropdown-menu-end">' +
               '<a href="javascript:;" class="dropdown-item text-body">Download</a>' +
               '<a href="' +
               baseUrl +
-              'app/invoice/edit" class="dropdown-item text-body">Edit</a>' +
+              'invoice/edit" class="dropdown-item text-body">Edit</a>' +
               '<a href="javascript:;" class="dropdown-item text-body">Duplicate</a>' +
               '</div>' +
               '</div>'

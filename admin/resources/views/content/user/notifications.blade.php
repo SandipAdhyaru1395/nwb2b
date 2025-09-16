@@ -10,9 +10,6 @@
 @vite('resources/assets/vendor/scss/pages/page-user-view.scss')
 @endsection
 
-@section('vendor-script')
-@vite(['resources/assets/vendor/libs/sweetalert2/sweetalert2.js', 'resources/assets/vendor/libs/cleave-zen/cleave-zen.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
-@endsection
 
 @section('page-script')
 @vite(['resources/assets/js/modal-edit-user.js', 'resources/assets/js/app-user-view.js'])

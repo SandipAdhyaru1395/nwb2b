@@ -647,6 +647,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     });
   }
   // Add New User Form Validation
+  if (addNewUserForm) {
   const fv = FormValidation.formValidation(addNewUserForm, {
     // fields: {
     //   modalAddUserName: {
@@ -718,4 +719,5 @@ document.addEventListener('DOMContentLoaded', function (e) {
       });
     }
   });
+  }
 });

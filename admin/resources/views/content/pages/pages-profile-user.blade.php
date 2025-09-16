@@ -12,10 +12,6 @@
 @vite(['resources/assets/vendor/scss/pages/page-profile.scss'])
 @endsection
 
-<!-- Vendor Scripts -->
-@section('vendor-script')
-@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
-@endsection
 
 <!-- Page Scripts -->
 @section('page-script')
