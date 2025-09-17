@@ -183,6 +183,13 @@
       color: #fff;
     }
 
+    .dt-select input[type="checkbox"]{
+      border-color: #000;
+    }
+
+    .form-check-input{
+      border: 1px solid var(--bs-secondary-color);
+    }
   </style>
 </head>
 
