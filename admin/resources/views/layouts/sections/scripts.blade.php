@@ -4,7 +4,7 @@
     ])
 @yield('vendor-script')
 
-@vite(['resources/assets/vendor/js/menu.js'])
+@vite(['resources/assets/vendor/js/menu.js','resources/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js'])
 
 <!-- END: Page Vendor JS-->
 
