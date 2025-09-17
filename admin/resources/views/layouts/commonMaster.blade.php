@@ -43,16 +43,18 @@
 
   <style>
     :root {
+      --bs-primary: #134570;
       --logo-color: #134570;
       --sidebar-font-color: #444050;
-      --table-odd-row-color: #444050;
-      --table-odd-row-font-color: #fff;
+      --table-odd-row-color: #44405021;
+      --table-odd-row-font-color: #000;
       --table-even-row-color: #fff;
-      --table-even-row-font-color: #444050;
-      --table-odd-row-button-color: #fff;
-      --table-odd-row-button-hover-color: #1e1e1e;
-      --table-even-row-button-hover-color: #444050;
-      --table-odd-row-button-hover-background-color: #fff;
+      --table-even-row-font-color: #000;
+      --table-odd-row-button-color: #000;
+      --table-even-row-button-color: #000;
+      --table-odd-row-button-hover-color: #fff;
+      --table-even-row-button-hover-color: #134570;
+      --table-odd-row-button-hover-background-color: #134570;
       --table-even-row-button-hover-font-color: #fff;
     }
 
@@ -80,6 +82,10 @@
 
     table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td:last-child button {
       color: var(--table-odd-row-button-color) !important;
+    }
+
+    table.dataTable tbody tr:nth-child(even):not(:has(td.dt-empty)) td:last-child button {
+      color: var(--table-even-row-button-color) !important;
     }
 
     table.dataTable tbody tr:nth-child(odd):not(:has(td.dt-empty)) td:last-child button:hover {
@@ -170,6 +176,11 @@
 
     table.dataTable tbody tr:nth-child(odd) .dropdown-menu a {
       color: var(--table-even-row-font-color);
+    }
+
+    .select2-container--default .select2-results__option[aria-selected=true]{
+      background-color: var(--logo-color);
+      color: #fff;
     }
 
   </style>
