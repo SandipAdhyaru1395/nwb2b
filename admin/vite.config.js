@@ -57,6 +57,7 @@ export default defineConfig({
         'resources/css/app.css',
         'resources/assets/css/demo.css',
         'resources/js/app.js',
+        'resources/assets/assets.js',
         ...pageJsFiles,
         // ...vendorJsFiles,
         // ...LibsJsFiles,
@@ -66,8 +67,7 @@ export default defineConfig({
         ...LibsCssFiles,
         ...FontsScssFiles,
         // ...FontsJsFiles,
-        ...FontsCssFiles,
-        'resources/assets/assets.js'
+        ...FontsCssFiles
       ],
       refresh: true
     }),
