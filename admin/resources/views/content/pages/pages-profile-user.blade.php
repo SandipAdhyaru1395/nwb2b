@@ -7,6 +7,10 @@
 @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss'])
 @endsection
 
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js'])
+@endsection
+
 <!-- Page Styles -->
 @section('page-style')
 @vite(['resources/assets/vendor/scss/pages/page-profile.scss'])

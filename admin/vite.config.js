@@ -54,19 +54,13 @@ export default defineConfig({
   plugins: [
     laravel({
       input: [
-        'resources/css/app.css',
         'resources/assets/css/demo.css',
-        'resources/js/app.js',
-        'resources/assets/assets.js',
+        ...vendorJsFiles,
+        ...LibsJsFiles,
         ...pageJsFiles,
-        // ...vendorJsFiles,
-        // ...LibsJsFiles,
-        // 'resources/js/laravel-user-management.js', // Processing Laravel User Management CRUD JS File
         ...CoreScssFiles,
         ...LibsScssFiles,
         ...LibsCssFiles,
-        ...FontsScssFiles,
-        // ...FontsJsFiles,
         ...FontsCssFiles
       ],
       refresh: true

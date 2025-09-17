@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
   const dtUserTable = document.querySelector('.datatables-users'),
     statusObj = {
       "active": { title: 'Active', class: 'bg-label-success' },
-      "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
+      "inactive": { title: 'Inactive', class: 'bg-label-danger' }
     };
   let dt_User,
     userView = baseUrl + 'user/view/account',

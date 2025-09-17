@@ -3,9 +3,12 @@
 @section('title', 'Dashboard')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/apex-charts/apex-charts.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
+    @vite(['resources/assets/vendor/libs/apex-charts/apex-charts.scss'])
 @endsection
 
+@section('vendor-script')
+    @vite(['resources/assets/vendor/libs/apex-charts/apexcharts.js'])
+@endsection
 
 @section('page-script')
     @vite(['resources/assets/js/app-ecommerce-dashboard.js'])

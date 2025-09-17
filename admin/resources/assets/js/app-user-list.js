@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
     changeStatus = baseUrl + 'user/change/status',
     statusObj = {
       "active": { title: 'Active', class: 'bg-label-success' },
-      "inactive": { title: 'Inactive', class: 'bg-label-secondary' }
+      "inactive": { title: 'Inactive', class: 'bg-label-danger' }
     };
   var select2 = $('.select2');
 
@@ -516,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         createFilter(3, '.user_role', 'UserRole', 'Select Role');
 
         // Plan filter
-        createFilter(4, '.user_plan', 'UserPlan', 'Select Plan');
+        // createFilter(4, '.user_plan', 'UserPlan', 'Select Plan');
 
         // Status filter
         const statusFilter = document.createElement('select');
@@ -526,10 +526,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         document.querySelector('.user_status').appendChild(statusFilter);
         statusFilter.addEventListener('change', () => {
           const val = statusFilter.value ? `^${statusFilter.value}$` : '';
-          api.column(6).search(val, true, false).draw();
+          api.column(4).search(val, true, false).draw();
         });
 
-        const statusColumn = api.column(6);
+        const statusColumn = api.column(4);
         const uniqueStatusData = Array.from(new Set(statusColumn.data().toArray())).sort();
         uniqueStatusData.forEach(d => {
           const option = document.createElement('option');

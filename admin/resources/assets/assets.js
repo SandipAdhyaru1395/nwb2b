@@ -32,5 +32,5 @@ import './vendor/libs/quill/katex.js';
 
 
 
-import './config.js';
-import './main.js';
+import './js/config.js';
+import './js/main.js';

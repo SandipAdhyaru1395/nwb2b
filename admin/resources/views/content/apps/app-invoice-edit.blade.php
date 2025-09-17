@@ -12,7 +12,7 @@
 
 
 @section('page-script')
-@vite(['resources/assets/js/offcanvas-add-payment.js', 'resources/assets/js/offcanvas-send-invoice.js', 'resources/assets/js/app-invoice-edit.js'])
+@vite(['resources/assets/vendor/libs/jquery-repeater/jquery-repeater.js','resources/assets/vendor/libs/flatpickr/flatpickr.js','resources/assets/js/offcanvas-add-payment.js', 'resources/assets/js/offcanvas-send-invoice.js', 'resources/assets/js/app-invoice-edit.js'])
 @endsection
 
 @section('content')

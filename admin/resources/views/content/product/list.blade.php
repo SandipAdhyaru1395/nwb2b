@@ -9,6 +9,10 @@
 'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.js',])
+@endsection
 
 @section('page-script')
 @vite(['resources/assets/js/product-list.js'])

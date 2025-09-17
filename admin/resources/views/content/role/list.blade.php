@@ -8,6 +8,12 @@
   <!-- @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss', 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss']) -->
 @endsection
 
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js',
+'resources/assets/vendor/libs/cleave-zen/cleave-zen.js','resources/assets/vendor/libs/select2/select2.js',
+'resources/assets/vendor/libs/@form-validation/popular.js','resources/assets/vendor/libs/@form-validation/bootstrap5.js','resources/assets/vendor/libs/@form-validation/auto-focus.js',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'])
+@endsection
 
 @section('page-script')
   @vite(['resources/assets/js/app-access-roles.js', 'resources/assets/js/modal-add-user.js', 'resources/assets/js/modal-ajax-edit-user.js', 'resources/assets/js/modal-edit-role.js', 'resources/assets/js/modal-add-role.js'])
