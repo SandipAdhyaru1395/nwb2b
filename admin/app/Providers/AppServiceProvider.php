@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Vite;
 use Brian2694\Toastr\Facades\Toastr;
+use App\Models\Setting;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +30,23 @@ class AppServiceProvider extends ServiceProvider
             }
             return [];
         });
+
+
+        $setting_logo = Setting::where('key', 'company_logo')->first()->value;
+
+        $setting_title = Setting::where('key', 'company_title')->first()->value;
+
+        $setting_currency_symbol = Setting::where('key', 'currency_symbol')->first()->value;
+
+        view()->share('setting', [
+            'company_logo' => $setting_logo,
+            'company_title' => $setting_title,
+            'currency_symbol' => $setting_currency_symbol,
+        ]);
+
+        config([
+            'variables.templateName' => $setting_title,
+            'variables.ogTitle' => $setting_title,
+        ]);
     }
 }

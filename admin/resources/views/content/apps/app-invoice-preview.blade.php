@@ -61,7 +61,7 @@
               <tbody>
                 <tr>
                   <td class="pe-4">Total Due:</td>
-                  <td class="fw-medium">$12,110.55</td>
+                  <td class="fw-medium">{{ $setting['currency_symbol'] ?? ''}}12,110.55</td>
                 </tr>
                 <tr>
                   <td class="pe-4">Bank name:</td>
@@ -99,30 +99,30 @@
             <tr>
               <td class="text-nowrap text-heading">Vuexy Admin Template</td>
               <td class="text-nowrap">HTML Admin Template</td>
-              <td>$32</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}32</td>
               <td>1</td>
-              <td>$32.00</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}32.00</td>
             </tr>
             <tr>
               <td class="text-nowrap text-heading">Frest Admin Template</td>
               <td class="text-nowrap">Angular Admin Template</td>
-              <td>$22</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}22</td>
               <td>1</td>
-              <td>$22.00</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}22.00</td>
             </tr>
             <tr>
               <td class="text-nowrap text-heading">Apex Admin Template</td>
               <td class="text-nowrap">HTML Admin Template</td>
-              <td>$17</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}17</td>
               <td>2</td>
-              <td>$34.00</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}34.00</td>
             </tr>
             <tr>
               <td class="text-nowrap text-heading">Robust Admin Template</td>
               <td class="text-nowrap">React Admin Template</td>
-              <td>$66</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}66</td>
               <td>1</td>
-              <td>$66.00</td>
+              <td>{{ $setting['currency_symbol'] ?? ''}}66.00</td>
             </tr>
           </tbody>
         </table>
@@ -145,10 +145,10 @@
                 <p class="mb-0">Total:</p>
               </td>
               <td class="text-end px-0 py-6 w-px-100 fw-medium text-heading">
-                <p class="fw-medium mb-2">$1800</p>
-                <p class="fw-medium mb-2">$28</p>
+                <p class="fw-medium mb-2">{{ $setting['currency_symbol'] ?? ''}}1800</p>
+                <p class="fw-medium mb-2">{{ $setting['currency_symbol'] ?? ''}}28</p>
                 <p class="fw-medium mb-2 border-bottom pb-2">21%</p>
-                <p class="fw-medium mb-0">$1690</p>
+                <p class="fw-medium mb-0">{{ $setting['currency_symbol'] ?? ''}}1690</p>
               </td>
             </tr>
           </tbody>
@@ -177,8 +177,8 @@
         </button>
         <button class="btn btn-label-secondary d-grid w-100 mb-4">Download</button>
         <div class="d-flex mb-4">
-          <a class="btn btn-label-secondary d-grid w-100 me-4" target="_blank" href="{{ url('app/invoice/print') }}"> Print </a>
-          <a href="{{ url('app/invoice/edit') }}" class="btn btn-label-secondary d-grid w-100"> Edit </a>
+          <a class="btn btn-label-secondary d-grid w-100 me-4" target="_blank" href="{{ url('invoice/print') }}"> Print </a>
+          <a href="{{ url('invoice/edit') }}" class="btn btn-label-secondary d-grid w-100"> Edit </a>
         </div>
         <button class="btn btn-success d-grid w-100" data-bs-toggle="offcanvas" data-bs-target="#addPaymentOffcanvas">
           <span class="d-flex align-items-center justify-content-center text-nowrap"><i class="icon-base ti tabler-currency-dollar icon-xs me-2"></i>Add Payment</span>

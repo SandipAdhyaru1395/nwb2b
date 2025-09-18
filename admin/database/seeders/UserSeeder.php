@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class UserSeeder extends Seeder
 {
@@ -13,7 +14,7 @@ class UserSeeder extends Seeder
   public function run(): void
   {
     // Upsert a predictable test user
-    User::updateOrCreate(
+    User::withTrashed()->updateOrCreate(
       ['email' => 'superadmin@example.com'],
       [
         'name' => 'superadmin',
@@ -24,7 +25,7 @@ class UserSeeder extends Seeder
       ]
     );
 
-    User::updateOrCreate(
+    User::withTrashed()->updateOrCreate(
       ['email' => 'admin@example.com'],
       [
         'name' => 'admin',
@@ -37,7 +38,7 @@ class UserSeeder extends Seeder
     );
 
 
-    User::updateOrCreate(
+    User::withTrashed()->updateOrCreate(
       ['email' => 'manager1@example.com'],
       [
         'name' => 'manager1',
@@ -48,7 +49,8 @@ class UserSeeder extends Seeder
         'status' => 'active'
       ]
     );
-    User::updateOrCreate(
+
+    User::withTrashed()->updateOrCreate(
       ['email' => 'manager2@example.com'],
       [
         'name' => 'manager2',
@@ -59,7 +61,8 @@ class UserSeeder extends Seeder
         'status' => 'active'
       ]
     );
-    User::updateOrCreate(
+    
+    User::withTrashed()->updateOrCreate(
       ['email' => 'manager3@example.com'],
       [
         'name' => 'manager3',
@@ -70,7 +73,8 @@ class UserSeeder extends Seeder
         'status' => 'active'
       ]
     );
-    User::updateOrCreate(
+
+    User::withTrashed()->updateOrCreate(
       ['email' => 'manager4@example.com'],
       [
         'name' => 'manager4',
@@ -81,7 +85,8 @@ class UserSeeder extends Seeder
         'status' => 'active'
       ]
     );
-    User::updateOrCreate(
+    
+    User::withTrashed()->updateOrCreate(
       ['email' => 'manager5@example.com'],
       [
         'name' => 'manager5',
@@ -93,7 +98,7 @@ class UserSeeder extends Seeder
       ]
     );
 
-     User::updateOrCreate(
+     User::withTrashed()->updateOrCreate(
       ['email' => 'manager6@example.com'],
       [
         'name' => 'manager6',
@@ -105,7 +110,7 @@ class UserSeeder extends Seeder
       ]
     );
 
-     User::updateOrCreate(
+     User::withTrashed()->updateOrCreate(
       ['email' => 'user@example.com'],
       [
         'name' => 'user',

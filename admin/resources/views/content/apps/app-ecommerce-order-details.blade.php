@@ -57,19 +57,19 @@
           <div class="order-calculations">
             <div class="d-flex justify-content-start mb-2">
               <span class="w-px-100 text-heading">Subtotal:</span>
-              <h6 class="mb-0">$2093</h6>
+              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}2093</h6>
             </div>
             <div class="d-flex justify-content-start mb-2">
               <span class="w-px-100 text-heading">Discount:</span>
-              <h6 class="mb-0">$2</h6>
+              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}2</h6>
             </div>
             <div class="d-flex justify-content-start mb-2">
               <span class="w-px-100 text-heading">Tax:</span>
-              <h6 class="mb-0">$28</h6>
+              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}28</h6>
             </div>
             <div class="d-flex justify-content-start">
               <h6 class="w-px-100 mb-0">Total:</h6>
-              <h6 class="mb-0">$2113</h6>
+              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}2113</h6>
             </div>
           </div>
         </div>

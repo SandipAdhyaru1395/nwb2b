@@ -6,8 +6,8 @@
 
 // Datatable (js)
 document.addEventListener('DOMContentLoaded', function (e) {
-  let borderColor, bodyBg, headingColor;
-
+  let borderColor, bodyBg, headingColor, currencySymbol;
+  currencySymbol = window.currencySymbol;
   borderColor = config.colors.borderColor;
   bodyBg = config.colors.bodyBg;
   headingColor = config.colors.headingColor;
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const spent = full['total_spent'];
 
-            return '<span class="fw-medium">' + spent + '</span>';
+            return '<span class="fw-medium">' + currencySymbol + spent + '</span>';
           }
         }
       ],

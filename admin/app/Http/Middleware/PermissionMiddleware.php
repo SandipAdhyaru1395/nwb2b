@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\Permission;
+
 use Brian2694\Toastr\Facades\Toastr;
 use Closure;
 use Illuminate\Http\Request;
@@ -48,6 +49,7 @@ class PermissionMiddleware
             }
         }
 
+        
         return $next($request);
     }
 }

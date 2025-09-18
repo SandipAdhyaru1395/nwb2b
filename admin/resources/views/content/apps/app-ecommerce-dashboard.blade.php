@@ -24,7 +24,7 @@
                         <div class="card-body text-nowrap">
                             <h5 class="card-title mb-0">Congratulations John! 🎉</h5>
                             <p class="mb-2">Best seller of the month</p>
-                            <h4 class="text-primary mb-1">$48.9k</h4>
+                            <h4 class="text-primary mb-1">{{ $setting['currency_symbol'] ?? ''}}48.9k</h4>
                             <a href="javascript:;" class="btn btn-primary">View Sales</a>
                         </div>
                     </div>
@@ -88,7 +88,7 @@
                                         <i class="icon-base ti tabler-currency-dollar icon-lg"></i>
                                     </div>
                                     <div class="card-info">
-                                        <h5 class="mb-0">$9745</h5>
+                                        <h5 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}9745</h5>
                                         <small>Revenue</small>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@
                         <div class="card-body">
                             <div id="expensesChart"></div>
                             <div class="mt-3 text-center">
-                                <small class="text-body-secondary mt-3">$21k Expenses more than last month</small>
+                                <small class="text-body-secondary mt-3">{{ $setting['currency_symbol'] ?? ''}}21k Expenses more than last month</small>
                             </div>
                         </div>
                     </div>
@@ -199,7 +199,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <h3 class="text-center pt-8 mb-0">$25,825</h3>
+                            <h3 class="text-center pt-8 mb-0">{{ $setting['currency_symbol'] ?? ''}}25,825</h3>
                             <p class="mb-8 text-center"><span class="fw-medium text-heading">Budget: </span>56,800</p>
                             <div class="px-3">
                                 <div id="budgetChart"></div>

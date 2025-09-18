@@ -77,7 +77,7 @@
               <tbody>
                 <tr>
                   <td class="pe-4">Total Due:</td>
-                  <td>$12,110.55</td>
+                  <td>{{ $setting['currency_symbol'] ?? ''}}12,110.55</td>
                 </tr>
                 <tr>
                   <td class="pe-4">Bank name:</td>
@@ -133,7 +133,7 @@
                   </div>
                   <div class="col-md-1 col-12 pe-0 mt-8">
                     <p class="h6 repeater-title">Price</p>
-                    <p class="mb-0 text-heading">$24.00</p>
+                    <p class="mb-0 text-heading">{{ $setting['currency_symbol'] ?? ''}}24.00</p>
                   </div>
                 </div>
                 <div class="d-flex flex-column align-items-center justify-content-between border-start p-2">
@@ -196,11 +196,11 @@
             <div class="invoice-calculations">
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Subtotal:</span>
-                <span class="fw-medium text-heading">$1800</span>
+                <span class="fw-medium text-heading">{{ $setting['currency_symbol'] ?? ''}}1800</span>
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Discount:</span>
-                <span class="fw-medium text-heading">$28</span>
+                <span class="fw-medium text-heading">{{ $setting['currency_symbol'] ?? ''}}28</span>
               </div>
               <div class="d-flex justify-content-between mb-2">
                 <span class="w-px-100">Tax:</span>
@@ -209,7 +209,7 @@
               <hr class="my-2" />
               <div class="d-flex justify-content-between">
                 <span class="w-px-100">Total:</span>
-                <span class="fw-medium text-heading">$1690</span>
+                <span class="fw-medium text-heading">{{ $setting['currency_symbol'] ?? ''}}1690</span>
               </div>
             </div>
           </div>

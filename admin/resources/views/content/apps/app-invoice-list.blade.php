@@ -52,7 +52,7 @@
         <div class="col-sm-6 col-lg-3">
           <div class="d-flex justify-content-between align-items-center border-end pb-4 pb-sm-0 card-widget-3">
             <div>
-              <h4 class="mb-0">$2.46k</h4>
+              <h4 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}2.46k</h4>
               <p class="mb-0">Paid</p>
             </div>
             <div class="avatar me-sm-6">
@@ -65,7 +65,7 @@
         <div class="col-sm-6 col-lg-3">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <h4 class="mb-0">$876</h4>
+              <h4 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}876</h4>
               <p class="mb-0">Unpaid</p>
             </div>
             <div class="avatar">

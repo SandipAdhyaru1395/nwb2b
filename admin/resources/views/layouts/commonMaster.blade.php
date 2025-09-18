@@ -2,6 +2,7 @@
 
   class="@if(isset($sidebarMenuData)) layout-navbar-fixed layout-compact layout-menu-fixed @else customizer-hide layout-menu-fixed @endif"
   dir="ltr" data-skin="default" data-assets-path="{{ asset('/assets') . '/' }}"
+  data-currency-symbol="{{ $setting['currency_symbol'] ?? '' }}"
   data-base-url="{{ url('/') }}" data-framework="laravel" data-template="@if(isset($sidebarMenuData)) vertical-menu-template @else blank-menu-template @endif"
   data-bs-theme="light">
 
@@ -32,7 +33,7 @@
   <!-- Canonical SEO -->
   <link rel="canonical" href="{{ config('variables.productPage') ? config('variables.productPage') : '' }}" />
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="{{ asset('logo.png') }}" />
+  <link rel="icon" type="image/x-icon" href="{{ isset($setting['company_logo']) ? asset('storage/'.$setting['company_logo']) : '' }}" />
 
   <!-- Include Styles -->
   @include('layouts/sections/styles')

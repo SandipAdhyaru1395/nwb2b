@@ -3,7 +3,7 @@
   $height = $height ?? '22';
 @endphp
 
-<img src="{{ asset('logo.png') }}" alt="Logo" width="39" height="29">
+<img src="{{ isset($setting['company_logo']) ? asset('storage/'.$setting['company_logo']) : '' }}" alt="Logo" width="39" height="29">
 <!-- <span class="text-primary">
   <svg width="{{ $width }}" height="{{ $height }}" viewBox="0 0 32 22" fill="none"
     xmlns="http://www.w3.org/2000/svg">

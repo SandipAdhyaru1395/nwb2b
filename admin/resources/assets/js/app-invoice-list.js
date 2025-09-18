@@ -5,6 +5,7 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', function () {
+  let currencySymbol = window.currencySymbol;
   const dt_invoice_table = document.querySelector('.invoice-list-table');
 
   if (dt_invoice_table) {
@@ -125,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
           targets: 5,
           render: function (data, type, full) {
             const total = full['total'];
-            return `<span class="d-none">${total}</span>$${total}`;
+            return `<span class="d-none">${currencySymbol}${total}</span>${currencySymbol}${total}`;
           }
         },
         {

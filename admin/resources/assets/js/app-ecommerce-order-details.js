@@ -7,6 +7,8 @@
 // Datatable (js)
 
 document.addEventListener('DOMContentLoaded', function (e) {
+  let currencySymbol = window.currencySymbol;
+
   var dt_details_table = document.querySelector('.datatables-order-details');
 
   // E-commerce Products datatable
@@ -102,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           orderable: false,
           render: function (data, type, full, meta) {
             const price = full['price'];
-            const output = '<span>$' + price + '</span>';
+            const output = '<span>' + currencySymbol + price + '</span>';
             return output;
           }
         },
@@ -124,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           orderable: false,
           render: function (data, type, full, meta) {
             const total = full['qty'] * full['price'];
-            const output = '<span>' + total + '</span>';
+            const output = '<span>' + currencySymbol + total + '</span>';
             return output;
           }
         }

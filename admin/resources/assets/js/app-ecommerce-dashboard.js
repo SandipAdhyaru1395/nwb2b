@@ -924,7 +924,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   text: '<i class="icon-base icon-16px ti tabler-plus me-md-2"></i><span class="d-md-inline-block d-none">Create Invoice</span>',
                   className: 'btn btn-primary',
                   action: function () {
-                    window.location = baseUrl + 'app/invoice/add';
+                    window.location = baseUrl + 'invoice/add';
                   }
                 }
               ]

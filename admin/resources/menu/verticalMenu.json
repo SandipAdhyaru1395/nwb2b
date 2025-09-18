@@ -53,6 +53,12 @@
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Roles",
       "slug": "role"
+    },
+    {
+      "url": "settings",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "name": "Settings",
+      "slug": "settings"
     }
   ]
 }

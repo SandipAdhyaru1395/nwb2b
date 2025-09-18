@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Brian2694\Toastr\Facades\Toastr;
 use Closure;
 use Illuminate\Http\Request;
+use App\Models\Setting;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthMiddleware
@@ -20,6 +21,9 @@ class AuthMiddleware
             Toastr::error('You are not logged in!');
             return redirect()->route('login');
         }
+
+
+
         return $next($request);
     }
 }

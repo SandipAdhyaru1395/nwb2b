@@ -26,7 +26,7 @@ use App\Http\Controllers\apps\InvoicePrint;
 use App\Http\Controllers\apps\InvoiceEdit;
 use App\Http\Controllers\apps\InvoiceAdd;
 use App\Http\Controllers\apps\UserController;
-use App\Http\Controllers\apps\UserViewAccount;
+use App\Http\Controllers\apps\SettingController;
 use App\Http\Controllers\apps\UserViewSecurity;
 use App\Http\Controllers\apps\UserViewBilling;
 use App\Http\Controllers\apps\UserViewNotifications;
@@ -136,8 +136,6 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
         Route::get('/user', [UserController::class, 'index'])->name('user.list');
         Route::get('/user/list/ajax', [UserController::class, 'ajaxUserAll'])->name('user.list.ajax');
-
-        
         
         Route::get('/user/ajax/show', [UserController::class, 'ajaxShow'])->name('user-ajax.show');
 
@@ -184,6 +182,14 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     Route::get('/customer/details/security', [EcommerceCustomerDetailsSecurity::class, 'index'])->name('app-ecommerce-customer-details-security');
     Route::get('/customer/details/billing', [EcommerceCustomerDetailsBilling::class, 'index'])->name('app-ecommerce-customer-details-billing');
     Route::get('/customer/details/notifications', [EcommerceCustomerDetailsNotifications::class, 'index'])->name('app-ecommerce-customer-details-notifications');
+
+    Route::middleware('permission:settings.read')->group(function () {
+        Route::get('/settings', [SettingController::class, 'viewGeneralSettings'])->name('settings.general');
+    });
+
+    Route::middleware('permission:settings.update')->group(function () {
+        Route::post('/settings/general/update', [SettingController::class, 'updateGeneralSettings'])->name('settings.general.update');
+    });
 });
 
 Route::get('/', [AuthLoginController::class, 'show']);

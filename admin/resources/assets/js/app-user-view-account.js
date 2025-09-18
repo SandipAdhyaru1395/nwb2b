@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   </a>
                   <div class="dropdown-menu dropdown-menu-end m-0">
                     <a href="javascript:;" class="dropdown-item">Download</a>
-                    <a href="${baseUrl}app/invoice/edit" class="dropdown-item">Edit</a>
+                    <a href="${baseUrl}/invoice/edit" class="dropdown-item">Edit</a>
                     <a href="javascript:;" class="dropdown-item">Duplicate</a>
                   </div>
                 </div>
