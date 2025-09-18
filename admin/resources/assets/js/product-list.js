@@ -26,15 +26,18 @@ document.addEventListener('DOMContentLoaded', function (e) {
   if (dt_product_table) {
     var dt_products = new DataTable(dt_product_table, {
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
+      processing: true,
+      stateSave: true,
+       serverSide: true,
       ajax: baseUrl + 'product/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'product_name'},
-        { data: 'sku'},
-        { data: 'price'},
-        { data: 'is_active'},
+        { data: 'product_name', orderable: false,},
+        { data: 'sku',orderable: false},
+        { data: 'price',orderable: false},
+        { data: 'is_active',orderable: false},
         // { data: 'status'},
         { data: 'id'}
       ],
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // For Responsive
           className: 'control',
           searchable: false,
-          orderable: false,
           responsivePriority: 2,
           targets: 0,
           render: function (data, type, full, meta) {
@@ -53,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // For Checkboxes
           targets: 1,
-          orderable: false,
           searchable: false,
           responsivePriority: 3,
           checkboxes: true,
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         style: 'multi',
         selector: 'td:nth-child(2)'
       },
-      // order: [0, 'asc'],
+      order: [0, 'desc'],
       displayLength: 7,
       layout: {
         topStart: {

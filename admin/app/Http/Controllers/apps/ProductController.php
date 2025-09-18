@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Brand;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -161,27 +162,28 @@ class ProductController extends Controller
 
   public function ajaxList(Request $request) {
     
-    $products=Product::select('id','name','description',
-            'sku','price','image_url','is_active')
-            ->orderBy('id', 'desc')->get();
-    
-    $data = [];
+   $query = Product::select([
+        'id',
+        'name as product_name', // 👈 alias here
+        'description',
+        'sku',
+        'price',
+        'image_url',
+        'is_active'
+    ])->orderBy('id', 'desc');
 
-    if($products){
-      foreach($products as $product){
-        $data[] = [
-          'id' => $product->id,
-          'product_name' => $product->name,
-          'product_brand' => Str::limit($product->description,40),
-          'sku' => $product->sku,
-          'price' => $product->price,
-          'image_url' => $product->image_url,
-          'is_active' => $product->is_active,
-        ];
-      }
-    }
 
-    return response()->json(['data' => $data]);
+    return DataTables::eloquent($query)
+        ->filterColumn('product_name', function($query, $keyword) {
+            $query->where('products.name', 'like', "%{$keyword}%");
+        })
+        ->orderColumn('product_name', function ($query, $order) {
+            $query->orderBy('products.name', $order);
+        })
+        ->editColumn('product_brand', function($product) {
+            return Str::limit($product->description, 40);
+        })
+        ->make(true);
   }
  
   public function delete($id)
