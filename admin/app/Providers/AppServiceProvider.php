@@ -38,15 +38,19 @@ class AppServiceProvider extends ServiceProvider
 
         $setting_currency_symbol = Setting::where('key', 'currency_symbol')->first()->value;
 
+
         view()->share('setting', [
             'company_logo' => $setting_logo,
             'company_title' => $setting_title,
             'currency_symbol' => $setting_currency_symbol,
         ]);
 
+        $sessionTimeout = Setting::where('key', 'session_timeout')->first()?->value;
+       
         config([
             'variables.templateName' => $setting_title,
             'variables.ogTitle' => $setting_title,
+            'session.lifetime' => ($sessionTimeout && $sessionTimeout > 0) ? $sessionTimeout : 120
         ]);
     }
 }

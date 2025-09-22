@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use App\Models\Setting;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
@@ -324,6 +325,13 @@ CSS;
         }
 
         return false;
+    }
+
+    public static function setting(){
+        
+        $setting=Setting::all()->pluck('value', 'key')->toArray();
+
+        return $setting;
     }
 
 }

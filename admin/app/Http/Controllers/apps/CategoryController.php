@@ -78,6 +78,7 @@ class CategoryController extends Controller
         'name' => $request->categoryName,
         'parent_id' => $request->parentCategory,
         'description' => $request->categoryDescription,
+        'sort_order' => $request->sortOrder ?? 1,
         'is_active' => $request->categoryStatus,
       ]
     );
@@ -120,12 +121,18 @@ class CategoryController extends Controller
       'categoryStatus' => 'required'
     ]);
 
-    Category::find($request->id)->update([
+    $data=[
       'name' => $request->categoryName,
       'parent_id' => $request->parentCategory,
       'description' => $request->categoryDescription,
       'is_active' => $request->categoryStatus
-    ]);
+    ];
+
+    if(isset($request->sortOrder) && $request->sortOrder > 0){
+      $data['sort_order'] = $request->sortOrder;
+    }
+
+    Category::find($request->id)->update($data);
 
     Toastr::success('Category updated successfully!');
 

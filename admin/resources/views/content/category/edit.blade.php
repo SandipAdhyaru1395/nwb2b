@@ -91,12 +91,25 @@
                                 <input type="hidden" name="categoryDescription" id="category-description-hidden"
                                     value="{{ $main_category->description ?? '' }}">
                             </div>
-                            <div class="mt-5">
-                                <label class="form-label">Status</label>
-                                <select class="select2" id="categoryStatus" name="categoryStatus">
-                                    <option value="1" @selected($main_category->is_active == 1)>Active</option>
-                                    <option value="0" @selected($main_category->is_active == 0)>Inactive</option>
-                                </select>
+                            <div class="row">
+                                <div class="mt-5 col-md-3 form-control-validation">
+                                    <label class="form-label" for="sortOrder">Sort Order <span class="text-danger">*</span></label>
+                                    <input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control" id="sortOrder" placeholder="Sort Order"
+                                        name="sortOrder" aria-label="Sort Order" value="{{ $main_category->sort_order }}"
+                                        autocomplete="off" />
+                                    @error('sortOrder')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="mt-5 col-md-3">
+                                    <label class="form-label">Status  <span class="text-danger">*</span></label>
+                                    <select class="select2" id="categoryStatus" name="categoryStatus">
+                                        <option value="1" @selected($main_category->is_active == 1)>Active</option>
+                                        <option value="0" @selected($main_category->is_active == 0)>Inactive</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </div>

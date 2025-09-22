@@ -1,5 +1,5 @@
 <!-- Navigation -->
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-lg-3">
     <div class="d-flex justify-content-between flex-column mb-4 mb-md-0">
       <h5 class="mb-4">Settings</h5>
       <ul class="nav nav-align-left nav-pills flex-column">

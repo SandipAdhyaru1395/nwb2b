@@ -7,25 +7,31 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Helpers\Helpers;
 
 class OrderController extends Controller
 {
+    
     public function index(Request $request){
+        
+        $setting = Helpers::setting();
+
         $limit = (int)($request->query('limit', 10));
         $orders = Order::
             latest('created_at')
             ->take($limit)
             ->get();
-
-        $data = $orders->map(function(Order $order){
+        
+        $data = $orders->map(function(Order $order)use($setting){
             return [
                 'order_number' => $order->order_number,
                 'ordered_at' => optional($order->created_at)->format('H:i d/m/Y'),
-                'payment_status' => strtoupper($order->payment_status ?? 'PENDING'),
-                'fulfillment_status' => strtoupper($order->status ?? 'PENDING'),
+                'payment_status' => strtoupper($order->payment_status),
+                'fulfillment_status' => strtoupper($order->status),
                 'units' => (int)($order->units_count ?? 0),
                 'skus' => (int)($order->skus_count ?? 0),
-                'total_paid' => (float)($order->total ?? 0),
+                'currency_symbol' => $setting['currency_symbol'] ?? '',
+                'total_paid' => (float)($order->total_amount ?? 0),
             ];
         });
 
@@ -36,6 +42,7 @@ class OrderController extends Controller
     }
 
     public function store(Request $request){
+
         try {
             // Validate the request
             $request->validate([
@@ -70,13 +77,10 @@ class OrderController extends Controller
 
                 OrderItem::create([
                     'product_id' => $product->id,
-                    'product_name' => $product->name,
                     'quantity' => $item['quantity'],
-                    'price' => $product->price,
-                    'discounted_price' => $product->discounted_price,
-                    'total' => ($product->discounted_price != 0) ? $product->discounted_price * $item['quantity'] : $product->price * $item['quantity'],
-                    'discount' => ($product->discounted_price != 0) ? ($product->discounted_price - $product->discount) * $item['quantity'] : 0,
-                    'product_info' => $product
+                    'unit_price' => $product->price,
+                    'wallet_credit_earned' => 0,
+                    'total_price' => ($product->discounted_price != 0) ? $product->discounted_price * $item['quantity'] : $product->price * $item['quantity'],
                 ]);
                 
                 $total += $product->price * $item['quantity'];
@@ -93,12 +97,20 @@ class OrderController extends Controller
                 
             $order = Order::create([
                 'order_number' => $orderNumber,
-                'total' => $total,
+                'order_date' => now(),
+                'customer_id' => 1,
+                'subtotal' => $total,
+                'vat_amount' => 0,
+                'total_amount' => $total,
+                'wallet_credit_used' =>0,
                 'units_count' => $units,
                 'skus_count' => $skus,
                 'items_count' => count($items),
-                'status' => 'pending',
-                'payment_status' => 'pending'
+                'payment_terms' => 'net_30',
+                'payment_status' => 'Unpaid',
+                'outstanding_amount' => 0,
+                'estimated_delivery_date' => now()->addDays(7),
+                'status' => 'new'
             ]);
             
             OrderItem::whereNull('order_id')->update([

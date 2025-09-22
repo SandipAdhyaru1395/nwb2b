@@ -3,15 +3,15 @@
 @section('title', 'General Settings')
 
 @section('vendor-style')
-@vite('resources/assets/vendor/libs/dropzone/dropzone.scss')
+@vite('resources/assets/vendor/libs/dropzone/dropzone.scss','resources/assets/vendor/libs/@form-validation/form-validation.scss')
 @endsection
 
 @section('vendor-script')
-@vite(['resources/assets/vendor/libs/dropzone/dropzone.js'])
+@vite(['resources/assets/vendor/libs/dropzone/dropzone.js','resources/assets/vendor/libs/@form-validation/popular.js','resources/assets/vendor/libs/@form-validation/bootstrap5.js','resources/assets/vendor/libs/@form-validation/auto-focus.js'])
 @endsection
 
 @section('page-script')
-@vite('resources/assets/js/settings.js')
+@vite('resources/assets/js/settings-general.js')
 @endsection
 
 @section('content')
@@ -19,27 +19,27 @@
   @include('content/settings/sidebar')
 
   <!-- Options -->
-  <div class="col-12 col-lg-8 pt-6 pt-lg-0">
+  <div class="col-12 col-lg-9 pt-6 pt-lg-0">
     <div class="tab-content p-0">
       <!-- Store Details Tab -->
       <div class="tab-pane fade show active" id="general" role="tabpanel">
-        <form action="{{ route(name: 'settings.general.update') }}" method="post" enctype="multipart/form-data" id="generalForm">
+        <form id="generalSettingsForm" action="{{ route(name: 'settings.general.update') }}" method="post" enctype="multipart/form-data" id="generalForm">
           @csrf
           <div class="card mb-6">
             <div class="card-body">
               <div class="row mb-6 g-6">
-                <div class="col-12">
-                  <label class="form-label mb-1" for="company-title">Title <span class="text-danger">*</span></label>
+                <div class="col-12 form-control-validation">
+                  <label class="form-label mb-1" for="company-title">Name <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="company-title" placeholder="Company Title"
                     name="companyTitle" value="{{ $setting['company_title'] ?? '' }}"/>
                     @error('companyTitle')
-                    <span class="text-danger text-center mb-5" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
+                      <span class="text-danger text-center mb-5" role="alert">
+                          <strong>{{ $message }}</strong>
+                      </span>
                     @enderror
                 </div>
-                <div class="col-12">
-                  <label class="form-label mb-1" for="company-name">Name <span class="text-danger">*</span></label>
+                <div class="col-12 form-control-validation">
+                  <label class="form-label mb-1" for="company-name">Company Name <span class="text-danger">*</span></label>
                   <input type="text" class="form-control" id="company-name" placeholder="Company Name"
                     name="companyName" value="{{ $setting['company_name'] ?? '' }}"/>
                   @error('companyName')
@@ -58,7 +58,7 @@
                   </span>
                   @enderror
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6 form-control-validation">
                   <label class="form-label mb-1" for="company-email">Email</label>
                   <input type="email" class="form-control" id="company-email" placeholder="info@example.com"
                     name="companyEmail" value="{{ $setting['company_email'] ?? '' }}"/>
@@ -68,7 +68,7 @@
                   </span>
                   @enderror
                 </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12 col-md-6 form-control-validation">
                   <label class="form-label mb-1" for="company-phone">Phone</label>
                   <input type="text" class="form-control" id="company-phone" placeholder="+911234567890"
                     name="companyPhone" maxlength="10" onkeypress="return /^[0-9.]+$/.test(event.key)" value="{{ $setting['company_phone'] ?? '' }}"/>
@@ -79,7 +79,7 @@
                     @enderror
                 </div>
 
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-4 form-control-validation">
                   <label class="form-label mb-1" for="default-vat-rate">Default VAT Rate (%)</label>
                   <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="default-vat-rate" placeholder="20"
                     name="defaultVatRate" value="{{ $setting['default_vat_rate'] ?? '' }}"/>
@@ -89,7 +89,7 @@
                     </span>
                   @enderror
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-4 form-control-validation">
                   <label class="form-label mb-1" for="session-timeout">Session Timeout (minutes)</label>
                   <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="session-timeout" placeholder="60"
                     name="sessionTimeout" value="{{ $setting['session_timeout'] ?? '' }}"/>
@@ -99,7 +99,7 @@
                     </span>
                   @enderror
                 </div>
-                <div class="col-12 col-md-4">
+                <div class="col-12 col-md-4 form-control-validation">
                   <label class="form-label mb-1" for="min-order-amount">Min. Order Amount</label>
                   <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="min-order-amount" placeholder="50"
                     name="minOrderAmount" value="{{ $setting['min_order_amount'] ?? '' }}"/>

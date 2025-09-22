@@ -111,7 +111,22 @@ document.addEventListener('DOMContentLoaded', function (e) {
               message: 'Please enter category title'
             }
           }
-        }
+        },
+        sortOrder: {
+          validators: {
+            notEmpty: {
+              message: 'Please enter sort order'
+            },
+            numeric: {
+              message: 'Please enter numeric value'
+            },
+            greaterThan: {
+              message: 'Must be greater than 0',
+              min: 1
+            }
+          }
+        },
+        
       },
       plugins: {
         trigger: new FormValidation.plugins.Trigger(),

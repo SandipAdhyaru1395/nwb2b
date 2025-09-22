@@ -7,12 +7,16 @@
     @vite(['resources/assets/vendor/libs/@form-validation/form-validation.scss'])
 @endsection
 
+@section('vendor-script')
+@vite(['resources/assets/vendor/libs/@form-validation/popular.js','resources/assets/vendor/libs/@form-validation/bootstrap5.js','resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+@endsection
+
 @section('page-style')
     @vite(['resources/assets/vendor/scss/pages/page-auth.scss'])
 @endsection
 
 @section('page-script')
-    @vite(['resources/assets/js/pages-auth.js'])
+    @vite(['resources/assets/js/auth-register.js'])
 @endsection
 
 @section('content')
@@ -45,7 +49,7 @@
                     <h4 class="mb-1">Adventure starts here 🚀</h4>
                     <p class="mb-6">Make your app management easy and fun!</p>
 
-                    <form id="formAuthentication" class="mb-6" action="{{ route('register.post') }}" method="POST">
+                    <form id="registerFormAuthentication" class="mb-6" action="{{ route('register.post') }}" method="POST">
                         @csrf
                         <div class="mb-6 form-control-validation">
                             <label for="name" class="form-label">Name</label>
@@ -97,7 +101,7 @@
                                 @enderror
                             </div>
                         </div>
-                        <button class="btn btn-primary d-grid w-100">Sign up</button>
+                        <button type="submit" class="btn btn-primary d-grid w-100">Sign up</button>
                     </form>
 
                     <p class="text-center">

@@ -1,10 +1,24 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Home, ShoppingBag, Wallet, User } from "lucide-react"
+import { Minus, Plus, Home, QrCode, ShoppingBag, User, Wallet } from "lucide-react"
+
+interface ProductItem {
+  id: number
+  name: string
+  image: string
+  price: string
+  discount?: string
+}
 
 interface MobileWalletProps {
-  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account") => void
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void
+  cart: Record<number, { product: ProductItem; quantity: number }>
+  increment: (product: ProductItem) => void
+  decrement: (product: ProductItem) => void
+  totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
+  formatMoney: (n: number) => string
+  clearCart: () => void
 }
 
 export function MobileWallet({ onNavigate }: MobileWalletProps) {
@@ -76,39 +90,31 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
         </div>
       </div>
 
-      {/* Bottom Navigation - Updated to include account navigation */}
-      <div className="fixed bottom-0 w-[820px] bg-white border-t border-gray-200">
-        <div className="flex">
-          <button
-            onClick={() => onNavigate("dashboard")}
-            className="flex-1 flex flex-col items-center py-2 px-4 text-gray-600 hover:text-green-600"
-          >
-            <Home className="w-6 h-6 mb-1" />
-            <span className="text-xs">Dashboard</span>
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+        <div className="grid grid-cols-5 py-2">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
+            <Home className="w-5 h-5" />
+            <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button
-            onClick={() => onNavigate("shop")}
-            className="flex-1 flex flex-col items-center py-2 px-4 text-gray-600 hover:text-green-600"
-          >
-            <ShoppingBag className="w-6 h-6 mb-1" />
-            <span className="text-xs">Shop</span>
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
+            <ShoppingBag className="w-5 h-5" />
+            <span className="text-xs mt-1">Shop</span>
           </button>
-          <button
-            onClick={() => onNavigate("wallet")}
-            className="flex-1 flex flex-col items-center py-2 px-4 text-green-600"
-          >
-            <Wallet className="w-6 h-6 mb-1" />
-            <span className="text-xs">Wallet</span>
+          <button className="flex flex-col items-center py-2 text-gray-400">
+            <QrCode className="w-5 h-5" />
+            <span className="text-xs mt-1">Scan</span>
           </button>
-          <button
-            onClick={() => onNavigate("account")}
-            className="flex-1 flex flex-col items-center py-2 px-4 text-gray-600 hover:text-green-600"
-          >
-            <User className="w-6 h-6 mb-1" />
-            <span className="text-xs">Account</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-green-600">
+            <Wallet className="w-5 h-5" />
+            <span className="text-xs mt-1">Wallet</span>
+          </button>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400">
+            <User className="w-5 h-5" />
+            <span className="text-xs mt-1">Account</span>
           </button>
         </div>
-      </div>
+      </nav>
     </div>
   )
 }

@@ -9,11 +9,19 @@ class Order extends Model
     
     protected $fillable = [
         'order_number',
-        'total',
+        'order_date',
+        'customer_id',
+        'subtotal',
+        'vat_amount',
+        'total_amount',
+        'wallet_credit_used',
         'units_count',
         'skus_count',
         'items_count',
-        'status',
-        'payment_status'
+        'payment_terms',
+        'payment_status',
+        'outstanding_amount',
+        'estimated_delivery_date',
+        'status'
     ];
 }

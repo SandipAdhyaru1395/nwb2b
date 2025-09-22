@@ -68,39 +68,54 @@
                                 </div>
                             </div>
                             <!-- Description -->
-                            <div>
-                                <label class="mb-1">Description (Optional)</label>
-                                <div class="form-control p-0">
-                                    <div class="comment-toolbar border-0 border-bottom">
-                                        <div class="d-flex justify-content-start">
-                                            <span class="ql-formats me-0">
-                                                <button class="ql-bold"></button>
-                                                <button class="ql-italic"></button>
-                                                <button class="ql-underline"></button>
-                                                <button class="ql-list" value="ordered"></button>
-                                                <button class="ql-list" value="bullet"></button>
-                                                <button class="ql-link"></button>
-                                                <button class="ql-image"></button>
-                                            </span>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="mb-1">Description (Optional)</label>
+                                    <div class="form-control p-0">
+                                        <div class="comment-toolbar border-0 border-bottom">
+                                            <div class="d-flex justify-content-start">
+                                                <span class="ql-formats me-0">
+                                                    <button class="ql-bold"></button>
+                                                    <button class="ql-italic"></button>
+                                                    <button class="ql-underline"></button>
+                                                    <button class="ql-list" value="ordered"></button>
+                                                    <button class="ql-list" value="bullet"></button>
+                                                    <button class="ql-link"></button>
+                                                    <button class="ql-image"></button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="comment-editor border-0 pb-6" id="category-description">
                                         </div>
                                     </div>
-                                    <div class="comment-editor border-0 pb-6" id="category-description">
-                                    </div>
+                                    <input type="hidden" name="categoryDescription" id="category-description-hidden"
+                                        value="">
                                 </div>
-                                <input type="hidden" name="categoryDescription" id="category-description-hidden"
-                                    value="">
                             </div>
-                            <div class="mt-5">
-                                <label class="form-label">Status</label>
-                                <select class="select2" id="categoryStatus" name="categoryStatus">
-                                    <option value="1">Active</option>
-                                    <option value="0">Inactive</option>
-                                </select>
-                                @error('categoryStatus')
-                                    <span class="text-danger" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
+                            <div class="row ">
+                                <div class="mt-5 col-md-3 form-control-validation">
+                                    <label class="form-label" for="sortOrder">Sort Order <span class="text-danger">*</span></label>
+                                    <input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control" id="sortOrder" placeholder="Sort Order"
+                                        name="sortOrder" aria-label="Sort Order" value="{{ old('sortOrder') ?? '1' }}"
+                                        autocomplete="off" />
+                                    @error('sortOrder')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="mt-5 col-md-3">
+                                    <label class="form-label">Status <span class="text-danger">*</span></label>
+                                    <select class="select2" id="categoryStatus" name="categoryStatus">
+                                        <option value="1">Active</option>
+                                        <option value="0">Inactive</option>
+                                    </select>
+                                    @error('categoryStatus')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -5,11 +5,11 @@
 
 document.addEventListener('DOMContentLoaded', function () {
   (() => {
-    const formAuthentication = document.querySelector('#formAuthentication');
+    const registerFormAuthentication = document.querySelector('#registerFormAuthentication');
 
     // Form validation for Add new record
-    if (formAuthentication && typeof FormValidation !== 'undefined') {
-      FormValidation.formValidation(formAuthentication, {
+    if (registerFormAuthentication && typeof FormValidation !== 'undefined') {
+      FormValidation.formValidation(registerFormAuthentication, {
         fields: {
           name: {
             validators: {
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 message: 'Please confirm password'
               },
               identical: {
-                compare: () => formAuthentication.querySelector('[name="password"]').value,
+                compare: () => registerFormAuthentication.querySelector('[name="password"]').value,
                 message: 'The password and its confirmation do not match'
               },
               stringLength: {

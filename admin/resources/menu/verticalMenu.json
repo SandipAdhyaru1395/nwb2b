@@ -50,7 +50,7 @@
     },
     {
       "url": "role",
-      "icon": "menu-icon icon-base ti tabler-settings",
+      "icon": "menu-icon icon-base ti tabler-user-check",
       "name": "Roles",
       "slug": "role"
     },
