@@ -3,7 +3,7 @@
 @section('title', 'General Settings')
 
 @section('vendor-style')
-@vite('resources/assets/vendor/libs/dropzone/dropzone.scss','resources/assets/vendor/libs/@form-validation/form-validation.scss')
+@vite(['resources/assets/vendor/libs/dropzone/dropzone.scss','resources/assets/vendor/libs/@form-validation/form-validation.scss'])
 @endsection
 
 @section('vendor-script')
