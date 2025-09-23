@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\Customer;
+use App\Models\WalletTransaction;
 use App\Helpers\Helpers;
 
 class OrderController extends Controller
@@ -63,6 +65,7 @@ class OrderController extends Controller
             
             OrderItem::whereNull('order_id')->delete();
             
+            $totalWalletCreditEarned = 0;
             foreach($items as $item){
 
                 $product = Product::find($item['product_id']);
@@ -73,17 +76,30 @@ class OrderController extends Controller
                         'message' => 'Product not found',
                     ], 200);
                 }
+                // Enforce step quantity multiples at API level
+                $step = (int)($product->step_quantity ?? 1);
+                $qty = (int)($item['quantity'] ?? 0);
+                if ($step > 1 && ($qty % $step) !== 0) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Quantity for '{$product->name}' must be in multiples of {$step}.",
+                        'errors' => [
+                            'items' => ["Quantity must be a multiple of {$step} for product {$product->name}."]
+                        ]
+                    ], 200);
+                }
                 
 
                 OrderItem::create([
                     'product_id' => $product->id,
-                    'quantity' => $item['quantity'],
+                    'quantity' => $qty,
                     'unit_price' => $product->price,
-                    'wallet_credit_earned' => 0,
-                    'total_price' => ($product->discounted_price != 0) ? $product->discounted_price * $item['quantity'] : $product->price * $item['quantity'],
+                    'wallet_credit_earned' => (float)($product->wallet_credit ?? 0) * $qty,
+                    'total_price' => ($product->discounted_price != 0) ? $product->discounted_price * $qty : $product->price * $qty,
                 ]);
                 
-                $total += $product->price * $item['quantity'];
+                $total += $product->price * $qty;
+                $totalWalletCreditEarned += (float)($product->wallet_credit ?? 0) * $qty;
             }
            
             if($total != $request->input('total')){
@@ -102,7 +118,7 @@ class OrderController extends Controller
                 'subtotal' => $total,
                 'vat_amount' => 0,
                 'total_amount' => $total,
-                'wallet_credit_used' =>0,
+                'wallet_credit_used' => 0,
                 'units_count' => $units,
                 'skus_count' => $skus,
                 'items_count' => count($items),
@@ -117,6 +133,21 @@ class OrderController extends Controller
                 'order_id' => $order->id
             ]);
             
+            // Wallet credit earning transaction
+            $customer = Customer::find(1);
+            if ($customer) {
+                $customer->credit_balance = (float)($customer->credit_balance ?? 0) + $totalWalletCreditEarned;
+                $customer->save();
+                WalletTransaction::create([
+                    'customer_id' => $customer->id,
+                    'order_id' => $order->id,
+                    'amount' => $totalWalletCreditEarned,
+                    'type' => 'credit',
+                    'description' => 'Wallet credit earned on order',
+                    'balance_after' => $customer->credit_balance,
+                ]);
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Order placed successfully',
@@ -125,6 +156,7 @@ class OrderController extends Controller
                 'units' => $units,
                 'skus' => $skus,
                 'items_count' => count($items),
+                'wallet_credit_earned' => $totalWalletCreditEarned,
                 'timestamp' => now()->toISOString()
             ]);
     

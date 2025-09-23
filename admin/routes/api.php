@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\SettingController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,3 +20,6 @@ Route::post('/checkout',[OrderController::class, 'store']);
 
 // Recent Orders API endpoint
 Route::get('/orders',[OrderController::class, 'index']);
+
+// Settings endpoint (company logo, etc.)
+Route::get('/settings', [SettingController::class, 'show']);

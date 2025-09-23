@@ -7,12 +7,25 @@
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/quill/quill.js','resources/assets/vendor/libs/@form-validation/popular.js','resources/assets/vendor/libs/@form-validation/bootstrap5.js','resources/assets/vendor/libs/@form-validation/auto-focus.js',
-        'resources/assets/vendor/libs/select2/select2.js'])
+    @vite(['resources/assets/vendor/libs/quill/quill.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js', 'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')
     @vite(['resources/assets/js/category-edit.js'])
+    
+    <script>
+        $(document).ready(function() {
+            $('#parent_category').change(function() {
+                if ($(this).val() == '') {
+                    $('#special_cat_section').removeClass('d-none').addClass('d-flex');
+                } else {
+                    $('#is_special').prop('checked', false);
+                    $('#special_cat_section').removeClass('d-flex').addClass('d-none');
+                }
+
+            });
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -21,8 +34,8 @@
         <form id="editCategoryForm" method="POST" action="{{ route('category.update') }}" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="id" value="{{ $main_category->id }}">
-            <div
-                style="background: var(--bs-body-bg);" class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
+            <div style="background: var(--bs-body-bg);"
+                class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                 <div class="d-flex flex-column justify-content-center">
                     <h4 class="mb-1">Edit category</h4>
                 </div>
@@ -59,7 +72,7 @@
                                         @forelse($categories as $option)
                                             @include('_partials.edit_parent_category_option', [
                                                 'category' => $option,
-                                                'prefix' =>  '',
+                                                'prefix' => '',
                                             ])
 
                                         @empty
@@ -85,7 +98,8 @@
                                             </span>
                                         </div>
                                     </div>
-                                    <div class="comment-editor border-0 pb-6" id="category-description">{!! $main_category->description ?? '' !!}
+                                    <div class="comment-editor border-0 pb-6" id="category-description">
+                                        {!! $main_category->description ?? '' !!}
                                     </div>
                                 </div>
                                 <input type="hidden" name="categoryDescription" id="category-description-hidden"
@@ -93,9 +107,11 @@
                             </div>
                             <div class="row">
                                 <div class="mt-5 col-md-3 form-control-validation">
-                                    <label class="form-label" for="sortOrder">Sort Order <span class="text-danger">*</span></label>
-                                    <input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control" id="sortOrder" placeholder="Sort Order"
-                                        name="sortOrder" aria-label="Sort Order" value="{{ $main_category->sort_order }}"
+                                    <label class="form-label" for="sortOrder">Sort Order <span
+                                            class="text-danger">*</span></label>
+                                    <input type="text" onkeypress="return /^[0-9]+$/.test(event.key)"
+                                        class="form-control" id="sortOrder" placeholder="Sort Order" name="sortOrder"
+                                        aria-label="Sort Order" value="{{ $main_category->sort_order }}"
                                         autocomplete="off" />
                                     @error('sortOrder')
                                         <span class="text-danger" role="alert">
@@ -104,11 +120,27 @@
                                     @enderror
                                 </div>
                                 <div class="mt-5 col-md-3">
-                                    <label class="form-label">Status  <span class="text-danger">*</span></label>
+                                    <label class="form-label">Status <span class="text-danger">*</span></label>
                                     <select class="select2" id="categoryStatus" name="categoryStatus">
                                         <option value="1" @selected($main_category->is_active == 1)>Active</option>
                                         <option value="0" @selected($main_category->is_active == 0)>Inactive</option>
                                     </select>
+                                </div>
+                                <div class="mt-5 col-md-3 d-flex flex-column justify-content-evenly">
+                                    <label class="form-label">Is special category? <span
+                                            class="text-danger">*</span></label>
+                                    <label class="switch switch-square switch-primary">
+                                        <input type="checkbox" class="switch-input" name="is_special" id="is_special"
+                                            @checked($main_category->is_special == 1) />
+                                        <span class="switch-toggle-slider">
+                                            <span class="switch-on">
+                                                <i class="icon-base ti tabler-check"></i>
+                                            </span>
+                                            <span class="switch-off">
+                                                <i class="icon-base ti tabler-x"></i>
+                                            </span>
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
                         </div>

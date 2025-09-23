@@ -11,7 +11,7 @@ class Category extends Model
     protected $table = 'categories';
     use SoftDeletes;
 
-    protected $fillable = ['name', 'parent_id', 'description','is_active','sort_order'];
+    protected $fillable = ['name', 'parent_id', 'description','is_active','sort_order','is_special'];
 
     public function products()
     {
@@ -20,7 +20,11 @@ class Category extends Model
 
     public function children()
     {
-        return $this->hasMany(Category::class,'parent_id')->with('children');
+        return $this->hasMany(Category::class,'parent_id')
+            ->where('is_active', 1)
+            ->orderBy('is_special', 'desc')
+            ->orderBy('sort_order', 'asc')
+            ->with('children');
     }
 
     public function parent()

@@ -13,6 +13,19 @@
 
 @section('page-script')
     @vite(['resources/assets/js/category-add.js'])
+<script>
+    $(document).ready(function() {
+        $('#parent_category').change(function() {
+            if($(this).val() == ''){
+                $('#special_cat_section').removeClass('d-none').addClass('d-flex');
+            }else{
+                $('#is_special').prop('checked', false);
+                $('#special_cat_section').removeClass('d-flex').addClass('d-none');
+            }
+        
+        });
+    });
+</script>
 @endsection
 
 @section('content')
@@ -104,6 +117,7 @@
                                         </span>
                                     @enderror
                                 </div>
+                                
                                 <div class="mt-5 col-md-3">
                                     <label class="form-label">Status <span class="text-danger">*</span></label>
                                     <select class="select2" id="categoryStatus" name="categoryStatus">
@@ -115,6 +129,20 @@
                                             <strong>{{ $message }}</strong>
                                         </span>
                                     @enderror
+                                </div>
+                                <div id="special_cat_section" class="mt-5 col-md-3 d-flex flex-column justify-content-evenly">
+                                    <label class="form-label">Is special category? <span class="text-danger">*</span></label>
+                                    <label class="switch switch-square switch-primary">
+                                        <input type="checkbox" class="switch-input" name="is_special" id="is_special" @checked(old('is_special') == 'on') />
+                                        <span class="switch-toggle-slider">
+                                            <span class="switch-on">
+                                                <i class="icon-base ti tabler-check"></i>
+                                            </span>
+                                            <span class="switch-off">
+                                                <i class="icon-base ti tabler-x"></i>
+                                            </span>
+                                        </span>
+                                    </label>
                                 </div>
                             </div>
                         </div>

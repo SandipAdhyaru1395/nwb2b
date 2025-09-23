@@ -3,11 +3,14 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
+import FaviconProvider from '@/components/favicon-provider'
+import { CurrencyProvider } from '@/components/currency-provider'
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'NWB2B',
+  description: '',
   generator: 'v0.app',
+  icons: {},
 }
 
 export default function RootLayout({
@@ -25,10 +28,15 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
+        <link rel="icon" href="/placeholder-logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/placeholder-logo.png" />
       </head>
       <body>
-        {children}
-        <Toaster />
+          <CurrencyProvider>
+            {children}
+            <Toaster />
+            <FaviconProvider />
+          </CurrencyProvider>
       </body>
     </html>
   )

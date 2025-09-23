@@ -17,19 +17,20 @@ export default function Home() {
     const num = parseFloat(match)
     return Number.isFinite(num) ? num : 0
   }
-  const formatMoney = (num: number): string => `£${num.toFixed(2)}`
 
   const increment = (product: any) => {
     setCart((prev) => {
+      const step = Number(product?.step_quantity) > 0 ? Number(product.step_quantity) : 1
       const current = prev[product.id]?.quantity ?? 0
-      return { ...prev, [product.id]: { product, quantity: current + 1 } }
+      return { ...prev, [product.id]: { product, quantity: current + step } }
     })
   }
 
   const decrement = (product: any) => {
     setCart((prev) => {
+      const step = Number(product?.step_quantity) > 0 ? Number(product.step_quantity) : 1
       const current = prev[product.id]?.quantity ?? 0
-      const nextQty = Math.max(0, current - 1)
+      const nextQty = Math.max(0, current - step)
       const next = { ...prev }
       if (nextQty === 0) {
         delete next[product.id]
@@ -62,7 +63,6 @@ export default function Home() {
         increment={increment}
         decrement={decrement}
         totals={totals}
-        formatMoney={formatMoney}
       />
     )
   }
@@ -74,7 +74,6 @@ export default function Home() {
         increment={increment}
         decrement={decrement}
         totals={totals}
-        formatMoney={formatMoney}
         clearCart={clearCart}
       />
     )
@@ -88,7 +87,6 @@ export default function Home() {
         increment={increment}
         decrement={decrement}
         totals={totals}
-        formatMoney={formatMoney}
         clearCart={clearCart}
       />
     )
@@ -102,7 +100,6 @@ export default function Home() {
         increment={increment}
         decrement={decrement}
         totals={totals}
-        formatMoney={formatMoney}
         clearCart={clearCart}
       />
     )

@@ -191,6 +191,10 @@
     .form-check-input{
       border: 1px solid var(--bs-secondary-color);
     }
+
+    .switch .switch-toggle-slider .icon-base {
+      inset-block-start: 1.1px;
+    }
   </style>
 </head>
 

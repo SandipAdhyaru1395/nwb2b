@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, QrCode, ShoppingBag, Wallet } from "lucide-react"
+import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet } from "lucide-react"
 
 interface ProductItem {
   id: number
@@ -17,7 +17,6 @@ interface MobileAccountProps {
   increment: (product: ProductItem) => void
   decrement: (product: ProductItem) => void
   totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
-  formatMoney: (n: number) => string
   clearCart: () => void
 }
 
@@ -175,7 +174,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
-        <div className="grid grid-cols-5 py-2">
+        <div className="grid grid-cols-4 py-2">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
@@ -183,10 +182,6 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <QrCode className="w-5 h-5" />
-            <span className="text-xs mt-1">Scan</span>
           </button>
           <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
             <Wallet className="w-5 h-5" />

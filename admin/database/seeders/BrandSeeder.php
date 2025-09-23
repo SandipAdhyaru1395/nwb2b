@@ -17,67 +17,89 @@ class BrandSeeder extends Seeder
 
         $brands = [
             [
-                'name' => 'Hyola Ultra 30K'
+                'name' => 'Hyola Ultra 30K',
+                'is_active' => 1
             ],
             [
-                'name' => 'PIXL 8000'
+                'name' => 'PIXL 8000',
+                'is_active' => 1
             ],
             [
-                'name' => 'PIXL Duo'
+                'name' => 'PIXL Duo',
+                'is_active' => 1
             ],
             [
-                'name' => 'IVG Pro'
+                'name' => 'IVG Pro',
+                'is_active' => 1
             ],
             [
-                'name' => 'O Pro by Insta 10k'
+                'name' => 'O Pro by Insta 10k',
+                'is_active' => 1
             ],
             [
-                'name' => 'Fuji Energy'
+                'name' => 'Fuji Energy',
+                'is_active' => 1
             ],
             [
-                'name' => 'Duracell'
+                'name' => 'Duracell',
+                'is_active' => 1
             ],
              [
-                'name' => 'Panasonic'
+                'name' => 'Panasonic',
+                'is_active' => 1
              ],
               [
-                'name' => 'Energizer'
+                'name' => 'Energizer',
+                'is_active' => 1
               ],
               [
-                'name' => 'Till Rolls'
+                'name' => 'Till Rolls',
+                'is_active' => 1
               ],
               [
                 'name' => 'FIFO',
+                'is_active' => 1
             ],
              [
                 'name' => 'Reach On USB',
+                'is_active' => 1
             ],
             [
-                'name' => 'Designer Fragrances'
+                'name' => 'Designer Fragrances',
+                'is_active' => 1
+
             ],
              [
-                'name' => 'Skins'
+                'name' => 'Skins',
+                'is_active' => 1
              ],
              [
-                'name' => 'Warrior'
+                'name' => 'Warrior',
+                'is_active' => 1
              ],
              [
-                'name' => 'IVG Intense Nic Salts'
+                'name' => 'IVG Intense Nic Salts',
+                'is_active' => 1
              ],
              [
-                'name' => 'Elux Legend Nic Salt'
+                'name' => 'Elux Legend Nic Salt',
+                'is_active' => 1
              ],
              [
-                'name' => 'Elux Firerose'
+                'name' => 'Elux Firerose',
+                'is_active' => 1
              ],
               [
-                'name' => 'Edge Liq Nic Salts'
+                'name' => 'Edge Liq Nic Salts',
+                'is_active' => 1
               ],
                [
-                'name' => 'Nordic Spirit!'
+                'name' => 'Nordic Spirit!',
+                'is_active' => 1
                ],
                   [
-                'name' => 'Signature'
+                'name' => 'Signature',
+                'is_active' => 1
              ]
         ];
 

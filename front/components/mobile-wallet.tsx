@@ -1,7 +1,10 @@
 "use client"
 
 import { Card } from "@/components/ui/card"
-import { Minus, Plus, Home, QrCode, ShoppingBag, User, Wallet } from "lucide-react"
+import { useCurrency } from "@/components/currency-provider"
+import { Minus, Plus, Home, ShoppingBag, User, Wallet } from "lucide-react"
+import { useEffect, useState } from "react"
+import api from "@/lib/axios"
 
 interface ProductItem {
   id: number
@@ -17,11 +20,22 @@ interface MobileWalletProps {
   increment: (product: ProductItem) => void
   decrement: (product: ProductItem) => void
   totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
-  formatMoney: (n: number) => string
   clearCart: () => void
 }
 
 export function MobileWallet({ onNavigate }: MobileWalletProps) {
+  const { symbol } = useCurrency()
+  const [wallet, setWallet] = useState<number>(0)
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const res = await api.get('/settings')
+        const bal = Number(res?.data?.settings?.wallet_balance)
+        if (!Number.isNaN(bal)) setWallet(bal)
+      } catch (_) {}
+    }
+    run()
+  }, [])
   return (
     <div className="w-[820px] mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
@@ -44,18 +58,20 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       {/* Wallet Content */}
       <div className="p-4 space-y-6">
         {/* Wallet Balance */}
+        {symbol && wallet > 0 && (
         <div>
           <h2 className="text-base font-medium text-gray-900 mb-3">Your wallet balance</h2>
           <Card className="p-4 border border-gray-200">
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">£</span>
+                <span className="text-white text-xs font-bold">{symbol}</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">£3.50</span>
+              <span className="text-xl font-semibold text-gray-900">{symbol}{wallet.toFixed(2)}</span>
               <span className="text-green-600 font-medium">Credit</span>
             </div>
           </Card>
         </div>
+        )}
 
         {/* FAQ Sections */}
         <div className="space-y-4">
@@ -92,7 +108,7 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
-        <div className="grid grid-cols-5 py-2">
+        <div className="grid grid-cols-4 py-2">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
@@ -100,10 +116,6 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
           <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <QrCode className="w-5 h-5" />
-            <span className="text-xs mt-1">Scan</span>
           </button>
           <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-green-600">
             <Wallet className="w-5 h-5" />

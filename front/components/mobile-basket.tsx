@@ -1,9 +1,10 @@
 "use client"
 
 import api from "@/lib/axios"
-import { useState } from "react"
-import { Minus, Plus, Home, QrCode, ShoppingBag, User, Wallet } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Minus, Plus, Home, ShoppingBag, User, Wallet, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useCurrency } from "@/components/currency-provider"
 
 interface ProductItem {
   id: number
@@ -11,6 +12,8 @@ interface ProductItem {
   image: string
   price: string
   discount?: string
+  step_quantity?: number
+  wallet_credit?: number
 }
 
 interface MobileBasketProps {
@@ -19,13 +22,22 @@ interface MobileBasketProps {
   increment: (product: ProductItem) => void
   decrement: (product: ProductItem) => void
   totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
-  formatMoney: (n: number) => string
   clearCart: () => void
 }
 
-export function MobileBasket({ onNavigate, cart, increment, decrement, totals, formatMoney, clearCart }: MobileBasketProps) {
+export function MobileBasket({ onNavigate, cart, increment, decrement, totals, clearCart }: MobileBasketProps) {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
+  const [favourites, setFavourites] = useState<Record<number, boolean>>({})
   const { toast } = useToast()
+  const { symbol, format } = useCurrency()
+
+  // Calculate total wallet credit from cart items
+  const totalWalletCredit = useMemo(() => {
+    return Object.values(cart).reduce((sum, { product, quantity }) => {
+      const credit = typeof product.wallet_credit === 'number' ? product.wallet_credit : 0
+      return sum + (credit * quantity)
+    }, 0)
+  }, [cart])
 
   const handleCheckout = async () => {
     setIsCheckingOut(true)
@@ -78,7 +90,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, f
         <h1 className="text-lg font-semibold">Basket</h1>
       </div>
 
-      <div className="flex-1 divide-y bg-white">
+      <div className="flex-1 divide-y bg-white overflow-y-auto pb-48">
         {Object.values(cart).map(({ product, quantity }) => (
           <div key={product.id} className="px-4 py-3 flex items-center gap-3">
             <div className="w-12 h-12 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
@@ -86,14 +98,44 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, f
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-sm text-gray-800 truncate">{product.name}</div>
-              <div className="text-xs text-gray-500">{product.price} {product.discount && <span className="text-green-600 ml-2">{product.discount} off</span>}</div>
+              <div className="text-xs text-gray-500 flex items-center gap-2">
+                <span>{product.price}</span>
+                {typeof product.wallet_credit === 'number' && product.wallet_credit > 0 && (
+                  <span className="inline-flex items-center gap-1 text-green-600">
+                    <Wallet className="w-4 h-4" />
+                    <span className="font-medium">{product.wallet_credit.toFixed(2)}</span>
+                  </span>
+                )}
+                {product.discount && <span className="text-green-600 ml-2">{product.discount} off</span>}
+              </div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => decrement(product)} className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center">
+              {/* Favourite toggle */}
+              <button
+                onClick={() => setFavourites((prev) => ({ ...prev, [product.id]: !prev[product.id] }))}
+                className={`w-8 h-8 rounded-full border flex items-center justify-center ${favourites[product.id] ? 'bg-green-50 border-green-300' : 'border-gray-300 bg-white'}`}
+                aria-label="Toggle favourite"
+              >
+                <Star className={`w-4 h-4 ${favourites[product.id] ? 'text-green-600 fill-green-600' : 'text-gray-400'}`} />
+              </button>
+              {/* Delete removes the product from cart */}
+              <button
+                onClick={() => {
+                  let count = quantity
+                  while (count > 0) {
+                    decrement(product)
+                    count--
+                  }
+                }}
+                className="px-3 h-8 rounded border text-xs text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Delete
+              </button>
+              <button onClick={() => decrement(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center">
                 <Minus className="w-4 h-4" />
               </button>
               <span className="w-8 text-center font-medium">{quantity}</span>
-              <button onClick={() => increment(product)} className="w-7 h-7 rounded-full bg-black text-white flex items-center justify-center">
+              <button onClick={() => increment(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -112,9 +154,15 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, f
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-700">{totals.units} Units | {totals.skus} SKUs</span>
               <div className="flex items-center gap-2">
-                <span className="font-semibold">{formatMoney(totals.total)}</span>
+                <span className="font-semibold">{format(totals.total)}</span>
+                {totalWalletCredit > 0 && (
+                  <span className="inline-flex items-center gap-1 text-green-600 text-xs">
+                    <Wallet className="w-4 h-4" />
+                    <span>{symbol}{totalWalletCredit.toFixed(2)}</span>
+                  </span>
+                )}
                 {totals.totalDiscount > 0 && (
-                  <span className="text-green-600 text-xs">{formatMoney(totals.totalDiscount)} off</span>
+                  <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>
                 )}
               </div>
             </div>
@@ -128,18 +176,14 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, f
             <div className="text-[11px] text-center text-gray-500">Includes FREE delivery</div>
           </div>
         )}
-        <div className="grid grid-cols-5">
+        <div className="grid grid-cols-4">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button className="flex flex-col items-center py-2 text-green-600">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <QrCode className="w-5 h-5" />
-            <span className="text-xs mt-1">Scan</span>
           </button>
           <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
             <Wallet className="w-5 h-5" />

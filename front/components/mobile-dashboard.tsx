@@ -1,9 +1,10 @@
 "use client"
 import { Button } from "@/components/ui/button"
+import { useCurrency } from "@/components/currency-provider"
 import React, { useEffect, useState } from "react"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, Heart, Home, QrCode, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle } from "lucide-react"
+import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react"
 import api from "@/lib/axios"
 
 interface MobileDashboardProps {
@@ -11,6 +12,8 @@ interface MobileDashboardProps {
 }
 
 export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
+  const { symbol } = useCurrency()
+  const [wallet, setWallet] = useState<number>(0)
   const [orders, setOrders] = useState<Array<{ order_number: string; ordered_at: string; payment_status: string; fulfillment_status: string; units: number; skus: number; total_paid: number,currency_symbol: string }>>([])
 
   useEffect(() => {
@@ -28,13 +31,24 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
     fetchOrders()
   }, [])
 
+  useEffect(() => {
+    const run = async () => {
+      try {
+        const res = await api.get('/settings')
+        const bal = Number(res?.data?.settings?.wallet_balance)
+        if (!Number.isNaN(bal)) setWallet(bal)
+      } catch (_) {}
+    }
+    run()
+  }, [])
+
   return (
     <div className="min-h-screen bg-gray-50 w-[820px] mx-auto">
       {/* Header */}
       <header className="bg-white px-4 py-3 flex items-center justify-between border-b">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-sm">Z</span>
+            <House className="w-5 h-5 text-white" />
           </div>
           <h1 className="font-semibold text-gray-900">Dashboard</h1>
         </div>
@@ -79,18 +93,19 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
         </Card>
 
         {/* Wallet Credit */}
+        {symbol && wallet > 0 && (
         <Card className="mx-4 mt-4">
           <div className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <Wallet className="w-4 h-4 text-green-600" />
               </div>
-              <span className="font-medium">£3.50 credit in your wallet</span>
+              <span className="font-medium">{symbol}{wallet.toFixed(2)} credit in your wallet</span>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-400" />
           </div>
         </Card>
-
+        )}
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4 mx-4 mt-4">
           <Button
@@ -125,7 +140,7 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
           <Card>
             <div className="p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-between">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <Bell className="w-4 h-4 text-green-600" />
                 </div>
                 <span className="text-sm">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
@@ -185,7 +200,7 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
-        <div className="grid grid-cols-5 py-2">
+        <div className="grid grid-cols-4 py-2">
           <button className="flex flex-col items-center py-2 text-green-600">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
@@ -193,10 +208,6 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
           <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <QrCode className="w-5 h-5" />
-            <span className="text-xs mt-1">Scan</span>
           </button>
           <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
             <Wallet className="w-5 h-5" />

@@ -64,6 +64,7 @@ class CategoryController extends Controller
 
   public function create(Request $request)
   {
+
     $request->validate([
       'categoryName' => 'required',
       'categoryStatus' => 'required',
@@ -72,12 +73,13 @@ class CategoryController extends Controller
       'categoryStatus.required' => 'Status is required',
     ]);
 
-
+    
     Category::create(
       [
         'name' => $request->categoryName,
         'parent_id' => $request->parentCategory,
         'description' => $request->categoryDescription,
+        'is_special' => (isset($request->is_special) && $request->is_special == 'on' && $request->parentCategory == null) ? true : false,
         'sort_order' => $request->sortOrder ?? 1,
         'is_active' => $request->categoryStatus,
       ]
@@ -125,6 +127,7 @@ class CategoryController extends Controller
       'name' => $request->categoryName,
       'parent_id' => $request->parentCategory,
       'description' => $request->categoryDescription,
+      'is_special' => (isset($request->is_special) && $request->is_special == 'on' && $request->parentCategory == null) ? true : false,
       'is_active' => $request->categoryStatus
     ];
 
