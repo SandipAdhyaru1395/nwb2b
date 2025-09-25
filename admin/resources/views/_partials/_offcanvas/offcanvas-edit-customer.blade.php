@@ -27,7 +27,7 @@
             @enderror
           </div>
           <div class="form-control-validation" >
-            <label class="form-label" for="mobile">Mobile</label>
+            <label class="form-label" for="mobile">Mobile <span class="text-danger">*</span></label>
             <input type="text" maxlength="10" autocomplete="off" onkeypress="return /[0-9]/i.test(event.key)" id="mobile" class="form-control"
               placeholder="Enter mobile no" aria-label="Enter mobile no" name="mobile" value="{{ old('mobile') ?? $customer->phone }}"/>
             @error('mobile','edit')
@@ -39,7 +39,7 @@
         <div class="security mb-4 pt-4">
           <h6 class="mb-6">Security</h6>
           <div class="mb-6 form-control-validation form-password-toggle">
-            <label class="form-label" for="password">Password <span class="text-danger">*</span></label>
+            <label class="form-label" for="password">Password</label>
             <div class="input-group input-group-merge">
                 <input type="password" autocomplete="off" class="form-control" id="password" placeholder="Enter password"
                 name="password" aria-label="Enter password" />

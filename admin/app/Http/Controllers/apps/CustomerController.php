@@ -170,7 +170,7 @@ class CustomerController extends Controller
       'name' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', 'unique:customers'],
       'password' => ['required', 'string', 'min:6'],
-      'mobile' => ['nullable', 'string', 'max:255', 'unique:customers,phone'],
+      'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone'],
       'status' => ['required'],
     ],[
       'name.required' => 'Please enter name',
@@ -178,6 +178,8 @@ class CustomerController extends Controller
       'email.unique' => 'Email already exists',
       'password.required' => 'Please enter password',
       'password.min' => 'Password must be more than 6 characters',
+      'mobile.required' => 'Please enter mobile number',
+      'mobile.digits' => 'Mobile number must be 10 digits',
       'mobile.unique' => 'Mobile number already exists',
     ]);
 
@@ -208,13 +210,15 @@ class CustomerController extends Controller
       'name' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email,'.$request->id],
       'password' => ['nullable', 'string', 'min:6'],
-      'mobile' => ['nullable', 'string', 'max:255', 'unique:customers,phone,'.$request->id],
+      'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone,'.$request->id],
       'status' => ['required'],
     ],[
       'name.required' => 'Please enter name',
       'email.required' => 'Please enter email',
       'email.unique' => 'Email already exists',
       'password.min' => 'Password must be more than 6 characters',
+      'mobile.required' => 'Please enter mobile number',
+      'mobile.digits' => 'Mobile number must be 10 digits',
       'mobile.unique' => 'Mobile number already exists',
     ]);
 
