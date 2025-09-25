@@ -26,16 +26,19 @@ document.addEventListener('DOMContentLoaded', function (e) {
   if (dt_category_table) {
     var dt_products = new DataTable(dt_category_table, {
       autoWidth: false,
+      processing: true,
+      stateSave: true,
+      serverSide: true,
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
       ajax: baseUrl + 'category/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'name', width: "20%"},
-        { data: 'parent_category', width: "20%"},
-        { data: 'child_categories', width: "40%"},
-        { data: 'status'},
+        { data: 'name', width: "20%",orderable: false},
+        { data: 'parent_category',orderable: false, width: "20%"},
+        { data: 'child_categories', width: "40%",orderable: false},
+        { data: 'is_active',orderable: false},
         { data: 'id'}
       ],
       columnDefs: [
@@ -43,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // For Responsive
           className: 'control',
           searchable: false,
-          orderable: false,
           responsivePriority: 2,
           targets: 0,
           render: function (data, type, full, meta) {
@@ -151,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         style: 'multi',
         selector: 'td:nth-child(2)'
       },
-      // order: [0, 'asc'],
+      // order: [0, 'desc'],
       displayLength: 7,
       layout: {
         topStart: {
@@ -413,7 +415,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of ' + data['collection_name'];
+              return 'Details of ' + data['name'];
             }
           }),
           type: 'column',

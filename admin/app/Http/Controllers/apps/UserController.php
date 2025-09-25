@@ -207,13 +207,7 @@ class UserController extends Controller
 
     return view('content.user.security',$data);
   }
-
-  public function viewBilling($id){
-    $data['user'] = User::findOrFail($id);
-     $data['roles'] = Role::where('id','!=',1)->get();
-
-    return view('content.user.billing',$data);
-  }
+ 
 
   public function viewNotifications($id){
     $data['user'] = User::findOrFail($id);

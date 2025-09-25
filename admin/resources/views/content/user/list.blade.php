@@ -19,8 +19,8 @@
   <script>
     @if ($errors->addModal->any())
           document.addEventListener("DOMContentLoaded", function () {
-              let addOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasAddUser'));
-              addOffcanvas.show();
+              let addCustomerOffcanvas = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerAdd'));
+              addCustomerOffcanvas.show();
           });
     @endif
   

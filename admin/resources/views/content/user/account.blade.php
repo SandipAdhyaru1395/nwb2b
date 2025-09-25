@@ -37,37 +37,11 @@
           <a class="nav-link" href="{{ url('user/view/security/'.$user->id) }}"><i class="icon-base ti tabler-lock icon-sm me-1_5"></i>Security</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/billing/'.$user->id) }}"><i class="icon-base ti tabler-bookmark icon-sm me-1_5"></i>Billing & Plans</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="{{ url('user/view/notifications/'.$user->id) }}"><i class="icon-base ti tabler-bell icon-sm me-1_5"></i>Notifications</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/connections/'.$user->id) }}"><i class="icon-base ti tabler-link icon-sm me-1_5"></i>Connections</a>
         </li>
       </ul>
     </div>
     <!--/ User Pills -->
-
-    <!-- Project table -->
-    <div class="card mb-6">
-      <div class="table-responsive mb-4">
-        <table class="table datatable-project">
-          <thead class="border-top">
-            <tr>
-              <th></th>
-              <th></th>
-              <th>Project</th>
-              <th>Leader</th>
-              <th>Team</th>
-              <th class="w-px-200">Progress</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-    </div>
-    <!-- /Project table -->
 
     <!-- Activity Timeline -->
     <div class="card mb-6">
@@ -145,31 +119,11 @@
       </div>
     </div>
     <!-- /Activity Timeline -->
-
-    <!-- Invoice table -->
-    <div class="card mb-4">
-      <div class="card-datatable table-responsive">
-        <table class="table datatable-invoice">
-          <thead>
-            <tr>
-              <th></th>
-              <th>#</th>
-              <th>Status</th>
-              <th>Total</th>
-              <th>Issued Date</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-    </div>
-    <!-- /Invoice table -->
   </div>
   <!--/ User Content -->
 </div>
 
 <!-- Modal -->
 @include('_partials/_modals/modal-edit-user')
-@include('_partials/_modals/modal-upgrade-plan')
 <!-- /Modal -->
 @endsection

@@ -27,16 +27,17 @@ document.addEventListener('DOMContentLoaded', function (e) {
   // customers datatable
   if (dt_customer_table) {
     var dt_customer = new DataTable(dt_customer_table, {
-      ajax: assetsPath + 'json/ecommerce-customer-all.json', // JSON file to add data
+      ajax: baseUrl + 'customer/list/ajax',
       columns: [
         // columns according to JSON
         { data: '' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
         { data: 'customer' },
-        { data: 'customer_id' },
-        { data: 'country' },
+        { data: 'phone' },
+        { data: 'credit_balance' },
         { data: 'order' },
-        { data: 'total_spent' }
+        { data: 'total_spent' },
+        { data: 'actions', orderable: false, searchable: false }
       ],
       columnDefs: [
         {
@@ -102,30 +103,19 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // customer Role
+          // phone
           targets: 3,
           render: function (data, type, full, meta) {
-            const id = full['customer_id'];
-
-            return "<span>#" + id + '</span>';
+            const phone = full['phone'] || '';
+            return '<span>' + (phone ? phone : '-')+ '</span>';
           }
         },
         {
+          // credit balance
           targets: 4,
           render: function (data, type, full, meta) {
-            const plan = full['country'];
-            const code = full['country_code'];
-
-            const outputCode = code
-              ? `<i class="icon-base fis fi fi-${code} rounded-circle me-2 icon-lg"></i>`
-              : `<i class="icon-base fis fi fi-xx rounded-circle me-2 icon-lg"></i>`;
-
-            const rowOutput = `
-              <div class="d-flex justify-content-start align-items-center customer-country">
-                <div>${outputCode}</div>
-                <div><span>${plan}</span></div>
-              </div>`;
-            return rowOutput;
+            const balance = full['credit_balance'];
+            return '<span class="fw-medium">' + currencySymbol + balance + '</span>';
           }
         },
         {
@@ -144,6 +134,26 @@ document.addEventListener('DOMContentLoaded', function (e) {
             const spent = full['total_spent'];
 
             return '<span class="fw-medium">' + currencySymbol + spent + '</span>';
+          }
+        }
+        ,
+        {
+          // actions
+          targets: 7,
+          className: 'text-center',
+          render: function (data, type, full, meta) {
+            const id = full['id'];
+            const editUrl = baseUrl + 'customer/' + id + '/overview';
+            return `
+              <div class="d-flex justify-content-center">
+                <button class="btn btn-text-secondary rounded-pill waves-effect btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
+                  <i class="icon-base ti tabler-dots-vertical"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end m-0">
+                  <a href="${editUrl}" class="dropdown-item">Edit</a>
+                  <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${id}">Delete</a>
+                </div>
+              </div>`;
           }
         }
       ],
@@ -184,7 +194,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-1"></i>Print</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6],
+                        columns: [2, 3, 4, 5, 6],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -236,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-1"></i>Csv</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6],
+                        columns: [2, 3, 4, 5, 6],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -273,7 +283,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-upload me-1"></i>Excel</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6],
+                        columns: [2, 3, 4, 5, 6],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -310,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-1"></i>Pdf</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6],
+                        columns: [2, 3, 4, 5, 6],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -347,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<i class="icon-base ti tabler-copy me-1"></i>Copy`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6],
+                        columns: [2, 3, 4, 5, 6],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -386,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   className: 'create-new btn btn-primary',
                   attr: {
                     'data-bs-toggle': 'offcanvas',
-                    'data-bs-target': '#offcanvasEcommerceCustomerAdd'
+                    'data-bs-target': '#offcanvasCustomerAdd'
                   }
                 }
               ]
@@ -477,65 +487,48 @@ document.addEventListener('DOMContentLoaded', function (e) {
       });
     });
   }, 100);
+
+  // Delete customer confirmation (same UX as orders)
+  document.addEventListener('click', function (e) {
+    const trigger = e.target.closest('.delete-record');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const tr = trigger.closest('tr');
+    let id = trigger.getAttribute('data-id');
+    if (!id && tr && dt_customer_table) {
+      const dt = DataTable.dom.dataTable(dt_customer_table);
+      const row = dt && dt.row && dt.row(tr);
+      const data = row && row.data && row.data();
+      id = data && data.id;
+    }
+    if (!id) return;
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert customer!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete customer!',
+      customClass: {
+        confirmButton: 'btn btn-primary me-2 waves-effect waves-light',
+        cancelButton: 'btn btn-label-secondary waves-effect waves-light'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        // TODO: wire actual delete endpoint when available
+        // window.location.href = baseUrl + 'customer/delete/' + id;
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          text: 'Cancelled Delete :)',
+          icon: 'error',
+          customClass: { confirmButton: 'btn btn-success waves-effect waves-light' }
+        });
+      }
+    });
+  });
 });
 
-// Validation & Phone mask
-(function () {
-  const phoneMaskList = document.querySelectorAll('.phone-mask'),
-    eCommerceCustomerAddForm = document.getElementById('eCommerceCustomerAddForm');
-
-  // Phone Number
-  if (phoneMaskList) {
-    phoneMaskList.forEach(function (phoneMask) {
-      phoneMask.addEventListener('input', event => {
-        const cleanValue = event.target.value.replace(/\D/g, '');
-        phoneMask.value = formatGeneral(cleanValue, {
-          blocks: [3, 3, 4],
-          delimiters: [' ', ' ']
-        });
-      });
-      registerCursorTracker({
-        input: phoneMask,
-        delimiter: ' '
-      });
-    });
-  }
-  // Add New customer Form Validation
-  if (!eCommerceCustomerAddForm) return;
-  const fv = FormValidation.formValidation(eCommerceCustomerAddForm, {
-    fields: {
-      customerName: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter fullname '
-          }
-        }
-      },
-      customerEmail: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter your email'
-          },
-          emailAddress: {
-            message: 'The value is not a valid email address'
-          }
-        }
-      }
-    },
-    plugins: {
-      trigger: new FormValidation.plugins.Trigger(),
-      bootstrap5: new FormValidation.plugins.Bootstrap5({
-        // Use this for enabling/changing valid/invalid class
-        eleValidClass: '',
-        rowSelector: function (field, ele) {
-          // field is the field name & ele is the field element
-          return '.form-control-validation';
-        }
-      }),
-      submitButton: new FormValidation.plugins.SubmitButton(),
-      // Submit the form when all fields are valid
-      // defaultSubmit: new FormValidation.plugins.DefaultSubmit(),
-      autoFocus: new FormValidation.plugins.AutoFocus()
-    }
-  });
-})();

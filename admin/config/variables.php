@@ -29,5 +29,7 @@ return [
   "twitterUrl" => "",
   "githubUrl" => "",
   "dribbbleUrl" => "",
-  "instagramUrl" => ""
+  "instagramUrl" => "",
+  "payment_status" => ["Paid","Unpaid"],
+  "order_status" => ["New","Processing","Shipped","Delivered","Cancelled"]
 ];

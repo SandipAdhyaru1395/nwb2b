@@ -185,6 +185,36 @@ class ProductController extends Controller
         })
         ->make(true);
   }
+
+  public function searchAjax(Request $request)
+  {
+    $q = trim($request->get('q', ''));
+    $limit = (int) $request->get('limit', 10);
+
+    $query = Product::select(['id','name','sku','price','image_url','wallet_credit'])
+      ->where('is_active',1);
+
+    if ($q !== '') {
+      $query->where(function($sub) use ($q) {
+        $sub->where('name','like',"%{$q}%")
+            ->orWhere('sku','like',"%{$q}%");
+      });
+    }
+
+    $products = $query->orderBy('id','desc')->limit($limit)->get();
+
+    return response()->json([
+      'results' => $products->map(function($p){
+        return [
+          'id' => $p->id,
+          'text' => $p->name . ' (' . $p->sku . ')',
+          'price' => $p->price,
+          'wallet_credit' => $p->wallet_credit,
+          'image_url' => $p->image_url,
+        ];
+      })
+    ]);
+  }
  
   public function delete($id)
   {

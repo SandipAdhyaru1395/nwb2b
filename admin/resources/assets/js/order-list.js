@@ -17,33 +17,34 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   const dt_order_table = document.querySelector('.datatables-order'),
     statusObj = {
-      1: { title: 'Dispatched', class: 'bg-label-warning' },
-      2: { title: 'Delivered', class: 'bg-label-success' },
-      3: { title: 'Out for Delivery', class: 'bg-label-primary' },
-      4: { title: 'Ready to Pickup', class: 'bg-label-info' }
+      'New': { title: 'New', class: 'bg-primary' },
+      'Processing': { title: 'Processing', class: 'bg-warning' },
+      'Shipped': { title: 'Shipped', class: 'bg-secondary' },
+      'Delivered': { title: 'Delivered', class: 'bg-success' },
+      'Cancelled': { title: 'Cancelled', class: 'bg-danger' }
     },
     paymentObj = {
-      1: { title: 'Paid', class: 'text-success' },
-      2: { title: 'Pending', class: 'text-warning' },
-      3: { title: 'Failed', class: 'text-danger' },
-      4: { title: 'Cancelled', class: 'text-secondary' }
+      'Paid': { title: 'Paid', class: 'bg-success' },
+      'Unpaid': { title: 'Unpaid', class: 'bg-danger' },
     };
 
   // E-commerce Products datatable
 
   if (dt_order_table) {
     const dt_products = new DataTable(dt_order_table, {
-      ajax: assetsPath + 'json/ecommerce-customer-order.json', // JSON file to add data
+      processing: true,
+      stateSave: true,
+      serverSide: true,
+      ajax: baseUrl + 'order/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'order' },
-        { data: 'date' },
-        { data: 'customer' }, //email //avatar
-        { data: 'payment' },
-        { data: 'status' },
-        { data: 'method' }, //method_number
+        { data: 'order_number' },
+        { data: 'order_date' },
+        { data: 'customer_name' },
+        { data: 'payment_status' },
+        { data: 'order_status' },
         { data: 'id' }
       ],
       columnDefs: [
@@ -73,111 +74,56 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // Order ID
+          // Order No
           targets: 2,
           render: function (data, type, full, meta) {
-            const order_id = full['order'];
-            // Creates full output for row
-            const row_output =
-              '<span>#' + order_id + '</span>';
-            return row_output;
+            return '<span>#' + full['order_number'] + '</span>';
           }
         },
         {
           targets: 3,
           render: function (data, type, full, meta) {
-            const date = new Date(full.date);
-            const timeX = full['time'].substring(0, 5);
-            const formattedDate = date.toLocaleDateString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            });
-            return `<span class="text-nowrap">${formattedDate}, ${timeX}</span>`;
+            const date = new Date(full.order_date);
+            const formattedDate = date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
+            return `<span class="text-nowrap">${formattedDate}</span>`;
           }
         },
         {
           targets: 4,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
-            const name = full['customer'];
-            const email = full['email'];
-            const avatar = full['avatar'];
-            let output;
-
-            if (avatar) {
-              // For Avatar image
-              output = `<img src="${assetsPath}img/avatars/${avatar}" alt="Avatar" class="rounded-circle">`;
-            } else {
-              // For Avatar badge
-              const stateNum = Math.floor(Math.random() * 6);
-              const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
-              const state = states[stateNum];
-              const initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
-
-              output = `<span class="avatar-initial rounded-circle bg-label-${state}">${initials}</span>`;
-            }
-
-            // Creates full output for row
-            const rowOutput = `
+            const name = full['customer_name'] || '-';
+            const email = full['customer_email'] || '';
+            return `
               <div class="d-flex justify-content-start align-items-center order-name text-nowrap">
-                <div class="avatar-wrapper">
-                  <div class="avatar avatar-sm me-3">
-                    ${output}
-                  </div>
-                </div>
                 <div class="d-flex flex-column">
                   <span class="m-0">${name}</span>
-                  <small>${email}</small>
+                  ${email ? `<small>${email}</small>` : ''}
                 </div>
               </div>`;
-
-            return rowOutput;
           }
         },
         {
           targets: 5,
           render: function (data, type, full, meta) {
-            const payment = full['payment'];
+            const payment = full['payment_status'];
             const paymentStatus = paymentObj[payment];
-            if (paymentStatus) {
-              return `
-                <h6 class="mb-0 align-items-center d-flex w-px-100 ${paymentStatus.class}">
-                  <i class="icon-base ti tabler-circle-filled icon-12px me-1"></i>${paymentStatus.title}
-                </h6>`;
-            }
-            return data;
-          }
-        },
-        {
-          targets: -3,
-          render: function (data, type, full, meta) {
-            const status = full['status'];
-            const statusInfo = statusObj[status];
-            if (statusInfo) {
-              return `
-                <span class="badge px-2 ${statusInfo.class} text-capitalized">
-                  ${statusInfo.title}
-                </span>`;
-            }
-            return data;
-          }
-        },
-        {
-          targets: -2,
-          render: function (data, type, full, meta) {
-            let method = full['method'];
-            let methodNumber = full['method_number'];
-
-            if (method === 'paypal') {
-              methodNumber = '@gmail.com';
-            }
-
             return `
-              <div class="d-flex align-items-center text-nowrap">
-                <img src="${assetsPath}img/icons/payments/${method}.png" alt="${method}" width="29">
-                <span><i class="icon-base ti tabler-dots mt-1 me-1"></i>${methodNumber}</span>
-              </div>`;
+            <span class="badge px-2 ${paymentStatus.class} text-capitalized">
+              ${paymentStatus.title}
+            </span>`;
+          }
+        },
+        {
+          targets: 6,
+          render: function (data, type, full, meta) {
+            const status = full['order_status'];
+
+            const statusInfo = statusObj[status] || { title: '', class: 'bg-label-secondary' };
+            return `
+              <span class="badge px-2 ${statusInfo.class} text-capitalized">
+                ${statusInfo.title}
+              </span>`;
           }
         },
         {
@@ -186,14 +132,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
           searchable: false,
           orderable: false,
           render: function (data, type, full, meta) {
-            return `
+              return `
               <div class="d-flex justify-content-sm-start align-items-sm-center">
                 <button class="btn btn-text-secondary rounded-pill waves-effect btn-icon dropdown-toggle hide-arrow" data-bs-toggle="dropdown">
                   <i class="icon-base ti tabler-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="${baseUrl}order/details" class="dropdown-item">View</a>
-                  <a href="javascript:void(0);" class="dropdown-item delete-record">Delete</a>
+                  <a href="${baseUrl}order/edit/${full['id']}" class="dropdown-item">Edit</a>
+                  <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Delete</a>
                 </div>
               </div>`;
           }
@@ -203,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         style: 'multi',
         selector: 'td:nth-child(2)'
       },
-      order: [3, 'asc'],
+      order: [0, 'desc'],
       layout: {
         topStart: {
           search: {
@@ -411,16 +357,50 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
     });
 
-    //? The 'delete-record' class is necessary for the functionality of the following code.
+    // Delete order with confirmation (same flow as details page)
     document.addEventListener('click', function (e) {
-      if (e.target.classList.contains('delete-record')) {
-        dt_products.row(e.target.closest('tr')).remove().draw();
-        const modalEl = document.querySelector('.dtr-bs-modal');
-        if (modalEl && modalEl.classList.contains('show')) {
-          const modal = bootstrap.Modal.getInstance(modalEl);
-          modal?.hide();
+      const trigger = e.target.closest('.delete-record');
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Prefer id from data attribute; fallback to row data
+      let orderId = trigger.getAttribute('data-id');
+      if (!orderId) {
+        const tr = trigger.closest('tr');
+        if (tr) {
+          const row = dt_products.row(tr);
+          const data = row && row.data && row.data();
+          orderId = data && data.id;
         }
       }
+      if (!orderId) return;
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert order!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Delete order!',
+        customClass: {
+          confirmButton: 'btn btn-primary me-2 waves-effect waves-light',
+          cancelButton: 'btn btn-label-secondary waves-effect waves-light'
+        },
+        buttonsStyling: false
+      }).then(function (result) {
+        if (result.value) {
+          window.location.href = baseUrl + 'order/delete/' + orderId;
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          Swal.fire({
+            title: 'Cancelled',
+            text: 'Cancelled Delete :)',
+            icon: 'error',
+            customClass: {
+              confirmButton: 'btn btn-success waves-effect waves-light'
+            }
+          });
+        }
+      });
     });
   }
 

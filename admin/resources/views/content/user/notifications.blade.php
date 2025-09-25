@@ -38,13 +38,7 @@
           <a class="nav-link" href="{{ url('user/view/security/'.$user->id) }}"><i class="icon-base ti tabler-lock me-1_5 icon-sm"></i>Security</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/billing/'.$user->id) }}"><i class="icon-base ti tabler-bookmark me-1_5 icon-sm"></i>Billing & Plans</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link active" href="javascript:void(0);"><i class="icon-base ti tabler-bell me-1_5 icon-sm"></i>Notifications</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/connections/'.$user->id) }}"><i class="icon-base ti tabler-link me-1_5 icon-sm"></i>Connections</a>
         </li>
       </ul>
     </div>
@@ -156,7 +150,6 @@
 
 <!-- Modals -->
 @include('_partials/_modals/modal-edit-user')
-@include('_partials/_modals/modal-upgrade-plan')
 <!-- /Modals -->
 
 @endsection

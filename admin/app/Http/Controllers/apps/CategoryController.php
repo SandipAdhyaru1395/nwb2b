@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
@@ -26,26 +27,30 @@ class CategoryController extends Controller
 
   public function ajaxList(Request $request)
   {
+    $query = Category::select([
+      'id',
+      'name',
+      'is_active',
+      'parent_id'
+    ])->with(['parent', 'children'])
+      ->orderBy('id', 'desc');
 
-    $categories = Category::orderBy('id', 'desc')->get();
-
-    $data = [];
-
-    if ($categories) {
-
-      foreach ($categories as $category) {
-        $data[] = [
-          'id' => $category->id,
-          'name' => $category->name,
-          'parent_category' => $category->parent?->name ?? '-',
-          'child_categories' => ($category->children->isNotEmpty()) ? $category->children->implode('name', ', ') : '-',
-          'image' => $category->image,
-          'is_active' => $category->is_active,
-        ];
-      }
-    }
-
-    return response()->json(['data' => $data]);
+    return DataTables::eloquent($query)
+      ->filterColumn('name', function ($query, $keyword) {
+        $query->where('categories.name', 'like', "%{$keyword}%");
+      })
+      ->addColumn('parent_category', function ($category) {
+        return $category->parent?->name ?? '-';
+      })
+      ->addColumn('child_categories', function ($category) {
+        return ($category->children && $category->children->isNotEmpty())
+          ? $category->children->implode('name', ', ')
+          : '-';
+      })
+      ->addColumn('image', function () {
+        return null;
+      })
+      ->toJson();
   }
 
   public function add(){

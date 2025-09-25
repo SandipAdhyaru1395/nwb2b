@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Customer extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'customers';
 
@@ -15,15 +18,10 @@ class Customer extends Model
         'email',
         'password',
         'company_name',
-        'contact_person',
+        'name',
         'phone',
         'vat_number',
         'business_reg_number',
-        'address_line1',
-        'address_line2',
-        'city',
-        'postal_code',
-        'country',
         'approved_at',
         'approved_by',
         'credit_balance',
@@ -31,6 +29,7 @@ class Customer extends Model
         'is_active',
         'remember_token',
         'last_login',
+        'address_id',
     ];
 
     protected $casts = [
@@ -39,7 +38,25 @@ class Customer extends Model
         'last_login' => 'datetime',
         'is_active' => 'boolean',
         'credit_balance' => 'decimal:2',
+        'password' => 'hashed',
+        'deleted_at' => 'datetime',
     ];
+
+    /**
+     * Get the default address for the customer.
+     */
+    public function defaultAddress(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'address_id');
+    }
+
+    /**
+     * Get all addresses for the customer.
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(Address::class);
+    }
 }
 
 

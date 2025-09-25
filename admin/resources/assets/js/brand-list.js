@@ -25,15 +25,18 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   if (dt_brand_table) {
     var dt_products = new DataTable(dt_brand_table, {
+      processing: true,
+      stateSave: true,
+      serverSide: true,
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
       ajax: baseUrl + 'brand/list/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'brand'},
-        { data: 'categories'},
-        { data: 'is_active'},
+        { data: 'brand', orderable: false},
+        { data: 'categories', orderable: false},
+        { data: 'is_active', orderable: false},
         // { data: 'status'},
         { data: 'id'}
       ],
@@ -403,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of ' + data['collection_name'];
+              return 'Details of ' + data['brand'];
             }
           }),
           type: 'column',

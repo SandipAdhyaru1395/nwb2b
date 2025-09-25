@@ -38,13 +38,7 @@
           <a class="nav-link active" href="javascript:void(0);"><i class="icon-base ti tabler-lock me-1_5 icon-sm"></i>Security</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/billing/'.$user->id) }}"><i class="icon-base ti tabler-bookmark me-1_5 icon-sm"></i>Billing & Plans</a>
-        </li>
-        <li class="nav-item">
           <a class="nav-link" href="{{ url('user/view/notifications/'.$user->id) }}"><i class="icon-base ti tabler-bell me-1_5 icon-sm"></i>Notifications</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{{ url('user/view/connections/'.$user->id) }}"><i class="icon-base ti tabler-link me-1_5 icon-sm"></i>Connections</a>
         </li>
       </ul>
     </div>
@@ -87,29 +81,7 @@
     </div>
     <!--/ Change Password -->
 
-    <!-- Two-steps verification -->
-    <div class="card mb-6">
-      <div class="card-header">
-        <h5 class="mb-0">Two-steps verification</h5>
-        <span class="card-subtitle mt-0">Keep your account secure with authentication step.</span>
-      </div>
-      <div class="card-body pt-0">
-        <h6 class="mb-1">SMS</h6>
-        <div class="mb-4">
-          <div class="d-flex w-100 action-icons">
-            <input id="defaultInput" class="form-control me-4" type="text" placeholder="+1(968) 945-8832" />
-            <a href="javascript:;" class="btn btn-icon btn-text-secondary" data-bs-target="#enableOTP" data-bs-toggle="modal"><i class="icon-base ti tabler-edit icon-22px"></i></a>
-            <a href="javascript:;" class="btn btn-icon btn-text-secondary"><i class="icon-base ti tabler-trash icon-22px"></i></a>
-          </div>
-        </div>
-        <p class="mb-0">
-          Two-factor authentication adds an additional layer of security to your account by requiring more than just a password to log in.
-          <a href="javascript:void(0);" class="text-primary">Learn more.</a>
-        </p>
-      </div>
-    </div>
-    <!--/ Two-steps verification -->
-
+   
     <!-- Recent Devices -->
     <div class="card mb-6">
       <h5 class="card-header">Recent Devices</h5>
@@ -159,8 +131,6 @@
 
 <!-- Modals -->
 @include('_partials/_modals/modal-edit-user')
-@include('_partials/_modals/modal-enable-otp')
-@include('_partials/_modals/modal-upgrade-plan')
 <!-- /Modals -->
 
 @endsection

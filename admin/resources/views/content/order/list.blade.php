@@ -5,7 +5,8 @@
 @section('vendor-style')
 @vite(['resources/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.scss',
 'resources/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.scss',
-'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss'])
+'resources/assets/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.scss',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.scss'])
 @endsection
 
 @section('vendor-script')
@@ -14,7 +15,7 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/app-ecommerce-order-list.js'])
+@vite(['resources/assets/js/order-list.js'])
 @endsection
 
 @section('content')
@@ -88,12 +89,11 @@
         <tr>
           <th></th>
           <th></th>
-          <th>order</th>
-          <th>date</th>
-          <th>customers</th>
-          <th>payment</th>
-          <th>status</th>
-          <th>method</th>
+          <th>Order No</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Payment</th>
+          <th>Status</th>
           <th>actions</th>
         </tr>
       </thead>

@@ -9,6 +9,6 @@ class EcommerceCustomerAll extends Controller
 {
   public function index()
   {
-    return view('content.apps.app-ecommerce-customer-all');
+    return view('content.customer.list');
   }
 }

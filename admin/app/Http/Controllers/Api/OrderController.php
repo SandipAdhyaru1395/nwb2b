@@ -126,7 +126,7 @@ class OrderController extends Controller
                 'payment_status' => 'Unpaid',
                 'outstanding_amount' => 0,
                 'estimated_delivery_date' => now()->addDays(7),
-                'status' => 'new'
+                'status' => 'New'
             ]);
             
             OrderItem::whereNull('order_id')->update([

@@ -4,15 +4,29 @@
 
 'use strict';
 
+const select2 = $('.select2');
+  if (select2.length) {
+    var $this = select2;
+    $this.wrap('<div class="position-relative"></div>').select2({
+      placeholder: 'United States ',
+      dropdownParent: $this.parent()
+    });
+  }
+
 // Datatable (js)
 document.addEventListener('DOMContentLoaded', function (e) {
   const dt_customer_order = document.querySelector('.datatables-customer-order'),
-    order_details = baseUrl + 'app/ecommerce/order/details',
+    edit_order_url = baseUrl + 'order/edit',
     statusObj = {
-      1: { title: 'Ready to  Pickup', class: 'bg-label-info' },
-      2: { title: 'Dispatched', class: 'bg-label-warning' },
-      3: { title: 'Delivered', class: 'bg-label-success' },
-      4: { title: 'Out for delivery', class: 'bg-label-primary' }
+      'New': { title: 'New', class: 'bg-primary' },
+      'Processing': { title: 'Processing', class: 'bg-warning' },
+      'Shipped': { title: 'Shipped', class: 'bg-secondary' },
+      'Delivered': { title: 'Delivered', class: 'bg-success' },
+      'Cancelled': { title: 'Cancelled', class: 'bg-danger' }
+    },
+    paymentObj = {
+      'Paid': { title: 'Paid', class: 'bg-success' },
+      'Unpaid': { title: 'Unpaid', class: 'bg-danger' }
     };
 
   // orders datatable
@@ -20,14 +34,16 @@ document.addEventListener('DOMContentLoaded', function (e) {
     let tableTitle = document.createElement('h5');
     tableTitle.classList.add('card-title', 'mb-0');
     tableTitle.innerHTML = 'Orders placed';
+    const customerId = dt_customer_order.getAttribute('data-customer-id');
     var dt_order = new DataTable(dt_customer_order, {
-      ajax: assetsPath + 'json/ecommerce-customer-order.json', // JSON file to add data
+      ajax: baseUrl + 'customer/' + customerId + '/orders/ajax',
       columns: [
         // columns according to JSON
         { data: 'id' },
         { data: 'order' },
         { data: 'date' },
-        { data: 'status' },
+        { data: 'payment_status' },
+        { data: 'order_status' },
         { data: 'spent' },
         { data: 'id' }
       ],
@@ -49,8 +65,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             const id = full['order'];
-
-            return "<a href='" + order_details + "'><span>#" + id + '</span></a>';
+            return "<a href='" + edit_order_url + "?order_number=" + encodeURIComponent(full['order_number'] || '') + "'><span>#" + id + '</span></a>';
           }
         },
         {
@@ -63,26 +78,34 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // status
+          // payment
           targets: 3,
           render: function (data, type, full, meta) {
-            const status = full['status'];
-
-            return (
-              '<span class="badge ' +
-              statusObj[status].class +
-              '" text-capitalized>' +
-              statusObj[status].title +
-              '</span>'
-            );
+            const payment = full['payment_status'];
+            const info = paymentObj[payment] || { title: '', class: 'bg-label-secondary' };
+            return `
+              <span class="badge px-2 ${info.class} text-capitalized">
+                ${info.title}
+              </span>`;
+          }
+        },
+        {
+          // status
+          targets: 4,
+          render: function (data, type, full, meta) {
+            const status = full['order_status'];
+            const info = statusObj[status] || { title: '', class: 'bg-label-secondary' };
+            return `
+              <span class="badge px-2 ${info.class} text-capitalized">
+                ${info.title}
+              </span>`;
           }
         },
         {
           // spent
-          targets: 4,
+          targets: 5,
           render: function (data, type, full, meta) {
             const spent = full['spent'];
-
             return '<span >' + spent + '</span>';
           }
         },
@@ -98,8 +121,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <i class="icon-base ti tabler-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="javascript:void(0);" class="dropdown-item">View</a>
-                  <a href="javascript:void(0);" class="dropdown-item delete-record">Delete</a>
+                  <a href="${edit_order_url}/${full['id']}" class="dropdown-item">View</a>
+                  <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Delete</a>
                 </div>
               </div>
             `;
@@ -175,14 +198,48 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   //? The 'delete-record' class is necessary for the functionality of the following code.
   document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('delete-record')) {
-      dt_order.row(e.target.closest('tr')).remove().draw();
-      const modalEl = document.querySelector('.dtr-bs-modal');
-      if (modalEl && modalEl.classList.contains('show')) {
-        const modal = bootstrap.Modal.getInstance(modalEl);
-        modal?.hide();
+    const trigger = e.target.closest('.delete-record');
+    if (!trigger) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Prefer id from data attribute; fallback to row data
+    let orderId = trigger.getAttribute('data-id');
+    if (!orderId) {
+      const tr = trigger.closest('tr');
+      if (tr) {
+        const row = dt_products.row(tr);
+        const data = row && row.data && row.data();
+        orderId = data && data.id;
       }
     }
+    if (!orderId) return;
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You won't be able to revert order!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, Delete order!',
+      customClass: {
+        confirmButton: 'btn btn-primary me-2 waves-effect waves-light',
+        cancelButton: 'btn btn-label-secondary waves-effect waves-light'
+      },
+      buttonsStyling: false
+    }).then(function (result) {
+      if (result.value) {
+        window.location.href = baseUrl + 'order/delete/' + orderId;
+      } else if (result.dismiss === Swal.DismissReason.cancel) {
+        Swal.fire({
+          title: 'Cancelled',
+          text: 'Cancelled Delete :)',
+          icon: 'error',
+          customClass: {
+            confirmButton: 'btn btn-success waves-effect waves-light'
+          }
+        });
+      }
+    });
   });
 
   // Filter form control to default size
@@ -212,3 +269,4 @@ document.addEventListener('DOMContentLoaded', function (e) {
 });
 
 // Validation & Phone mask
+

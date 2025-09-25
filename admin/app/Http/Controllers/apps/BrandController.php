@@ -13,6 +13,7 @@ use App\Models\Product;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Yajra\DataTables\Facades\DataTables;
 
 class BrandController extends Controller
 {
@@ -28,25 +29,25 @@ class BrandController extends Controller
   public function ajaxList(Request $request)
   {
 
-    $brands = Brand::with(['categories'])
-      ->orderBy('id', 'desc')->get();
+    $query = Brand::select([
+      'id',
+      'name as brand',
+      'image',
+      'is_active'
+    ])->with('categories')
+      ->orderBy('id', 'desc');
 
-    $data = [];
-
-    if ($brands) {
-
-      foreach ($brands as $brand) {
-        $data[] = [
-          'id' => $brand->id,
-          'categories' => $brand->categories->pluck('name')->implode(', '),
-          'image' => $brand->image,
-          'brand' => $brand->name,
-          'is_active' => $brand->is_active,
-        ];
-      }
-    }
-
-    return response()->json(['data' => $data]);
+    return DataTables::eloquent($query)
+      ->filterColumn('brand', function ($query, $keyword) {
+        $query->where('brands.name', 'like', "%{$keyword}%");
+      })
+      ->orderColumn('brand', function ($query, $order) {
+        $query->orderBy('brands.name', $order);
+      })
+      ->addColumn('categories', function ($brand) {
+        return $brand->categories ? $brand->categories->pluck('name')->implode(', ') : '';
+      })
+      ->toJson();
   }
 
   public function changeStatus($id)
