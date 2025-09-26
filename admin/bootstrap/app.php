@@ -13,8 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Do NOT override the core 'auth' middleware; Sanctum uses it for API guards.
+        // Use a different alias for your web auth redirect middleware.
         $middleware->alias([
-            'auth' => App\Http\Middleware\AuthMiddleware::class,
+            'auth.web' => App\Http\Middleware\AuthMiddleware::class,
             'permission' => App\Http\Middleware\PermissionMiddleware::class,
             'sidebar' => App\Http\Middleware\SidebarMiddleware::class
         ]);

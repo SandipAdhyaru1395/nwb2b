@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react"
 import api from "@/lib/axios"
+import { useCustomer } from "@/components/customer-provider"
 
 interface MobileDashboardProps {
   onNavigate: (page: "dashboard" | "shop" | "wallet" | "account") => void
@@ -13,7 +14,8 @@ interface MobileDashboardProps {
 
 export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
   const { symbol } = useCurrency()
-  const [wallet, setWallet] = useState<number>(0)
+  const { customer } = useCustomer()
+  const wallet = Number(customer?.wallet_balance || 0)
   const [orders, setOrders] = useState<Array<{ order_number: string; ordered_at: string; payment_status: string; fulfillment_status: string; units: number; skus: number; total_paid: number,currency_symbol: string }>>([])
 
   useEffect(() => {
@@ -31,19 +33,10 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
     fetchOrders()
   }, [])
 
-  useEffect(() => {
-    const run = async () => {
-      try {
-        const res = await api.get('/settings')
-        const bal = Number(res?.data?.settings?.wallet_balance)
-        if (!Number.isNaN(bal)) setWallet(bal)
-      } catch (_) {}
-    }
-    run()
-  }, [])
+  // Wallet balance now comes from CustomerProvider
 
   return (
-    <div className="min-h-screen bg-gray-50 w-[820px] mx-auto">
+    <div className="min-h-screen bg-gray-50 w-full max-w-[1000px] mx-auto">
       {/* Header */}
       <header className="bg-white px-4 py-3 flex items-center justify-between border-b">
         <div className="flex items-center gap-2">
@@ -93,29 +86,28 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
         </Card>
 
         {/* Wallet Credit */}
-        {symbol && wallet > 0 && (
-        <Card className="mx-4 mt-4">
-          <div className="p-4 flex items-center justify-between">
+        
+        <Card className="mx-4 mt-4 hover:bg-green-100 hover:cursor-pointer">
+          <div className="p-2 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                 <Wallet className="w-4 h-4 text-green-600" />
               </div>
-              <span className="font-medium">{symbol}{wallet.toFixed(2)} credit in your wallet</span>
+              <span className="font-semibold text-sm">{symbol}{wallet.toFixed(2)} credit in your wallet</span>
             </div>
             <ChevronRight className="w-6 h-6 text-gray-400" />
           </div>
         </Card>
-        )}
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-4 mx-4 mt-4">
           <Button
             onClick={() => onNavigate("shop")}
-            className="bg-green-500 hover:bg-green-600 text-white h-12 rounded-lg"
+            className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg"
           >
             <ShoppingBag className="w-5 h-5 mr-2" />
             Shop
           </Button>
-          <Button className="bg-green-500 hover:bg-green-600 text-white h-12 rounded-lg">
+          <Button className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
             <Heart className="w-5 h-5 mr-2" />
             Favourites
           </Button>
@@ -123,27 +115,27 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
 
         {/* Recent Notifications */}
         <div className="mx-4 mt-6">
-          <h3 className="font-semibold text-gray-900 mb-3">Recent Notifications</h3>
+          <h3 className="font-semibold text-gray-900 mb-3 text-sm">Recent Notifications</h3>
 
-          <Card className="mb-3">
-            <div className="p-4 flex items-center justify-between">
+          <Card className="mb-3 hover:bg-green-100 hover:cursor-pointer">
+            <div className="p-2 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <Bell className="w-4 h-4 text-green-600" />
                 </div>
-                <span className="text-sm">You've left products in your basket</span>
+                <span className="text-sm font-semibold">You've left products in your basket</span>
               </div>
               <ChevronRight className="w-6 h-6 text-gray-400" />
             </div>
           </Card>
 
-          <Card>
-            <div className="p-4 flex items-center justify-between">
+          <Card className="hover:bg-green-100 hover:cursor-pointer">
+            <div className="p-2 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                   <Bell className="w-4 h-4 text-green-600" />
                 </div>
-                <span className="text-sm">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
+                <span className="text-sm font-semibold">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
               </div>
               <ChevronRight className="w-6 h-6 text-gray-400" />
             </div>
@@ -199,21 +191,21 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+        <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
         <div className="grid grid-cols-4 py-2">
-          <button className="flex flex-col items-center py-2 text-green-600">
+          <button className="flex flex-col items-center py-2 text-green-600  hover:cursor-pointer">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Wallet className="w-5 h-5" />
             <span className="text-xs mt-1">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <User className="w-5 h-5" />
             <span className="text-xs mt-1">Account</span>
           </button>

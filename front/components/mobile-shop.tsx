@@ -194,7 +194,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col w-[820px] mx-auto">
+    <div className="min-h-screen bg-gray-50 flex flex-col w-full max-w-[1000px] mx-auto">
       {/* Header */}
       <div className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
@@ -228,7 +228,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
       </div>
 
       {/* Categories (recursive) */}
-      <div className="px-4 py-4 space-y-2 overflow-y-auto pb-56">
+      <div className="px-2 py-4 space-y-2 overflow-y-auto pb-56">
         {displayedCategories.map((node) => (
           <CategoryNode
             key={node.name}
@@ -249,7 +249,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
 
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
         {/* Basket Summary (shows when items in cart) */}
         {totals.units > 0 && (
           <div className="bg-white border-t px-4 py-3 space-y-1">
@@ -268,24 +268,24 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
                 )}
               </div>
             </div>
-            <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-medium">View Basket</button>
+            <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-medium hover:cursor-pointer">View Basket</button>
             <div className="text:[11px] text-center text-gray-500">Spend {format(4.5)} more for FREE delivery</div>
           </div>
         )}
         <div className="grid grid-cols-4 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Wallet className="w-5 h-5" />
             <span className="text-xs mt-1">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <User className="w-5 h-5" />
             <span className="text-xs mt-1">Account</span>
           </button>
@@ -331,7 +331,7 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
     '',
   ]
   const depthColors = [
-    "bg-green-400", // depth 0
+    "bg-green-600", // depth 0
     "bg-green-100", // depth 1
     "bg-gray-100", // depth 2
     "",            // depth 3
@@ -348,7 +348,7 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
      var bgClass = depthColors[Math.min(depth, depthColors.length - 1)];
   }
   
-  const buttonClasses = `w-full ${bgClass} px-4 py-3 rounded-lg flex items-center justify-between ${depth === 0 ? 'font-medium' : ''}`
+  const buttonClasses = `w-full ${bgClass} px-4 py-2 rounded-lg flex items-center justify-between ${depth === 0 ? 'font-medium' : ''}`
   // Vertical gap between levels increases with depth
   const depthGap = [
     'mt-4',
@@ -360,23 +360,26 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
   ]
   const gapClass = depthGap[Math.min(depth, depthGap.length - 1)]
 
+  const nameTextColorClass = (depth === 0 && node.is_special !== 1) ? 'text-white' : 'text-gray-800'
+  const iconColorClass = nameTextColorClass
+
   return (
     <div className="space-y-2">
       <button
         onClick={() => togglePath(path, depth === 0)}
-        className={`${buttonClasses} ${marginClass}`}
+        className={`${buttonClasses} ${marginClass} hover:cursor-pointer`}
       >
         <div className={`flex items-center gap-3 ${padClass}`}>
           {hasProducts && (
-            <div className="w-8 h-8 bg-white rounded border overflow-hidden flex items-center justify-center">
+            <div className="w-[42px] h-[42px] bg-white rounded border overflow-hidden flex items-center justify-center">
               <img
                 src={node?.image || (node.products && node.products[0]?.image)}
                 alt=""
-                className="w-8 h-8 object-contain"
+                className="w-[42px] h-[42px] object-contain"
               />
             </div>
           )}
-          <span className="font-medium text-gray-800">{node.name}</span>
+          <span className={`font-semibold ${nameTextColorClass}`}>{node.name}</span>
           {/* Render tags if provided */}
           {(() => {
             const raw = node.tags
@@ -402,9 +405,9 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
           )}
         </div>
         {isOpen ? (
-          <ChevronUp className="w-5 h-5" />
+          <ChevronUp className={`w-12 h-8 ${iconColorClass}`} />
         ) : (
-          <ChevronDown className="w-5 h-5" />
+          <ChevronDown className={`w-12 h-8 ${iconColorClass}`} />
         )}
       </button>
 
@@ -428,21 +431,21 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
           })}
 
           {hasProducts && (
-            <div className="grid grid-cols-5 gap-3 px-2">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-8 gap-1 px-1">
               {node.products!.map((product) => (
-                <div key={product.id} className="bg-white rounded-lg p-3 border relative">
+                <div key={product.id} className="bg-white rounded-lg p-1 border relative">
                   {cart[product.id]?.quantity ? (
                     <div className="absolute top-2 right-2 flex items-center gap-2 bg-white border rounded-full px-1 py-1 shadow-sm">
-                      <button onClick={() => onDecrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
+                      <button onClick={() => onDecrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center hover:cursor-pointer">
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="min-w-[1.5rem] text-center text-sm font-medium">{cart[product.id]?.quantity}</span>
-                      <button onClick={() => onIncrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center">
+                      <button onClick={() => onIncrement(product)} className="w-6 h-6 rounded-full bg-black text-white flex items-center justify-center hover:cursor-pointer">
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => onIncrement(product)} className="absolute top-2 right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                    <button onClick={() => onIncrement(product)} className="absolute top-2 right-2 w-6 h-6 bg-black rounded-full flex items-center justify-center hover:cursor-pointer">
                       <Plus className="w-4 h-4 text-white" />
                     </button>
                   )}
@@ -460,18 +463,16 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                       <Star className="w-5 h-5 text-gray-300 fill-gray-300" />
                     </div>
                     <div>
-                      <span className="font-semibold text-sm flex justify-between">
+                      <span className="font-semibold text-sm bg-gray-200 flex justify-between">
                         {product.price}
-                        {typeof product.wallet_credit === 'number' && product.wallet_credit > 0 && (
+                        {typeof product.wallet_credit === 'number' && (
                           <span className="inline-flex items-center gap-1 text-green-600 text-xs font-medium">
-                            <Wallet className="w-4 h-4" />
+                            <Wallet className="w-3 h-3" />
                             <span>{symbol}{product.wallet_credit.toFixed(2)}</span>
                           </span>
                         )}
                       </span>
-                      {product.discount && (
-                        <div className="bg-green-500 text-white text-xs px-1 py-0.5 rounded">{product.discount}</div>
-                      )}
+                      
                     </div>
                     <div className="text-center">
                       <span className="text-xs text-gray-600">{product.name}</span>

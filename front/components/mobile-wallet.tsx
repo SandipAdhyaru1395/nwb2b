@@ -5,6 +5,7 @@ import { useCurrency } from "@/components/currency-provider"
 import { Minus, Plus, Home, ShoppingBag, User, Wallet } from "lucide-react"
 import { useEffect, useState } from "react"
 import api from "@/lib/axios"
+import { useCustomer } from "@/components/customer-provider"
 
 interface ProductItem {
   id: number
@@ -25,19 +26,10 @@ interface MobileWalletProps {
 
 export function MobileWallet({ onNavigate }: MobileWalletProps) {
   const { symbol } = useCurrency()
-  const [wallet, setWallet] = useState<number>(0)
-  useEffect(() => {
-    const run = async () => {
-      try {
-        const res = await api.get('/settings')
-        const bal = Number(res?.data?.settings?.wallet_balance)
-        if (!Number.isNaN(bal)) setWallet(bal)
-      } catch (_) {}
-    }
-    run()
-  }, [])
+  const { customer } = useCustomer()
+  const wallet = Number(customer?.wallet_balance || 0)
   return (
-    <div className="w-[820px] mx-auto bg-gray-50 min-h-screen">
+    <div className="w-full max-w-[1000px] mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="bg-white p-4 flex items-center gap-3 border-b">
         <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
@@ -58,7 +50,7 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       {/* Wallet Content */}
       <div className="p-4 space-y-6">
         {/* Wallet Balance */}
-        {symbol && wallet > 0 && (
+        
         <div>
           <h2 className="text-base font-medium text-gray-900 mb-3">Your wallet balance</h2>
           <Card className="p-4 border border-gray-200">
@@ -71,7 +63,6 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
             </div>
           </Card>
         </div>
-        )}
 
         {/* FAQ Sections */}
         <div className="space-y-4">
@@ -107,21 +98,21 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
         <div className="grid grid-cols-4 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-green-600">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
             <Wallet className="w-5 h-5" />
             <span className="text-xs mt-1">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <User className="w-5 h-5" />
             <span className="text-xs mt-1">Account</span>
           </button>

@@ -22,7 +22,7 @@ interface MobileAccountProps {
 
 export function MobileAccount({ onNavigate }: MobileAccountProps) {
   return (
-    <div className="w-[820px] mx-auto bg-white min-h-screen">
+    <div className="w-full max-w-[1000px] mx-auto bg-white min-h-screen">
       {/* ZYN Promotional Banner */}
       <div className="relative bg-gradient-to-r from-cyan-400 to-blue-500 p-6 text-white">
         <div className="flex items-center justify-between">
@@ -56,12 +56,12 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       </div>
 
       {/* Account Menu Items */}
-      <div className="p-4 space-y-4">
+      <div className="py-4 pb-30 space-y-4">
         {/* Account Details Section */}
         <div className="space-y-2">
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -74,7 +74,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -87,7 +87,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -102,7 +102,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         {/* Utilities Section */}
         <Button
           variant="outline"
-          className="w-full h-14 justify-between text-left border-yellow-200 bg-yellow-50 hover:bg-yellow-100"
+          className="w-full py-5 justify-between text-left border-yellow-200 bg-yellow-50 hover:bg-yellow-100 hover:cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
@@ -117,7 +117,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         <div className="space-y-2">
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -130,7 +130,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -146,7 +146,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         <div className="space-y-2 pt-4">
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -159,7 +159,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
           <Button
             variant="outline"
-            className="w-full h-14 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
@@ -173,21 +173,21 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
         <div className="grid grid-cols-4 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Wallet className="w-5 h-5" />
             <span className="text-xs mt-1">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-green-600">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
             <User className="w-5 h-5" />
             <span className="text-xs mt-1">Account</span>
           </button>

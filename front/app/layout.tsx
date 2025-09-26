@@ -5,6 +5,8 @@ import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import FaviconProvider from '@/components/favicon-provider'
 import { CurrencyProvider } from '@/components/currency-provider'
+import { SettingsProvider } from '@/components/settings-provider'
+import { CustomerProvider } from '@/components/customer-provider'
 
 export const metadata: Metadata = {
   title: 'NWB2B',
@@ -32,11 +34,21 @@ html {
         <link rel="apple-touch-icon" href="/placeholder-logo.png" />
       </head>
       <body>
-          <CurrencyProvider>
-            {children}
-            <Toaster />
-            <FaviconProvider />
-          </CurrencyProvider>
+          {/* Early redirect to login before any paint if no token */}
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(() => { try { var p = window.location.pathname; if (!p.startsWith('/login')) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); window.location.replace('/login?' + q); } } } catch (e) {} })();`,
+            }}
+          />
+          <SettingsProvider>
+            <CurrencyProvider>
+              <CustomerProvider>
+                {children}
+                <Toaster />
+                <FaviconProvider />
+              </CustomerProvider>
+            </CurrencyProvider>
+          </SettingsProvider>
       </body>
     </html>
   )

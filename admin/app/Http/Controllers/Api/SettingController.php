@@ -16,10 +16,6 @@ class SettingController extends Controller
         $logoPath = $settings->get('company_logo');
         $logoUrl = $logoPath ? asset('storage/'.$logoPath) : null;
 
-        // For demo, fetch the first customer's balance (or zero if none). In a real app, use the authenticated customer.
-        $customer = Customer::query()->first();
-        $walletBalance = $customer?->credit_balance ?? 0;
-
         return response()->json([
             'success' => true,
             'settings' => [
@@ -27,7 +23,6 @@ class SettingController extends Controller
                 'company_logo_url' => $logoUrl,
                 'currency' => $settings->get('currency'),
                 'currency_symbol' => $settings->get('currency_symbol') ?? '',
-                'wallet_balance' => (float) $walletBalance,
             ],
         ]);
     }

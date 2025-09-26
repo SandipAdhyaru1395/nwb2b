@@ -82,7 +82,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
     }
   }
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col w-[820px] mx-auto">
+    <div className="min-h-screen bg-gray-50 flex flex-col w-full max-w-[1000px] mx-auto">
       <div className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
           <ShoppingBag className="w-5 h-5 text-white" />
@@ -127,15 +127,15 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
                     count--
                   }
                 }}
-                className="px-3 h-8 rounded border text-xs text-gray-700 bg-white hover:bg-gray-50"
+                className="px-3 h-8 rounded border text-xs text-gray-700 bg-white hover:bg-gray-50 hover:cursor-pointer"
               >
                 Delete
               </button>
-              <button onClick={() => decrement(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center">
+              <button onClick={() => decrement(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center hover:cursor-pointer">
                 <Minus className="w-4 h-4" />
               </button>
               <span className="w-8 text-center font-medium">{quantity}</span>
-              <button onClick={() => increment(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center">
+              <button onClick={() => increment(product)} className="rounded-full bg-green-500 p-2 text-black flex items-center justify-center hover:cursor-pointer">
                 <Plus className="w-4 h-4" />
               </button>
             </div>
@@ -148,7 +148,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
 
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-[820px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
         {totals.units > 0 && (
           <div className="bg-white border-t px-4 py-3 space-y-1">
             <div className="flex items-center justify-between text-sm">
@@ -169,7 +169,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
             <button
               onClick={handleCheckout}
               disabled={isCheckingOut}
-              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded-md font-medium"
+              className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded-md font-medium hover:cursor-pointer"
             >
               {isCheckingOut ? 'Processing...' : 'Checkout'}
             </button>
@@ -177,19 +177,19 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
           </div>
         )}
         <div className="grid grid-cols-4">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:cursor-pointer">
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:cursor-pointer">
             <Wallet className="w-5 h-5" />
             <span className="text-xs mt-1">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:cursor-pointer">
             <User className="w-5 h-5" />
             <span className="text-xs mt-1">Account</span>
           </button>
