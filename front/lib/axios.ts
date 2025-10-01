@@ -24,16 +24,8 @@ if (typeof window !== "undefined") {
     (error) => {
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
-        try {
-          window.localStorage.removeItem("auth_token");
-        } catch {}
-        if (typeof window !== "undefined") {
-          const current = window.location.pathname;
-          if (!current.includes("/login")) {
-            const search = new URLSearchParams({ redirect: current }).toString();
-            window.location.href = `login?${search}`;
-          }
-        }
+        try { window.localStorage.removeItem("auth_token"); } catch {}
+        // Do not redirect; keep the current URL and let the UI show unauthenticated state
       }
       return Promise.reject(error);
     }
