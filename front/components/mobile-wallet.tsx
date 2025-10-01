@@ -6,6 +6,7 @@ import { Minus, Plus, Home, ShoppingBag, User, Wallet } from "lucide-react"
 import { useEffect, useState } from "react"
 import api from "@/lib/axios"
 import { useCustomer } from "@/components/customer-provider"
+import { Banner } from "@/components/banner"
 
 interface ProductItem {
   id: number
@@ -38,14 +39,8 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
         <h1 className="text-lg font-semibold text-gray-900">Wallet</h1>
       </div>
 
-      {/* ZYN Promotional Banner */}
-      <div className="relative">
-        <img
-          src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/frame_060.jpg-6z0boXtncnN21CU1nNOmFLhLqMEObP.jpeg"
-          alt="ZYN Promotional Banner"
-          className="w-full h-48 object-cover object-top"
-        />
-      </div>
+      {/* Banner */}
+      <Banner />
 
       {/* Wallet Content */}
       <div className="p-4 space-y-6">

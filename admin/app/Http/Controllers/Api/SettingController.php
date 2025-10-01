@@ -16,6 +16,9 @@ class SettingController extends Controller
         $logoPath = $settings->get('company_logo');
         $logoUrl = $logoPath ? asset('storage/'.$logoPath) : null;
 
+        $bannerPath = $settings->get('banner');
+        $bannerUrl = $bannerPath ? asset('storage/'.$bannerPath) : null;
+
         return response()->json([
             'success' => true,
             'settings' => [
@@ -23,6 +26,8 @@ class SettingController extends Controller
                 'company_logo_url' => $logoUrl,
                 'currency' => $settings->get('currency'),
                 'currency_symbol' => $settings->get('currency_symbol') ?? '',
+                'banner' => $bannerUrl,
+                'maintenance_mode_store' => $settings->get('maintenance_mode_store') === '1',
             ],
         ]);
     }

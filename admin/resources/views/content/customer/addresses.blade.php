@@ -18,7 +18,18 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/modal-customer-add-address.js','resources/assets/js/modal-customer-edit-address.js'])
+@vite(['resources/assets/js/customer-detail.js','resources/assets/js/modal-customer-add-address.js','resources/assets/js/modal-customer-edit-address.js',
+'resources/assets/js/modal-edit-customer.js'])
+<script>
+    @if ($errors->edit->any())
+      document.addEventListener("DOMContentLoaded", function () {
+        // let offcanvasCustomerEdit = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerEdit'));
+        // offcanvasCustomerEdit.show();
+        let editCustomerModal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+        editCustomerModal.show();
+      });
+    @endif
+  </script>
 <script>
 
 
@@ -41,14 +52,10 @@ $(document).ready(function () {
                 $('#editCustomerAddressForm input[name="name"]').val(address.name || '');
                 $('#editCustomerAddressForm input[name="address_line1"]').val(address.address_line1 || '');
                 $('#editCustomerAddressForm input[name="address_line2"]').val(address.address_line2 || '');
-                $('#editCustomerAddressForm input[name="landmark"]').val(address.landmark || '');
                 $('#editCustomerAddressForm input[name="city"]').val(address.city || '');
                 $('#editCustomerAddressForm input[name="state"]').val(address.state || '');
                 $('#editCustomerAddressForm input[name="zip_code"]').val(address.zip_code || '');
-                
-               $('#editCustomerAddressForm').find('select[name="country"]').val(address.country || '').trigger('change');
-
-               $('#editCustomerAddressForm').find('input[name="type"][value="' + address.type + '"]').prop('checked', true);
+                $('#editCustomerAddressForm input[name="country"]').val(address.country || '');
 
                $('#editCustomerAddressForm').find('input[name="set_as_default"]').prop('checked', address.is_default);
             }
@@ -141,15 +148,14 @@ function setDefaultAddress(addressId) {
             @foreach($addresses as $index => $address)
               <div class="accordion-item {{ $index === 0 ? 'border-bottom' : ($index === $addresses->count() - 1 ? 'border-top-0' : 'border-bottom border-top-0') }}">
                 <div class="accordion-header d-flex justify-content-between align-items-center flex-wrap flex-sm-nowrap"
-                  id="heading{{ ucfirst($address->type) }}{{ $address->id }}">
+                  id="heading{{ $address->id }}">
                   <a class="accordion-button collapsed" data-bs-toggle="collapse"
-                    data-bs-target="#ecommerceBillingAddress{{ ucfirst($address->type) }}{{ $address->id }}" 
+                    data-bs-target="#ecommerceBillingAddress{{ $address->id }}" 
                     aria-expanded="false" 
-                    aria-controls="heading{{ ucfirst($address->type) }}{{ $address->id }}"
+                    aria-controls="heading{{ $address->id }}"
                     role="button">
                     <span>
                       <span class="d-flex gap-2 align-items-baseline">
-                        <span class="h6 mb-1">{{ ucfirst($address->type) }}</span>
                         @if($address->is_default)
                           <span class="badge bg-label-success">Default Address</span>
                         @endif
@@ -178,18 +184,15 @@ function setDefaultAddress(addressId) {
                       @endif
                   </div>
                 </div>
-                <div id="ecommerceBillingAddress{{ ucfirst($address->type) }}{{ $address->id }}" 
+                <div id="ecommerceBillingAddress{{ $address->id }}" 
                      class="accordion-collapse collapse" 
-                     aria-labelledby="heading{{ ucfirst($address->type) }}{{ $address->id }}"
+                     aria-labelledby="heading{{ $address->id }}"
                      data-bs-parent="#ecommerceBillingAccordionAddress">
                   <div class="accordion-body ps-6 ms-1">
-                    <h6 class="mb-1">{{ $address->name ?: $customer->name }}</h6>
+                    <h6 class="mb-1">{{ $address->name ?: '' }}</h6>
                     <p class="mb-1">{{ $address->address_line1 }},</p>
                     @if($address->address_line2)
                       <p class="mb-1">{{ $address->address_line2 }},</p>
-                    @endif
-                    @if($address->landmark)
-                      <p class="mb-1">{{ $address->landmark }},</p>
                     @endif
                     <p class="mb-1">{{ $address->city }}, {{ $address->state }} {{ $address->zip_code }},</p>
                     <p class="mb-1">{{ $address->country }}</p>

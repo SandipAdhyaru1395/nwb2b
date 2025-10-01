@@ -10,12 +10,26 @@
 @section('vendor-script')
 @vite(['resources/assets/vendor/libs/select2/select2.js',
 'resources/assets/vendor/libs/@form-validation/popular.js',
-'resources/assets/vendor/libs/@form-validation/bootstrap5.js'])
+'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
+'resources/assets/vendor/libs/@form-validation/auto-focus.js',
+'resources/assets/vendor/libs/sweetalert2/sweetalert2.js'
+])
 
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/app-ecommerce-customer-detail.js'])
+@vite(['resources/assets/js/customer-detail.js',
+'resources/assets/js/modal-edit-customer.js'])
+<script>
+    @if ($errors->edit->any())
+      document.addEventListener("DOMContentLoaded", function () {
+        // let offcanvasCustomerEdit = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerEdit'));
+        // offcanvasCustomerEdit.show();
+        let editCustomerModal = new bootstrap.Modal(document.getElementById('editCustomerModal'));
+        editCustomerModal.show();
+      });
+    @endif
+  </script>
 @endsection
 
 @section('content')

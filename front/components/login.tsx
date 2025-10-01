@@ -7,11 +7,15 @@ import Link from "next/link";
 import api from "@/lib/axios";
 import { useSettings } from "@/components/settings-provider";
 import FloatingInput from "@/components/ui/floating-input";
+import { useToast } from "@/hooks/use-toast";
+import { useCustomer } from "@/components/customer-provider";
 
 export default function Login() {
     const router = useRouter();
     const searchParams = useSearchParams();
-    const { settings } = useSettings();
+    const { settings, refresh: refreshSettings } = useSettings();
+    const { toast } = useToast();
+    const { refresh } = useCustomer();
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{email: string; password: string}>({
         mode: 'onSubmit',
         reValidateMode: 'onChange',
@@ -22,6 +26,17 @@ export default function Login() {
 
     useEffect(() => {
         const token = typeof window !== "undefined" ? window.localStorage.getItem("auth_token") : null;
+        // If redirected due to account deletion, show a clear message
+        try {
+            const deleted = sessionStorage.getItem('account_deleted');
+            if (deleted === '1') {
+                sessionStorage.removeItem('account_deleted');
+                // Ensure no stale token
+                try { window.localStorage.removeItem('auth_token') } catch {}
+                // Show toast
+                try { const { toast } = require('@/hooks/use-toast'); toast({ variant: 'destructive', title: 'Your account has been deleted', description: 'Please contact support if you believe this is a mistake.' }); } catch {}
+            }
+        } catch {}
         if (token) {
             const redirect = searchParams.get("redirect") || "/";
             router.replace(redirect);
@@ -39,14 +54,22 @@ export default function Login() {
             });
             if (data?.success && data?.token) {
                 window.localStorage.setItem("auth_token", data.token);
+                // Refresh customer and settings after login; providers will cache to sessionStorage
+                await refresh();
+                try { await refreshSettings(); } catch {}
+                try { sessionStorage.removeItem('orders_cache'); sessionStorage.removeItem('products_cache'); } catch {}
+                toast({ title: "Hello there 👋", description: "You've logged in successfully." });
                 const redirect = searchParams.get("redirect") || "/";
                 router.replace(redirect);
             } else {
-                setError(data?.message || "Login failed");
+                const message = data?.message || "Login failed";
+                setError(message);
+                toast({ variant: "destructive", title: "Login failed", description: message });
             }
         } catch (err: any) {
             const message = err?.response?.data?.message || "Invalid credentials";
             setError(message);
+            toast({ variant: "destructive", title: "Login error", description: message });
         } finally {
             setLoading(false);
         }

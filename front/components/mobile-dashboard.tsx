@@ -7,30 +7,81 @@ import { Badge } from "@/components/ui/badge"
 import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react"
 import api from "@/lib/axios"
 import { useCustomer } from "@/components/customer-provider"
+import { Banner } from "@/components/banner"
 
 interface MobileDashboardProps {
-  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account") => void
+  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders", favorites?: boolean) => void
+  onOpenOrder?: (orderNumber: string) => void
 }
 
-export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
+export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProps) {
   const { symbol } = useCurrency()
   const { customer } = useCustomer()
   const wallet = Number(customer?.wallet_balance || 0)
   const [orders, setOrders] = useState<Array<{ order_number: string; ordered_at: string; payment_status: string; fulfillment_status: string; units: number; skus: number; total_paid: number,currency_symbol: string }>>([])
 
   useEffect(() => {
+    let isMounted = true
     const fetchOrders = async () => {
       try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-start' } }))
+        }
         const res = await api.get('/orders')
         const json = res.data
+        if (!isMounted) return
         if (json?.success && Array.isArray(json.orders)) {
           setOrders(json.orders)
+          try { sessionStorage.setItem('orders_cache', JSON.stringify({ at: Date.now(), orders: json.orders })) } catch {}
         }
       } catch (e) {
         // ignore
+      } finally {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-stop' } }))
+        }
+        try { sessionStorage.removeItem('orders_needs_refresh') } catch {}
       }
     }
-    fetchOrders()
+
+    // 1) If a refresh is requested (e.g., after checkout), fetch now
+    let refreshed = false
+    try {
+      const needs = sessionStorage.getItem('orders_needs_refresh')
+      if (needs === '1') { refreshed = true; fetchOrders() }
+    } catch {}
+
+    // 2) Otherwise, use cache if present; if not, fetch once (first login)
+    if (!refreshed) {
+      try {
+        const raw = sessionStorage.getItem('orders_cache')
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed?.orders)) {
+            setOrders(parsed.orders)
+          } else {
+            fetchOrders()
+          }
+        } else {
+          fetchOrders()
+        }
+      } catch {
+        fetchOrders()
+      }
+    }
+
+    // 3) Listen for explicit refresh events (e.g., after checkout while dashboard is mounted)
+    const onRefresh = () => fetchOrders()
+    if (typeof window !== 'undefined') {
+      window.addEventListener('orders-refresh', onRefresh)
+    }
+
+    return () => {
+      isMounted = false
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('orders-refresh', onRefresh)
+      }
+    }
   }, [])
 
   // Wallet balance now comes from CustomerProvider
@@ -49,29 +100,9 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
 
       {/* Main Content */}
       <main className="pb-20">
-        {/* ZYN Promotional Banner */}
-        <div className="relative bg-gradient-to-r from-cyan-400 to-blue-500 mx-4 mt-4 rounded-lg overflow-hidden">
-          <div className="p-6 text-white">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <h2 className="text-xl font-bold mb-1">We stand for the best.</h2>
-                <p className="text-sm opacity-90 mb-3">
-                  The World's no.1 nicotine pouch brand, delivering long-lasting flavour.
-                </p>
-                <Badge className="bg-red-500 hover:bg-red-600 text-white border-0">Available Now</Badge>
-              </div>
-              <div className="ml-4">
-                <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold">ZYN</span>
-                </div>
-                <Badge className="bg-white text-blue-600 text-xs mt-2 ml-2">WORLD'S NO.1</Badge>
-              </div>
-            </div>
-          </div>
-          {/* Background pattern */}
-          <div className="absolute inset-0 opacity-10">
-            <div className="text-6xl font-bold text-white transform rotate-12 absolute -right-4 top-4">ZYN ZYN ZYN</div>
-          </div>
+        {/* Banner */}
+        <div className="mx-4 mt-4">
+          <Banner />
         </div>
 
         {/* Referral Rewards */}
@@ -107,7 +138,10 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
             <ShoppingBag className="w-5 h-5 mr-2" />
             Shop
           </Button>
-          <Button className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
+          <Button 
+            onClick={() => onNavigate("shop", true)}
+            className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg"
+          >
             <Heart className="w-5 h-5 mr-2" />
             Favourites
           </Button>
@@ -182,10 +216,28 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
                       <span className="text-gray-900">{o.currency_symbol}{o.total_paid.toFixed(2)}</span>
                     </div>
                   </div>
-                  <ChevronRight className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer" />
+                  <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer" />
                 </div>
               </Card>
             ))}
+            {/** View All Orders button if more than 10 orders exist (API exposes has_more) **/}
+            <div className="mt-2">
+              <Button
+                onClick={async () => {
+                  try {
+                    // const res = await api.get('/orders')
+                    // if (res?.data?.has_more) {
+                      onNavigate("orders")
+                    // }
+                  } catch {
+                    // ignore
+                  }
+                }}
+                className="w-full bg-white border text-green-600 hover:bg-green-50 hover:cursor-pointer"
+              >
+                View All Orders
+              </Button>
+            </div>
           </div>
         )}
       </main>
@@ -214,3 +266,4 @@ export function MobileDashboard({ onNavigate }: MobileDashboardProps) {
     </div>
   )
 }
+

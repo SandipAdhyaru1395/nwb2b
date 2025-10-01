@@ -21,7 +21,15 @@ class AuthController extends Controller
 			'device_name' => 'nullable|string',
 		]);
 
-		$customer = Customer::where('email', $validated['email'])->first();
+		// Include soft-deleted users to provide a clear error message
+		$customer = Customer::withTrashed()->where('email', $validated['email'])->first();
+		if ($customer && method_exists($customer, 'trashed') && $customer->trashed()) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Account has been deleted',
+			], 410);
+		}
+
 		if (!$customer || !Hash::check($validated['password'], $customer->password)) {
 			return response()->json([
 				'success' => false,
@@ -55,6 +63,7 @@ class AuthController extends Controller
 
 	public function logout(Request $request)
 	{
+        
 		$user = $request->user();
 		if ($user && method_exists($user, 'currentAccessToken')) {
 			$user->currentAccessToken()->delete();
@@ -68,18 +77,18 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required','string','max:255'],
-            'email' => ['required','string','email','max:255','unique:customers,email'],
-            'password' => ['required','string','min:6','confirmed'],
-            'mobile' => ['required','string','digits:10','unique:customers,phone'],
-            // extra fields from frontend
-            'company' => ['nullable','string','max:255'],
-            'invoice_address_line1' => ['nullable','string','max:255'],
-            'invoice_address_line2' => ['nullable','string','max:255'],
-            'invoice_city' => ['nullable','string','max:255'],
-            'invoice_county' => ['nullable','string','max:255'],
-            'invoice_postcode' => ['nullable','string','max:50'],
-            'rep_code' => ['nullable','string','max:50'],
+            'name' => ['required', 'string', 'max:255'],
+            'companyName' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
+            'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone'],
+            'password' => ['required', 'string', 'min:6'],
+            // address fields
+            'addressLine1' => ['required', 'string', 'max:255'],
+            'addressLine2' => ['nullable', 'string', 'max:255'],
+            'city' => ['required', 'string', 'max:255'],
+            'state' => ['nullable', 'string', 'max:255'],
+            'country' => ['nullable', 'string', 'max:255'],
+            'zip_code' => ['required', 'string', 'max:255'],
         ], [
             'name.required' => 'Please enter name',
             'email.required' => 'Please enter email',
@@ -89,6 +98,10 @@ class AuthController extends Controller
             'mobile.required' => 'Please enter mobile number',
             'mobile.digits' => 'Mobile number must be 10 digits',
             'mobile.unique' => 'Mobile number already exists',
+            'companyName.required' => 'Please enter company name',
+            'addressLine1.required' => 'Please enter address line 1',
+            'city.required' => 'Please enter city',
+            'zip_code.required' => 'Please enter postcode',
         ]);
 
         if ($validator->fails()) {
@@ -101,29 +114,34 @@ class AuthController extends Controller
 
         $data = $validator->validated();
 
-        $addressId = null;
-        if (!empty($data['invoice_address_line1'])) {
-            $address = Address::create([
-                'line1' => $data['invoice_address_line1'] ?? null,
-                'line2' => $data['invoice_address_line2'] ?? null,
-                'city' => $data['invoice_city'] ?? null,
-                'state' => $data['invoice_county'] ?? null,
-                'postcode' => $data['invoice_postcode'] ?? null,
-                'country' => 'GB',
-            ]);
-            $addressId = $address->id;
-        }
-
+        // Create customer first (hash password)
         $customer = Customer::create([
             'name' => $data['name'],
+            'company_name' => $data['companyName'],
             'email' => $data['email'],
-            'password' => $data['password'],
             'phone' => $data['mobile'],
-            'company_name' => $data['company'] ?? '',
-            'approved_at' => Carbon::now(),
+            'password' => bcrypt($data['password']),
+            'approved_at' => null,
             'approved_by' => null,
             'is_active' => 1,
-            'address_id' => $addressId,
+        ]);
+
+        // Create default address
+        $address = Address::create([
+            'customer_id' => $customer->id,
+            'name' => $data['name'],
+            'address_line1' => $data['addressLine1'],
+            'address_line2' => $data['addressLine2'] ?? null,
+            'city' => $data['city'],
+            'state' => $data['state'] ?? null,
+            'country' => $data['country'] ?? null,
+            'zip_code' => $data['zip_code'],
+            'is_default' => 1,
+        ]);
+
+        // Attach default address to customer
+        $customer->update([
+            'address_id' => $address->id,
         ]);
 
         return response()->json([

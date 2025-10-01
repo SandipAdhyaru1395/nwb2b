@@ -91,7 +91,7 @@
             @endif
           </ul>
           <div class="d-flex justify-content-center">
-            <a href="javascript:;" class="btn btn-primary w-100" data-bs-target="#offcanvasCustomerEdit" data-bs-toggle="offcanvas">Edit
+            <a href="javascript:;" class="btn btn-primary w-100" data-bs-target="#editCustomerModal" data-bs-toggle="modal">Edit
               Details</a>
           </div>
         </div>
@@ -100,3 +100,4 @@
     <!-- /Customer-detail Card -->
   </div>
   <!--/ Customer Sidebar -->
+  @include('_partials._modals.modal-edit-customer')

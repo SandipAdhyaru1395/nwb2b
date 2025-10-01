@@ -1,7 +1,10 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet } from "lucide-react"
+import { Banner } from "@/components/banner"
+import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet,LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
+import api from "@/lib/axios"
 
 interface ProductItem {
   id: number
@@ -12,7 +15,7 @@ interface ProductItem {
 }
 
 interface MobileAccountProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details") => void
   cart: Record<number, { product: ProductItem; quantity: number }>
   increment: (product: ProductItem) => void
   decrement: (product: ProductItem) => void
@@ -21,39 +24,31 @@ interface MobileAccountProps {
 }
 
 export function MobileAccount({ onNavigate }: MobileAccountProps) {
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+      try {
+        await api.post("/logout")
+      } catch {}
+      try {
+        window.localStorage.removeItem("auth_token")
+      } catch {}
+    } finally {
+      try {
+        router.replace("/login")
+      } catch {
+        if (typeof window !== "undefined") {
+          window.location.href = "/login"
+        }
+      }
+    }
+  }
+
   return (
     <div className="w-full max-w-[1000px] mx-auto bg-white min-h-screen">
-      {/* ZYN Promotional Banner */}
-      <div className="relative bg-gradient-to-r from-cyan-400 to-blue-500 p-6 text-white">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold mb-2">We stand for the best.</h1>
-            <p className="text-sm mb-1">The World's no.1 nicotine pouch brand,</p>
-            <p className="text-sm">delivering long-lasting flavour.</p>
-            <div className="inline-block bg-red-600 text-white px-3 py-1 rounded text-sm font-semibold mt-2">
-              Available Now
-            </div>
-          </div>
-          <div className="relative">
-            <div className="w-32 h-32 bg-white rounded-full flex items-center justify-center">
-              <div className="text-blue-600 font-bold text-lg">ZYN</div>
-            </div>
-            <div className="absolute -top-2 -right-2 bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
-              WORLD'S
-              <br />
-              NO.1
-            </div>
-          </div>
-        </div>
-        <div className="text-xs mt-4 opacity-90">
-          For Trade Only. Not for Distribution to Consumers. *PMI reported global shipment volumes and in-market sales
-          estimates of nicotine pouch units, from December 2023 to December 2024.
-        </div>
-        <div className="text-xs mt-2 opacity-90">
-          18+ This product is not risk free and contains nicotine, which is addictive. Only for use by adults who would
-          otherwise continue to smoke or use nicotine.
-        </div>
-      </div>
+      {/* Banner */}
+      <Banner />
 
       {/* Account Menu Items */}
       <div className="py-4 pb-30 space-y-4">
@@ -61,6 +56,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         <div className="space-y-2">
           <Button
             variant="outline"
+            onClick={() => onNavigate("rep-details")}
             className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -74,6 +70,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
           <Button
             variant="outline"
+            onClick={() => onNavigate("company-details")}
             className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
           >
             <div className="flex items-center gap-3">
@@ -166,6 +163,20 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
                 <Shield className="w-4 h-4 text-green-600" />
               </div>
               <span className="font-medium">My Authentication Settings</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-gray-400" />
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer"
+            onClick={handleLogout}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                <LogOut className="w-4 h-4 text-green-600" />
+              </div>
+              <span className="font-medium">Logout</span>
             </div>
             <ChevronRight className="w-5 h-5 text-gray-400" />
           </Button>

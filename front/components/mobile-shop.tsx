@@ -21,11 +21,12 @@ import { useToast } from "@/hooks/use-toast"
 import api from "@/lib/axios"
 
 interface MobileShopProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account", favorites?: boolean) => void
   cart: Record<number, { product: ProductItem; quantity: number }>
   increment: (product: ProductItem) => void
   decrement: (product: ProductItem) => void
   totals: { units: number; skus: number; subtotal: number; totalDiscount: number; total: number }
+  showFavorites?: boolean
 }
 
 interface ProductItem {
@@ -56,14 +57,17 @@ interface TreeNode {
 const initialCategories: TreeNode[] = []
 
 import { useCurrency } from "@/components/currency-provider"
+import { useCustomer } from "@/components/customer-provider"
+import { Banner } from "@/components/banner"
 
-export function MobileShop({ onNavigate, cart, increment, decrement, totals }: MobileShopProps) {
+export function MobileShop({ onNavigate, cart, increment, decrement, totals, showFavorites = false }: MobileShopProps) {
   const { format, symbol } = useCurrency()
   const [searchQuery, setSearchQuery] = useState("")
   const [categories, setCategories] = useState<TreeNode[]>(initialCategories)
   // Track expanded nodes by path key (e.g., "Vaping", "Vaping::Disposables", "Vaping::Disposables::Brand X")
   const [expandedPaths, setExpandedPaths] = useState<string[]>([])
   const { toast } = useToast()
+  const { isFavorite, setFavorite } = useCustomer()
 
   // Calculate total wallet credit from cart items
   const totalWalletCredit = useMemo(() => {
@@ -84,52 +88,88 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
   }
 
   useEffect(() => {
+    let isMounted = true
+    const filterNodesWithProducts = (nodes: TreeNode[]): TreeNode[] => {
+      return nodes
+        .map((node) => {
+          const filteredChildren = node.subcategories ? filterNodesWithProducts(node.subcategories) : undefined
+          const productsCount = Array.isArray(node.products) ? node.products.length : 0
+          const hasProductsHere = productsCount > 0
+          const hasProductsInChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0
+          if (!hasProductsHere && !hasProductsInChildren) {
+            return null as unknown as TreeNode
+          }
+          return {
+            ...node,
+            ...(filteredChildren ? { subcategories: filteredChildren } : {}),
+          }
+        })
+        .filter((n): n is TreeNode => Boolean(n))
+    }
+
     const fetchData = async () => {
       try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-start' } }))
+        }
         const res = await api.get('/products')
         const data = res.data
+        if (!isMounted) return
         if (Array.isArray(data?.categories)) {
-          // Filter out any categories/brands that do not contain products anywhere in their subtree
-          const filterNodesWithProducts = (nodes: TreeNode[]): TreeNode[] => {
-            return nodes
-              .map((node) => {
-                const filteredChildren = node.subcategories ? filterNodesWithProducts(node.subcategories) : undefined
-                const productsCount = Array.isArray(node.products) ? node.products.length : 0
-                const hasProductsHere = productsCount > 0
-                const hasProductsInChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0
-                if (!hasProductsHere && !hasProductsInChildren) {
-                  return null as unknown as TreeNode
-                }
-                return {
-                  ...node,
-                  // keep only children that themselves contain products
-                  ...(filteredChildren ? { subcategories: filteredChildren } : {}),
-                }
-              })
-              .filter((n): n is TreeNode => Boolean(n))
-          }
-
-          setCategories(filterNodesWithProducts(data.categories as TreeNode[]))
+          const filtered = filterNodesWithProducts(data.categories as TreeNode[])
+          setCategories(filtered)
+          try { sessionStorage.setItem('products_cache', JSON.stringify({ at: Date.now(), categories: filtered })) } catch {}
         }
       } catch (e) {
         // keep categories empty on error
+      } finally {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-stop' } }))
+        }
       }
     }
-    fetchData()
+
+    // Serve cache if present; if not, fetch once (e.g., after login)
+    try {
+      const raw = sessionStorage.getItem('products_cache')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed?.categories)) {
+          setCategories(parsed.categories)
+        } else {
+          fetchData()
+        }
+      } else {
+        fetchData()
+      }
+    } catch {
+      fetchData()
+    }
+
+    return () => { isMounted = false }
   }, [])
 
-  // Derived categories filtered by search query (product name). Keeps hierarchy to matches.
+  // Derived categories filtered by search query (product name) and/or favorites. Keeps hierarchy to matches.
   const displayedCategories = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
-    if (!query) return categories
-
-    const filterByQuery = (nodes: TreeNode[]): TreeNode[] => {
+    
+    const filterByQueryAndFavorites = (nodes: TreeNode[]): TreeNode[] => {
       return nodes
         .map((node) => {
-          const filteredChildren = node.subcategories ? filterByQuery(node.subcategories) : undefined
-          const filteredProducts = node.products
-            ? node.products.filter((p) => p.name.toLowerCase().includes(query))
-            : undefined
+          const filteredChildren = node.subcategories ? filterByQueryAndFavorites(node.subcategories) : undefined
+          let filteredProducts = node.products
+          
+          if (filteredProducts) {
+            // Filter by search query if provided
+            if (query) {
+              filteredProducts = filteredProducts.filter((p) => p.name.toLowerCase().includes(query))
+            }
+            
+            // Filter by favorites if showFavorites is true
+            if (showFavorites) {
+              filteredProducts = filteredProducts.filter((p) => isFavorite(p.id))
+            }
+          }
 
           const hasChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0
           const hasProducts = Array.isArray(filteredProducts) && filteredProducts.length > 0
@@ -147,22 +187,19 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
         .filter((n): n is TreeNode => Boolean(n))
     }
 
-    return filterByQuery(categories)
-  }, [categories, searchQuery])
+    return filterByQueryAndFavorites(categories)
+  }, [categories, searchQuery, showFavorites, isFavorite])
 
-  // Auto-expand paths when searching to reveal matches; collapse when cleared
+  // Auto-expand paths when searching to reveal matches.
+  // Do NOT collapse on unrelated state changes (e.g., favorites toggle)
   useEffect(() => {
     const query = searchQuery.trim()
-    if (!query) {
-      setExpandedPaths([])
-      return
-    }
+    if (!query) return
 
     const paths: string[] = []
     const traverse = (nodes: TreeNode[], parentPath?: string) => {
       nodes.forEach((node) => {
         const path = parentPath ? `${parentPath}::${node.name}` : node.name
-        // If node has children or products, consider it expanded
         if ((node.subcategories && node.subcategories.length) || (node.products && node.products.length)) {
           paths.push(path)
         }
@@ -193,14 +230,28 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
     }
   }
 
+  const toggleFavorite = async (product: ProductItem) => {
+    const current = isFavorite(product.id)
+    const prevExpanded = expandedPaths
+    try {
+      await setFavorite(product.id, !current)
+      // Restore expansion state to prevent collapsing due to re-render
+      setExpandedPaths(prevExpanded)
+      toast({ title: !current ? 'Added to favourites' : 'Removed from favourites', description: product.name })
+    } catch (e: any) {
+      setExpandedPaths(prevExpanded)
+      toast({ title: 'Failed to update favourites', description: e?.message || 'Please try again', variant: 'destructive' })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col w-full max-w-[1000px] mx-auto">
       {/* Header */}
       <div className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center">
-          <ShoppingBag className="w-5 h-5 text-white" />
+          {showFavorites ? <Star className="w-5 h-5 text-white" /> : <ShoppingBag className="w-5 h-5 text-white" />}
         </div>
-        <h1 className="text-lg font-semibold">Shop</h1>
+        <h1 className="text-lg font-semibold">{showFavorites ? "Favorites" : "Shop"}</h1>
       </div>
 
       {/* Search Bar */}
@@ -227,6 +278,11 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
         </div>
       </div>
 
+      {/* Banner */}
+      <div className="px-4 py-2">
+        <Banner />
+      </div>
+
       {/* Categories (recursive) */}
       <div className="px-2 py-4 space-y-2 overflow-y-auto pb-56">
         {displayedCategories.map((node) => (
@@ -240,6 +296,8 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
             cart={cart}
             onIncrement={handleIncrement}
             onDecrement={handleDecrement}
+            isFavorite={isFavorite}
+            onToggleFavorite={toggleFavorite}
           />)
         )}
       </div>
@@ -277,7 +335,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals }: M
             <Home className="w-5 h-5" />
             <span className="text-xs mt-1">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
             <ShoppingBag className="w-5 h-5" />
             <span className="text-xs mt-1">Shop</span>
           </button>
@@ -304,9 +362,11 @@ type CategoryNodeProps = {
   cart: Record<number, { product: ProductItem; quantity: number }>
   onIncrement: (product: ProductItem) => void
   onDecrement: (product: ProductItem) => void
+  isFavorite: (productId: number) => boolean
+  onToggleFavorite: (product: ProductItem) => void
 }
 
-function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement }: CategoryNodeProps) {
+function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement, isFavorite, onToggleFavorite }: CategoryNodeProps) {
   const { symbol } = useCurrency()
   const isOpen = expandedPaths.includes(path)
   const hasChildren = Array.isArray(node.subcategories) && node.subcategories.length > 0
@@ -426,6 +486,8 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                 cart={cart}
                 onIncrement={onIncrement}
                 onDecrement={onDecrement}
+                isFavorite={isFavorite}
+                onToggleFavorite={onToggleFavorite}
               />
             )
           })}
@@ -460,7 +522,14 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
 
                   <div className="space-y-1">
                     <div className="justify-items-end">
-                      <Star className="w-5 h-5 text-gray-300 fill-gray-300" />
+                      <button
+                        onClick={() => onToggleFavorite(product)}
+                        className="w-6 h-6 rounded-full border flex items-center justify-center hover:cursor-pointer"
+                        aria-label="Toggle favourite"
+                        title="Toggle favourite"
+                      >
+                        <Star className={`w-4 h-4 ${isFavorite(product.id) ? 'text-green-600 fill-green-600' : 'text-gray-300 fill-gray-300'}`} />
+                      </button>
                     </div>
                     <div>
                       <span className="font-semibold text-sm bg-gray-200 flex justify-between">

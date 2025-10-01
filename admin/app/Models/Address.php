@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Address extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'customer_id',
-        'type',
         'name',
         'country',
         'address_line1',
         'address_line2',
-        'landmark',
         'city',
         'state',
         'zip_code',

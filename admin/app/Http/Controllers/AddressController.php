@@ -20,22 +20,18 @@ class AddressController extends Controller
         
         $validator = Validator::make($request->all(),[
             'customer_id' => 'required|exists:customers,id',
-            'type' => 'required|string|max:255',
             'name' => 'nullable|string|max:255',
-            'country' => 'required|string|max:255',
+            'country' => 'nullable|string|max:255',
             'address_line1' => 'required|string|max:255',
             'address_line2' => 'nullable|string|max:255',
-            'landmark' => 'nullable|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'nullable|string|max:255',
             'zip_code' => 'required|string|max:255',
             'is_default' => 'boolean',
         ],[
-            'type.required' => 'Please select address type',
             'country.required' => 'Please select country',
             'address_line1.required' => 'Please enter address line 1',
             'city.required' => 'Please enter city',
-            'state.required' => 'Please enter state',
             'zip_code.required' => 'Please enter zip code',
         ]);
 
@@ -104,14 +100,12 @@ class AddressController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(),[
-            'type' => 'required|string|max:255',
             'name' => 'nullable|string|max:255',
-            'country' => 'required|string|max:255',
+            'country' => 'nullable|string|max:255',
             'address_line1' => 'required|string|max:255',
             'address_line2' => 'nullable|string|max:255',
-            'landmark' => 'nullable|string|max:255',
             'city' => 'required|string|max:255',
-            'state' => 'required|string|max:255',
+            'state' => 'nullable|string|max:255',
             'zip_code' => 'required|string|max:255',
             'is_default' => 'boolean',
         ]);

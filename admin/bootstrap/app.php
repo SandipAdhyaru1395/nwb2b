@@ -18,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'auth.web' => App\Http\Middleware\AuthMiddleware::class,
             'permission' => App\Http\Middleware\PermissionMiddleware::class,
-            'sidebar' => App\Http\Middleware\SidebarMiddleware::class
+            'sidebar' => App\Http\Middleware\SidebarMiddleware::class,
+            'store.maintenance' => App\Http\Middleware\StoreMaintenanceMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

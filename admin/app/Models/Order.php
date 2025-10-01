@@ -16,6 +16,7 @@ class Order extends Model
         'subtotal',
         'vat_amount',
         'total_amount',
+        'payment_amount',
         'wallet_credit_used',
         'units_count',
         'skus_count',

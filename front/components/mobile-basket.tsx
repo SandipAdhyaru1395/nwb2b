@@ -1,9 +1,10 @@
 "use client"
 
 import api from "@/lib/axios"
-import { useState, useMemo } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { Minus, Plus, Home, ShoppingBag, User, Wallet, Star } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useCustomer } from "@/components/customer-provider"
 import { useCurrency } from "@/components/currency-provider"
 
 interface ProductItem {
@@ -30,6 +31,15 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
   const [favourites, setFavourites] = useState<Record<number, boolean>>({})
   const { toast } = useToast()
   const { symbol, format } = useCurrency()
+  const { refresh } = useCustomer()
+
+  // Sync favourites from shared customer provider to local map
+  const { favoriteProductIds, setFavorite } = useCustomer()
+  useEffect(() => {
+    const map: Record<number, boolean> = {}
+    favoriteProductIds.forEach((id) => { map[id] = true })
+    setFavourites(map)
+  }, [favoriteProductIds])
 
   // Calculate total wallet credit from cart items
   const totalWalletCredit = useMemo(() => {
@@ -60,6 +70,14 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
           description: `Order Number: ${result.order_number}`,
           variant: "default",
         })
+        // Ask dashboard to refresh orders list on next visit/mount
+        try { sessionStorage.setItem('orders_needs_refresh', '1') } catch {}
+        if (typeof window !== 'undefined') {
+          try { window.dispatchEvent(new Event('orders-refresh')) } catch {}
+        }
+        // Do not refresh product listing after checkout as requested
+        // Refresh customer wallet balance
+        try { await refresh() } catch {}
         // Clear the cart after successful checkout
         clearCart()
         onNavigate('dashboard')
@@ -79,6 +97,21 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
       console.error('Checkout error:', error)
     } finally {
       setIsCheckingOut(false)
+    }
+  }
+
+  const toggleFavorite = async (product: ProductItem) => {
+    const productId = product.id
+    const next = !favourites[productId]
+    // optimistic update
+    setFavourites((prev) => ({ ...prev, [productId]: next }))
+    try {
+      await setFavorite(productId, next)
+      toast({ title: next ? 'Added to favourites' : 'Removed from favourites', description: product.name })
+    } catch (e: any) {
+      // revert on failure
+      setFavourites((prev) => ({ ...prev, [productId]: !next }))
+      toast({ title: 'Failed to update favourites', description: e?.message || 'Please try again', variant: 'destructive' })
     }
   }
   return (
@@ -112,7 +145,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
             <div className="flex items-center gap-2">
               {/* Favourite toggle */}
               <button
-                onClick={() => setFavourites((prev) => ({ ...prev, [product.id]: !prev[product.id] }))}
+                onClick={() => toggleFavorite(product)}
                 className={`w-8 h-8 rounded-full border flex items-center justify-center ${favourites[product.id] ? 'bg-green-50 border-green-300' : 'border-gray-300 bg-white'}`}
                 aria-label="Toggle favourite"
               >
@@ -166,6 +199,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
                 )}
               </div>
             </div>
+              
             <button
               onClick={handleCheckout}
               disabled={isCheckingOut}

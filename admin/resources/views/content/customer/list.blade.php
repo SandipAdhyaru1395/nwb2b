@@ -18,13 +18,15 @@
 @endsection
 
 @section('page-script')
-@vite(['resources/assets/js/customer-list.js','resources/assets/js/offcanvas-add-customer.js'])
+@vite(['resources/assets/js/customer-list.js','resources/assets/js/modal-add-customer.js'])
 <script>
 
    @if ($errors->add->any())
           document.addEventListener("DOMContentLoaded", function () {
-              let offcanvasCustomerAdd = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerAdd'));
-              offcanvasCustomerAdd.show();
+              // let offcanvasCustomerAdd = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerAdd'));
+              // offcanvasCustomerAdd.show();
+              let addCustomerModal = new bootstrap.Modal(document.getElementById('addCustomerModal'));
+              addCustomerModal.show();
           });
     @endif
     
@@ -52,6 +54,6 @@
     </table>
   </div>
   <!-- Offcanvas to add new customer -->
-  @include('_partials/_offcanvas/offcanvas-add-customer')
+  @include('_partials/_modals/modal-add-customer')
 </div>
 @endsection

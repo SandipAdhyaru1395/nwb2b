@@ -7,15 +7,17 @@ import api from "@/lib/axios";
 import FloatingInput from "@/components/ui/floating-input";
 import { useForm } from "react-hook-form";
 import { useSettings } from "@/components/settings-provider";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
   const router = useRouter();
   const { settings } = useSettings();
+  const { toast } = useToast();
   const { register, handleSubmit, watch, setError: setFormError, formState: { errors, isSubmitting } } = useForm({
     mode: 'onSubmit',
     reValidateMode: 'onChange',
     defaultValues: {
-      company: '', invoice1: '', invoice2: '', city: '', county: '', postcode: '',
+      name: '', company: '', invoice1: '', invoice2: '', city: '', state: '', country: '', postcode: '',
       mobile: '', email: '', password: '', password2: '', repCode: ''
     }
   });
@@ -29,24 +31,26 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await api.post("/register", {
-        company: values.company,
-        name: values.company, // simple mapping if no separate name on form
-        invoice_address_line1: values.invoice1,
-        invoice_address_line2: values.invoice2,
-        invoice_city: values.city,
-        invoice_county: values.county,
-        invoice_postcode: values.postcode,
-        mobile: values.mobile,
+        name: values.name,
+        companyName: values.company,
         email: values.email,
+        mobile: values.mobile,
         password: values.password,
-        password_confirmation: values.password2,
-        rep_code: values.repCode,
+        addressLine1: values.invoice1,
+        addressLine2: values.invoice2,
+        city: values.city,
+        state: values.state || undefined,
+        country: values.country || undefined,
+        zip_code: values.postcode,
       });
       if (data?.success) {
         setSuccess("Registration submitted successfully. You can now log in.");
+        toast({ title: "Registration successful", description: "You can now log in." })
         setTimeout(() => router.replace("/login"), 1200);
       } else {
-        setError(data?.message || "Registration failed");
+        const message = data?.message || "Registration failed";
+        setError(message);
+        toast({ variant: "destructive", title: "Registration failed", description: message })
       }
     } catch (err: any) {
       const resp = err?.response?.data;
@@ -55,15 +59,17 @@ export default function Register() {
           const msg = Array.isArray(msgs) ? msgs[0] : String(msgs)
           // map backend fields to our form fields
           const map: Record<string, string> = {
-            name: 'company',
+            name: 'name',
+            companyName: 'company',
             email: 'email',
             password: 'password',
             mobile: 'mobile',
-            'invoice_address_line1': 'invoice1',
-            'invoice_address_line2': 'invoice2',
-            'invoice_city': 'city',
-            'invoice_county': 'county',
-            'invoice_postcode': 'postcode',
+            addressLine1: 'invoice1',
+            addressLine2: 'invoice2',
+            city: 'city',
+            state: 'state',
+            country: 'country',
+            zip_code: 'postcode',
           }
           const target = map[field] || field
           // @ts-ignore
@@ -72,6 +78,7 @@ export default function Register() {
       }
       const message = resp?.message || "Registration failed";
       setError(message);
+      toast({ variant: "destructive", title: "Registration error", description: message })
     } finally {
       setLoading(false);
     }
@@ -91,7 +98,8 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
-          {/* Company */}
+          {/* Contact & Company */}
+          <FloatingInput label="Name" placeholder="Please enter your name..." {...register('name', { required: 'Name is required' })} error={(errors as any).name?.message as string} />
           <FloatingInput label="Company name" placeholder="Please enter your company name..." {...register('company', { required: 'Company name is required' })} error={(errors as any).company?.message as string} />
 
           {/* Invoice Address */}
@@ -101,7 +109,8 @@ export default function Register() {
               <FloatingInput label="Address line 1" placeholder="Please enter invoice address line 1..." {...register('invoice1', { required: 'Address line 1 is required' })} error={(errors as any).invoice1?.message as string} />
               <FloatingInput label="Address line 2" placeholder="Please enter invoice address line 2..." {...register('invoice2')} />
               <FloatingInput label="City" placeholder="Please enter invoice address city..." {...register('city', { required: 'City is required' })} error={(errors as any).city?.message as string} />
-              <FloatingInput label="County" placeholder="Please enter invoice address county..." {...register('county', { required: 'County is required' })} error={(errors as any).county?.message as string} />
+              <FloatingInput label="State" placeholder="Please enter state (optional)..." {...register('state')} />
+              <FloatingInput label="Country" placeholder="Please enter country (optional)..." {...register('country')} />
               <FloatingInput label="Postcode" placeholder="Please enter invoice address postcode..." {...register('postcode', { required: 'Postcode is required' })} error={(errors as any).postcode?.message as string} />
             </div>
           </div>
@@ -109,7 +118,7 @@ export default function Register() {
           {/* Mobile */}
           <div>
             <p className="font-medium mb-2">Mobile Number</p>
-            <FloatingInput label="Mobile number" placeholder="Please enter your mobile phone number..." {...register('mobile', { required: 'Mobile number is required' })} error={(errors as any).mobile?.message as string} />
+            <FloatingInput label="Mobile number" placeholder="Please enter your mobile phone number..." maxLength={10} onKeyPress={(e) => { if (!/[0-9]/i.test(e.key)) { e.preventDefault(); return false } return true }} {...register('mobile', { required: 'Mobile number is required' })} error={(errors as any).mobile?.message as string} />
           </div>
 
           {/* Login Details */}
@@ -124,9 +133,7 @@ export default function Register() {
 
           {/* Rep Code */}
           <FloatingInput label="Rep code" placeholder="Please enter rep code..." {...register('repCode')} />
-
-          {error && <p className="text-red-600 text-sm">{error}</p>}
-          {success && <p className="text-green-700 text-sm">{success}</p>}
+          
 
           <button type="submit" disabled={loading || isSubmitting} className="w-full bg-black text-white rounded py-3 disabled:opacity-60 hover:cursor-pointer">{loading ? "Registering..." : "Register"}</button>
         </form>

@@ -7,6 +7,8 @@ import FaviconProvider from '@/components/favicon-provider'
 import { CurrencyProvider } from '@/components/currency-provider'
 import { SettingsProvider } from '@/components/settings-provider'
 import { CustomerProvider } from '@/components/customer-provider'
+import LoadingProvider from '@/components/loading-provider'
+import StoreMaintenanceGate from '@/components/store-maintenance-gate'
 
 export const metadata: Metadata = {
   title: 'NWB2B',
@@ -40,15 +42,19 @@ html {
               __html: `(() => { try { var p = window.location.pathname; if (!p.startsWith('/login')) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); window.location.replace('/login?' + q); } } } catch (e) {} })();`,
             }}
           />
-          <SettingsProvider>
-            <CurrencyProvider>
-              <CustomerProvider>
-                {children}
-                <Toaster />
-                <FaviconProvider />
-              </CustomerProvider>
-            </CurrencyProvider>
-          </SettingsProvider>
+          <LoadingProvider>
+            <SettingsProvider>
+              <StoreMaintenanceGate>
+                <CurrencyProvider>
+                  <CustomerProvider>
+                    {children}
+                    <Toaster />
+                    <FaviconProvider />
+                  </CustomerProvider>
+                </CurrencyProvider>
+              </StoreMaintenanceGate>
+            </SettingsProvider>
+          </LoadingProvider>
       </body>
     </html>
   )

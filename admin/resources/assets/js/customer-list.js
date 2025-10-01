@@ -395,8 +395,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   text: '<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-plus icon-xs"></i> <span class="d-none d-sm-inline-block">Add Customer</span></span>',
                   className: 'create-new btn btn-primary',
                   attr: {
-                    'data-bs-toggle': 'offcanvas',
-                    'data-bs-target': '#offcanvasCustomerAdd'
+                    'data-bs-toggle': 'modal',
+                    'data-bs-target': '#addCustomerModal'
                   }
                 }
               ]

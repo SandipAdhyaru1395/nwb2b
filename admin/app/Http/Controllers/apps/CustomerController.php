@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Log;
 use App\Models\Order;
 use App\Models\Address;
 use App\Helpers\Helpers;
@@ -19,8 +21,9 @@ class CustomerController extends Controller
     return view('content.customer.list');
   }
 
-  private function init($id = null){
-    
+  private function init($id = null)
+  {
+
     if (!$id) {
       return redirect()->route('customer.list');
     }
@@ -48,7 +51,7 @@ class CustomerController extends Controller
 
     return view('content.customer.overview', $data);
   }
-  
+
   public function ajaxList(Request $request)
   {
     // Build aggregated customer stats
@@ -98,31 +101,34 @@ class CustomerController extends Controller
     return response()->json(['data' => $data]);
   }
 
-  public function security($id = null){
+  public function security($id = null)
+  {
 
     $data = $this->init($id);
 
     return view('content.customer.security', $data);
   }
 
-  public function addresses($id = null){
-     
+  public function addresses($id = null)
+  {
+
     $data = $this->init($id);
-    
+
     // Load addresses for the customer
     $addresses = Address::where('customer_id', $id)
-        ->orderBy('is_default', 'desc')
-        ->orderBy('created_at', 'asc')
-        ->get();
-    
+      ->orderBy('is_default', 'desc')
+      ->orderBy('created_at', 'asc')
+      ->get();
+
     $data['addresses'] = $addresses;
 
     return view('content.customer.addresses', $data);
   }
-  
 
-  public function notifications($id = null){
-    
+
+  public function notifications($id = null)
+  {
+
     $data = $this->init($id);
 
     return view('content.customer.notifications', $data);
@@ -164,15 +170,20 @@ class CustomerController extends Controller
     return redirect()->back();
   }
 
-  public function store(Request $request){
-    
+  public function store(Request $request)
+  {
+
     $validator = Validator::make($request->all(), [
       'name' => ['required', 'string', 'max:255'],
+      'companyName' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', 'unique:customers'],
-      'password' => ['required', 'string', 'min:6'],
       'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone'],
+      'password' => ['required', 'string', 'min:6'],
       'status' => ['required'],
-    ],[
+      'addressLine1' => ['required', 'string', 'max:255'],
+      'city' => ['required', 'string', 'max:255'],
+      'zip_code' => ['required', 'string', 'max:255'],
+    ], [
       'name.required' => 'Please enter name',
       'email.required' => 'Please enter email',
       'email.unique' => 'Email already exists',
@@ -181,38 +192,68 @@ class CustomerController extends Controller
       'mobile.required' => 'Please enter mobile number',
       'mobile.digits' => 'Mobile number must be 10 digits',
       'mobile.unique' => 'Mobile number already exists',
+      'companyName.required' => 'Please enter company name',
+      'addressLine1.required' => 'Please enter address line 1',
+      'city.required' => 'Please enter city',
+      'zip_code.required' => 'Please enter postcode'
     ]);
 
-    if($validator->fails()){
-      return redirect()->back()->withErrors($validator,'add')->withInput();
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator, 'add')->withInput();
     }
 
-    $customer = Customer::create([
-      'name' => $request->name,
-      'email' => $request->email,
-      'password' => $request->password,
-      'phone' => $request->mobile,
-      'company_name' => $request->companyName ?? '',
-      'vat_number' => $request->vatNumber ?? '',
-      'business_reg_number' => $request->businessRegistrationNumber,
-      'approved_at' => Carbon::now(),
-      'approved_by' => auth()->user()->id,
-      'is_active' => ($request->status == 'active') ? 1 : 0,
-    ]);
+    try {
+      DB::beginTransaction();
+      $customer = Customer::create([
+        'name' => $request->name,
+        'company_name' => $request->companyName,
+        'email' => $request->email,
+        'phone' => $request->mobile,
+        'password' => bcrypt($request->password), // ✅ hash password
+        'vat_number' => $request->vatNumber ?? '',
+        'approved_at' => now(),
+        'approved_by' => auth()->id(),
+        'is_active' => $request->status === 'active' ? 1 : 0,
+      ]);
 
-    Toastr::success('Customer created successfully!');
+      $address = $customer->addresses()->create([
+        'name' => $request->name,
+        'address_line1' => $request->addressLine1,
+        'address_line2' => $request->addressLine2,
+        'city' => $request->city,
+        'state' => $request->state,
+        'country' => $request->country,
+        'zip_code' => $request->zip_code,
+        'is_default' => 1,
+      ]);
+
+      // Attach default address to customer without extra query
+      $customer->update([
+        'address_id' => $address->id,
+      ]);
+
+
+      DB::commit();
+      Toastr::success('Customer created successfully!');
+    } catch (\Exception $e) {
+      Toastr::error('Something went wrong');
+      Log::error($e);
+      DB::rollBack();
+    }
+
     return redirect()->back();
   }
 
-  public function update(Request $request){
-    
+  public function update(Request $request)
+  {
+
     $validator = Validator::make($request->all(), [
       'name' => ['required', 'string', 'max:255'],
-      'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email,'.$request->id],
+      'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email,' . $request->id],
       'password' => ['nullable', 'string', 'min:6'],
-      'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone,'.$request->id],
+      'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone,' . $request->id],
       'status' => ['required'],
-    ],[
+    ], [
       'name.required' => 'Please enter name',
       'email.required' => 'Please enter email',
       'email.unique' => 'Email already exists',
@@ -222,13 +263,13 @@ class CustomerController extends Controller
       'mobile.unique' => 'Mobile number already exists',
     ]);
 
-    if($validator->fails()){
-      return redirect()->back()->withErrors($validator,'edit')->withInput();
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator, 'edit')->withInput();
     }
 
-   $customer = Customer::findOrFail($request->id);
+    $customer = Customer::findOrFail($request->id);
 
-   $data=[
+    $data = [
       'name' => $request->name,
       'email' => $request->email,
       'phone' => $request->mobile,
@@ -238,7 +279,7 @@ class CustomerController extends Controller
       'is_active' => ($request->status == 'active') ? 1 : 0,
     ];
 
-    if($request->password){
+    if ($request->password) {
       $data['password'] = $request->password;
     }
 

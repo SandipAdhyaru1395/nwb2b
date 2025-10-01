@@ -26,42 +26,21 @@ document.addEventListener('DOMContentLoaded', function () {
 
     FormValidation.formValidation(document.getElementById('addCustomerAddressForm'), {
       fields: {
-        type: {
-          validators: {
-            notEmpty: {
-              message: 'Type is required'
-            },
-          }
-        },
-         country: {
-          validators: {
-            notEmpty: {
-              message: 'Country is required'
-            },
-          }
-        },
-         address_line1: {
+        address_line1: {
           validators: {
             notEmpty: {
               message: 'Address line 1 is required'
             },
           }
         },
-          city: {
+        city: {
           validators: {
             notEmpty: {
               message: 'City is required'
             },
           }
         },
-          state: {
-          validators: {
-            notEmpty: {
-              message: 'State is required'
-            },
-          }
-        },
-          zip_code: {
+        zip_code: {
           validators: {
             notEmpty: {
               message: 'ZIP Code is required'

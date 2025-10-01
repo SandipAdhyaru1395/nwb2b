@@ -16,13 +16,13 @@ class Customer extends Model
     protected $table = 'customers';
 
     protected $fillable = [
-        'email',
-        'password',
-        'company_name',
         'name',
+        'company_name',
+        'email',
         'phone',
+        'password',
         'vat_number',
-        'business_reg_number',
+        'address_id',
         'approved_at',
         'approved_by',
         'credit_balance',
@@ -30,7 +30,6 @@ class Customer extends Model
         'is_active',
         'remember_token',
         'last_login',
-        'address_id',
     ];
 
     protected $casts = [

@@ -6,16 +6,23 @@
 
 (function () {
 
-  const addCustomerForm = document.getElementById('addCustomerForm');
+  const editCustomerForm = document.getElementById('editCustomerForm');
 
   // Add New customer Form Validation
-  if (!addCustomerForm) return;
-  const fv = FormValidation.formValidation(addCustomerForm, {
+  if (!editCustomerForm) return;
+  const fv = FormValidation.formValidation(editCustomerForm, {
     fields: {
       name: {
         validators: {
           notEmpty: {
             message: 'Please enter fullname '
+          }
+        }
+      },
+      companyName: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter company name'
           }
         }
       },
@@ -44,31 +51,10 @@
           }
         },
       },
-      password: {
+      status: {
         validators: {
           notEmpty: {
-            message: 'Please enter password'
-          },
-          stringLength: {
-            min: 6,
-            message: 'Password must be more than 6 characters'
-          }
-        }
-      },
-      confirmPassword: {
-        validators: {
-          notEmpty: {
-            message: 'Please confirm password'
-          },
-          identical: {
-            compare: function () {
-              return addCustomerForm.querySelector('[name="password"]').value;
-            },
-            message: 'The password and its confirm are not the same'
-          },
-          stringLength: {
-            min: 6,
-            message: 'Password must be more than 6 characters'
+            message: 'Please select status'
           }
         }
       }
