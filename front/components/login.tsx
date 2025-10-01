@@ -79,14 +79,14 @@ export default function Login() {
         <div className="w-full max-w-[1000px] mx-auto">
             {/* Logo */}
             <div className="flex justify-center py-6">
-                <img width={67.8} height={36} src={settings?.company_logo_url || "/placeholder-logo.png"} alt={settings?.company_title || "Logo"} className="h-10" />
+                <img width={67.8} height={36} src={settings?.company_logo_url || "placeholder-logo.png"} alt={settings?.company_title || "Logo"} className="h-10" />
             </div>
 
             {/* Tabs */}
             <div className="mx-4 border rounded overflow-hidden">
                 <div className="grid grid-cols-2">
                     <button className="bg-green-500 text-white py-3 font-medium">Login</button>
-                    <Link href="/register" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">Register</Link>
+                    <Link href="register" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">Register</Link>
                 </div>
 
                 {/* Form */}

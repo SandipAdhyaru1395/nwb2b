@@ -29,9 +29,9 @@ if (typeof window !== "undefined") {
         } catch {}
         if (typeof window !== "undefined") {
           const current = window.location.pathname;
-          if (!current.startsWith("/login")) {
+          if (!current.includes("/login")) {
             const search = new URLSearchParams({ redirect: current }).toString();
-            window.location.href = `/login?${search}`;
+            window.location.href = `login?${search}`;
           }
         }
       }
