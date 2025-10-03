@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             let output;
             
             if(image){
-              output = `<img src="${baseUrl}storage/${image}" alt="Product-${id}" class="rounded">`;
+              output = `<img src="${assetsPath}storage/${image}" alt="Product-${id}" class="rounded">`;
             }else{
                // For Avatar badge
               const stateNum = Math.floor(Math.random() * 6) + 1;

@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               if(image_url.includes("https")){
                 output = `<img src="${image_url}" alt="Product-${id}" class="rounded">`;
               }else{
-                output = `<img src="${baseUrl}storage/${image_url}" alt="Product-${id}" class="rounded">`;
+                output = `<img src="${assetsPath}storage/${image_url}" alt="Product-${id}" class="rounded">`;
               }
               // For Product image
             } else {

@@ -1,7 +1,7 @@
 <html lang="{{ session()->get('locale') ?? app()->getLocale() }}"
 
   class="@if(isset($sidebarMenuData)) layout-navbar-fixed layout-compact layout-menu-fixed @else customizer-hide layout-menu-fixed @endif"
-  dir="ltr" data-skin="default" data-assets-path="{{ asset('/assets') . '/' }}"
+  dir="ltr" data-skin="default" data-assets-path="{{ asset('/') }}"
   data-currency-symbol="{{ $setting['currency_symbol'] ?? '' }}"
   data-base-url="{{ url('/') }}" data-framework="laravel" data-template="@if(isset($sidebarMenuData)) vertical-menu-template @else blank-menu-template @endif"
   data-bs-theme="light">

@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             if (image) {
               // For Product image
               output = `
-                <img src="${image?.includes('https') ? '' : baseUrl + 'storage/'}${image}" alt="product-${name}" class="rounded-2">
+                <img src="${image?.includes('https') ? '' : assetsPath + 'storage/'}${image}" alt="product-${name}" class="rounded-2">
               `;
             } else {
               // For Product badge
