@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (dt_invoice_table) {
     const dt_invoice = new DataTable(dt_invoice_table, {
-      ajax: baseUrl + 'assets/json/invoice-list.json',
+      ajax: assetsPath + 'assets/json/invoice-list.json',
       columns: [
         { data: 'invoice_id' },
         { data: 'invoice_id', orderable: false, render: DataTable.render.select() },
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let output;
 
             if (image === true) {
-              output = `<img src="${assetsPath}img/avatars/${userImg}" alt="Avatar" class="rounded-circle">`;
+              output = `<img src="${assetsPath}assets/img/avatars/${userImg}" alt="Avatar" class="rounded-circle">`;
             } else {
               const stateNum = Math.floor(Math.random() * 6);
               const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
