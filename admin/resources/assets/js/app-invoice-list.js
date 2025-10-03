@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (dt_invoice_table) {
     const dt_invoice = new DataTable(dt_invoice_table, {
-      ajax: assetsPath + 'json/invoice-list.json',
+      ajax: baseUrl + 'assets/json/invoice-list.json',
       columns: [
         { data: 'invoice_id' },
         { data: 'invoice_id', orderable: false, render: DataTable.render.select() },
