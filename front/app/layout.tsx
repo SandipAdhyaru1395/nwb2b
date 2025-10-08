@@ -40,17 +40,7 @@ html {
         {/* Early redirect to login before any paint if no token */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(() => { try { 
-    var p = window.location.pathname; 
-    if (!p.includes('/login') && !p.includes('/register')) { 
-      var t = localStorage.getItem('auth_token'); 
-      if (!t) { 
-        var q = new URLSearchParams({ redirect: p }).toString(); 
-        var base = window.location.pathname.endsWith('/') ? '' : '/'; 
-        window.location.replace('login?' + q); 
-      } 
-    } 
-  } catch (e) {} })();`
+            __html: `(() => { try { var p = window.location.pathname; if (!p.includes('/login')) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); var base = window.location.pathname.endsWith('/') ? '' : '/'; window.location.replace('login?' + q); } } } catch (e) {} })();`,
           }}
         />
         <LoadingProvider>
