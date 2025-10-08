@@ -73,8 +73,7 @@ export default function Login() {
           sessionStorage.removeItem("products_cache");
         } catch {}
         toast({ title: "Hello there 👋", description: "You've logged in successfully." });
-        const redirect = searchParams.get("redirect") || "/";
-        router.replace(redirect);
+           window.location.replace("/nwb2b/front");
       } else {
         const message = data?.message || "Login failed";
         setError(message);
