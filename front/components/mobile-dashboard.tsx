@@ -1,98 +1,105 @@
-"use client"
-import { Button } from "@/components/ui/button"
-import { useCurrency } from "@/components/currency-provider"
-import React, { useEffect, useState } from "react"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react"
-import api from "@/lib/axios"
-import { useCustomer } from "@/components/customer-provider"
-import { Banner } from "@/components/banner"
+"use client";
+import { Button } from "@/components/ui/button";
+import { useCurrency } from "@/components/currency-provider";
+import React, { useEffect, useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react";
+import api from "@/lib/axios";
+import { useCustomer } from "@/components/customer-provider";
+import { Banner } from "@/components/banner";
 
 interface MobileDashboardProps {
-  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders", favorites?: boolean) => void
-  onOpenOrder?: (orderNumber: string) => void
+  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders", favorites?: boolean) => void;
+  onOpenOrder?: (orderNumber: string) => void;
 }
 
 export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProps) {
-  const { symbol } = useCurrency()
-  const { customer } = useCustomer()
-  const wallet = Number(customer?.wallet_balance || 0)
-  const [orders, setOrders] = useState<Array<{ order_number: string; ordered_at: string; payment_status: string; fulfillment_status: string; units: number; skus: number; total_paid: number,currency_symbol: string }>>([])
+  const { symbol } = useCurrency();
+  const { customer } = useCustomer();
+  const wallet = Number(customer?.wallet_balance || 0);
+  const [orders, setOrders] = useState<Array<{ order_number: string; ordered_at: string; payment_status: string; fulfillment_status: string; units: number; skus: number; total_paid: number; currency_symbol: string }>>([]);
 
   useEffect(() => {
-    let isMounted = true
+    let isMounted = true;
     const fetchOrders = async () => {
       try {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-start' } }))
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-start" } }));
         }
-        const res = await api.get('/orders')
-        const json = res.data
-        if (!isMounted) return
+        const res = await api.get("/orders");
+        const json = res.data;
+        if (!isMounted) return;
         if (json?.success && Array.isArray(json.orders)) {
-          setOrders(json.orders)
-          try { sessionStorage.setItem('orders_cache', JSON.stringify({ at: Date.now(), orders: json.orders })) } catch {}
+          setOrders(json.orders);
+          try {
+            sessionStorage.setItem("orders_cache", JSON.stringify({ at: Date.now(), orders: json.orders }));
+          } catch {}
         }
       } catch (e) {
         // ignore
       } finally {
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('global-loading', { detail: { type: 'global-loading-stop' } }))
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-stop" } }));
         }
-        try { sessionStorage.removeItem('orders_needs_refresh') } catch {}
+        try {
+          sessionStorage.removeItem("orders_needs_refresh");
+        } catch {}
       }
-    }
+    };
 
     // 1) If a refresh is requested (e.g., after checkout), fetch now
-    let refreshed = false
+    let refreshed = false;
     try {
-      const needs = sessionStorage.getItem('orders_needs_refresh')
-      if (needs === '1') { refreshed = true; fetchOrders() }
+      const needs = sessionStorage.getItem("orders_needs_refresh");
+      if (needs === "1") {
+        refreshed = true;
+        fetchOrders();
+      }
     } catch {}
 
     // 2) Otherwise, use cache if present; if not, fetch once (first login)
     if (!refreshed) {
       try {
-        const raw = sessionStorage.getItem('orders_cache')
+        const raw = sessionStorage.getItem("orders_cache");
         if (raw) {
-          const parsed = JSON.parse(raw)
+          const parsed = JSON.parse(raw);
           if (Array.isArray(parsed?.orders)) {
-            setOrders(parsed.orders)
+            setOrders(parsed.orders);
           } else {
-            fetchOrders()
+            fetchOrders();
           }
         } else {
-          fetchOrders()
+          fetchOrders();
         }
       } catch {
-        fetchOrders()
+        fetchOrders();
       }
     }
 
     // 3) Listen for explicit refresh events (e.g., after checkout while dashboard is mounted)
-    const onRefresh = () => fetchOrders()
-    if (typeof window !== 'undefined') {
-      window.addEventListener('orders-refresh', onRefresh)
+    const onRefresh = () => fetchOrders();
+    if (typeof window !== "undefined") {
+      window.addEventListener("orders-refresh", onRefresh);
     }
 
     return () => {
-      isMounted = false
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('orders-refresh', onRefresh)
+      isMounted = false;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("orders-refresh", onRefresh);
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Wallet balance now comes from CustomerProvider
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full max-w-[1000px] mx-auto">
+    <div className="min-h-screen w-full max-w-[1000px] mx-auto">
       {/* Header */}
-      <header className="bg-white px-4 py-3 flex items-center justify-between border-b">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-            <House className="w-5 h-5 text-white" />
+      <header className="bg-white flex items-center justify-between inner-header-shadow">
+        <div className="flex items-center">
+          <div className="mx-5 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+            <House className="w-4 h-4 text-white" />
           </div>
           <h1 className="font-semibold text-gray-900">Dashboard</h1>
         </div>
@@ -101,50 +108,49 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       {/* Main Content */}
       <main className="pb-20">
         {/* Banner */}
-        <div className="mx-4 mt-4">
+        <div className="mt-0">
           <Banner />
         </div>
 
-        {/* Referral Rewards */}
-        <Card className="mx-4 mt-4 bg-green-500 border-0 text-white">
-          <div className="p-4 flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold mb-1">Referral Rewards</h3>
-              <p className="text-sm opacity-90">Refer a Retailer to earn Rewards</p>
-            </div>
-            <Gift className="w-8 h-8" />
-          </div>
-        </Card>
-
-        {/* Wallet Credit */}
-        
-        <Card className="mx-4 mt-4 hover:bg-green-100 hover:cursor-pointer">
-          <div className="p-2 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <Wallet className="w-4 h-4 text-green-600" />
+        <div className="quickLinksWrapper bg-gray-100 p-3 my-3">
+          {/* Referral Rewards */}
+          <Card className="bg-green-500 border-0 text-white mb-3 rounded-s">
+            <div className="p-3 flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold text-l">Referral Rewards</h3>
+                <p className="text-sm mt-1 text-black font-semibold">Refer a Retailer to earn Rewards</p>
               </div>
-              <span className="font-semibold text-sm">{symbol}{wallet.toFixed(2)} credit in your wallet</span>
+              <Gift className="w-8 h-8" />
             </div>
-            <ChevronRight className="w-6 h-6 text-gray-400" />
+          </Card>
+
+          {/* Wallet Credit */}
+
+          <Card className="hover:bg-green-100 hover:cursor-pointer mb-3">
+            <div className="p-2 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <Wallet className="w-4 h-4 text-green-600" />
+                </div>
+                <span className="font-semibold text-sm">
+                  {symbol}
+                  {wallet.toFixed(2)} credit in your wallet
+                </span>
+              </div>
+              <ChevronRight className="w-6 h-6 text-gray-400" />
+            </div>
+          </Card>
+          {/* Action Buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
+              <ShoppingBag className="w-5 h-5 mr-2" />
+              Shop
+            </Button>
+            <Button onClick={() => onNavigate("shop", true)} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
+              <Heart className="w-5 h-5 mr-2" />
+              Favourites
+            </Button>
           </div>
-        </Card>
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4 mx-4 mt-4">
-          <Button
-            onClick={() => onNavigate("shop")}
-            className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg"
-          >
-            <ShoppingBag className="w-5 h-5 mr-2" />
-            Shop
-          </Button>
-          <Button 
-            onClick={() => onNavigate("shop", true)}
-            className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg"
-          >
-            <Heart className="w-5 h-5 mr-2" />
-            Favourites
-          </Button>
         </div>
 
         {/* Recent Notifications */}
@@ -213,7 +219,10 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                     </div>
                     <div className="flex justify-between font-semibold">
                       <span className="text-gray-600">Total Paid:</span>
-                      <span className="text-gray-900">{o.currency_symbol}{o.total_paid.toFixed(2)}</span>
+                      <span className="text-gray-900">
+                        {o.currency_symbol}
+                        {o.total_paid.toFixed(2)}
+                      </span>
                     </div>
                   </div>
                   <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer" />
@@ -227,7 +236,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                   try {
                     // const res = await api.get('/orders')
                     // if (res?.data?.has_more) {
-                      onNavigate("orders")
+                    onNavigate("orders");
                     // }
                   } catch {
                     // ignore
@@ -243,27 +252,26 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       </main>
 
       {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
-        <div className="grid grid-cols-4 py-2">
-          <button className="flex flex-col items-center py-2 text-green-600  hover:cursor-pointer">
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Dashboard</span>
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
+        <div className="grid grid-cols-4 py-3 footer-nav-col">
+          <button className="flex flex-col items-center text-green-600  hover:cursor-pointer">
+            <Home className="w-7 h-7 mb-1" />
+            <span className="text-xs">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="text-xs mt-1">Shop</span>
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <ShoppingBag className="w-7 h-7 mb-1" />
+            <span className="text-xs">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Wallet className="w-5 h-5" />
-            <span className="text-xs mt-1">Wallet</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <Wallet className="w-7 h-7 mb-1" />
+            <span className="text-xs">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <User className="w-7 h-7 mb-1" />
+            <span className="text-xs">Account</span>
           </button>
         </div>
       </nav>
     </div>
-  )
+  );
 }
-
