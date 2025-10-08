@@ -36,7 +36,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       } catch {}
     } finally {
       try {
-        router.replace("/login");
+        router.replace("/nwb2b/front/login");
       } catch {
         if (typeof window !== "undefined") {
           window.location.href = "/login";
