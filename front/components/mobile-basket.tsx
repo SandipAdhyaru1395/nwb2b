@@ -181,7 +181,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
 
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         {totals.units > 0 && (
           <div className="bg-white border-t px-4 py-3 space-y-1">
             <div className="flex items-center justify-between text-sm">

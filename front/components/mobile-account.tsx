@@ -154,7 +154,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-3 footer-nav-col">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-7 h-7 mb-1" />

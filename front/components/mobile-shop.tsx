@@ -272,7 +272,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         {/* Basket Summary (shows when items in cart) */}
         {totals.units > 0 && (
           <div className="bg-white border-b px-4 py-3 space-y-1">

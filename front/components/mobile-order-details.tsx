@@ -186,7 +186,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-2">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-5 h-5" />
