@@ -110,7 +110,7 @@ export default function Register() {
 
       <div className="overflow-hidden wrapper-space">
         <div className="grid grid-cols-2 loginRegisterWrapper">
-          <Link href="/login" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
+          <Link href="/nwb2b/front/login" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
             Login
           </Link>
           <button className="bg-green-500 text-white py-3 font-medium">Register</button>
