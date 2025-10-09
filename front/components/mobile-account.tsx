@@ -30,10 +30,10 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
     try {
       try {
         await api.post("/logout");
-      } catch {}
+      } catch { }
       try {
         window.localStorage.removeItem("auth_token");
-      } catch {}
+      } catch { }
     } finally {
       try {
         router.replace("/nwb2b/front/login");
@@ -47,110 +47,117 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
   return (
     <div className="w-full max-w-[1000px] mx-auto bg-white min-h-screen">
+      {/* Header */}
+      <div className="h-[50px] bg-white flex items-center">
+        <div className="w-[66px] h-8 rounded-full flex items-center justify-center">
+          <User className="w-[24px] h-[24x] text-green-600" />
+        </div>
+        <h1 className="text-lg font-semibold text-black-600 text-[16px]">Account</h1>
+      </div>
+
       {/* Banner */}
       <Banner />
 
       {/* Account Menu Items */}
-      <div className="py-4 pb-30 space-y-4">
+      <div className="p-[10px] mb-[80px]">
         {/* Account Details Section */}
-        <div className="space-y-2">
-          <Button variant="outline" onClick={() => onNavigate("rep-details")} className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="font-medium">My Rep Details</span>
+        <Button variant="outline" onClick={() => onNavigate("rep-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <User className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </Button>
+            <span className="text-[14px] font-semibold ml-[10px]">My Rep Details</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
 
-          <Button variant="outline" onClick={() => onNavigate("company-details")} className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <Building className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="font-medium">My Company</span>
+        <Button variant="outline" onClick={() => onNavigate("company-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <Building className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </Button>
+            <span className="text-[14px] font-semibold ml-[10px]">My Company</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
 
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <GitBranch className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="font-medium">My Branches</span>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <GitBranch className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </Button>
-        </div>
+            <span className="text-[14px] font-semibold ml-[10px]">My Branches</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
+
+        <hr className="mt-[20px] mb-[20px]"></hr>
 
         {/* Utilities Section */}
-        <Button variant="outline" className="w-full py-5 justify-between text-left border-yellow-200 bg-yellow-50 hover:bg-yellow-100 hover:cursor-pointer">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
               <Lightbulb className="w-4 h-4 text-yellow-600" />
             </div>
-            <span className="font-medium">Revo Utilities - guaranteed to reduce your bills!</span>
+            <span className="text-[14px] font-semibold ml-[10px]">Revo Utilities - guaranteed to reduce your bills!</span>
           </div>
-          <ChevronRight className="w-5 h-5 text-gray-400" />
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
         </Button>
 
         {/* Services Section */}
-        <div className="space-y-2">
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <BarChart3 className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="font-medium">Services & Display Solutions</span>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <BarChart3 className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </Button>
+            <span className="text-[14px] font-semibold ml-[10px]">Services & Display Solutions</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
 
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                <FileText className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="font-medium">Contracts</span>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <FileText className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
-          </Button>
-        </div>
+            <span className="text-[14px] font-semibold ml-[10px]">Contracts</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
+
+        <hr className="mt-[20px] mb-[20px]"></hr>
 
         {/* Settings Section */}
-        <div className="space-y-2 pt-4">
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+        
+          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+            <div className="flex items-center">
+              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
                 <Bell className="w-4 h-4 text-green-600" />
               </div>
-              <span className="font-medium">My Notification Preferences</span>
+              <span className="text-[14px] font-semibold ml-[10px]">My Notification Preferences</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
           </Button>
 
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+            <div className="flex items-center">
+              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
                 <Shield className="w-4 h-4 text-green-600" />
               </div>
-              <span className="font-medium">My Authentication Settings</span>
+              <span className="text-[14px] font-semibold ml-[10px]">My Authentication Settings</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
           </Button>
 
-          <Button variant="outline" className="w-full py-5 justify-between text-left border-gray-200 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
+            <div className="flex items-center">
+              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
                 <LogOut className="w-4 h-4 text-green-600" />
               </div>
-              <span className="font-medium">Logout</span>
+              <span className="text-[14px] font-semibold ml-[10px]">Logout</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-gray-400" />
+            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
           </Button>
-        </div>
       </div>
 
       {/* Bottom Navigation */}

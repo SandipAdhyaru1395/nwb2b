@@ -44,45 +44,43 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       <Banner />
 
       {/* Wallet Content */}
-      <div className="p-[10px] space-y-6">
+      <div className="p-[10px] pb-[82px] space-y-6">
         {/* Wallet Balance */}
 
-        <div>
-          <h2 className="leading-[16px] text-base font-semibold text-gray-900 mb-3">Your wallet balance</h2>
-          <Card className="mt-[8px] p-[13px] border border-green-600">
+          <h2 className="leading-[16px] text-base font-semibold text-gray-900 mb-0">Your wallet balance</h2>
+          <Card className="mt-[8px] p-[13px] border border-green-600 max-h-[53px] leading-[12px] mb-0">
             <div className="flex items-center justify-center font-proxima font-[800] text-[24px]">
               <div className="w-[24px] h-[24px] bg-green-500 rounded flex items-center justify-center">
                 <span className="text-white text-xs font-bold">{symbol}</span>
               </div>
-              <span className="text-xl  mx-[4px]  ">
+              <span className="text-[24px] mx-[4px]  ">
                 {symbol}
                 {wallet.toFixed(2)}
               </span>
               <span className="text-green-600">Credit</span>
             </div>
           </Card>
-        </div>
-
+          <hr className="mt-[20px] mb-[20px]"></hr>
         {/* FAQ Sections */}
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">What is the wallet?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">The wallet contains credit you acquired from your previous purchases on this platform.</p>
+            <h3 className="text-sm text-[16px] font-semibold text-gray-900 leading-[16px]">What is the wallet?</h3>
+            <p className="text-[16px] leading-[16px] mt-[8px] mb-[20px]">The wallet contains credit you acquired from your previous purchases on this platform.</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">How much credit do I get?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">Every product has a wallet indicator which states how much credit you will be awarded for every unit of that product purchased.</p>
+            <h3 className="text-sm text-[16px] font-semibold text-gray-900 leading-[16px]">How much credit do I get?</h3>
+            <p className="text-[16px] leading-[16px] mt-[8px] mb-[20px]">Every product has a wallet indicator which states how much credit you will be awarded for every unit of that product purchased.</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">How do I use my credit?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">Your wallet credit will be automatically applied on your next purchase as a discount from the order total.</p>
+            <h3 className="text-sm text-[16px] font-semibold text-gray-900 leading-[16px]">How do I use my credit?</h3>
+            <p className="text-[16px] leading-[16px] mt-[8px] mb-[20px]">Your wallet credit will be automatically applied on your next purchase as a discount from the order total.</p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-2">Do I get credit if I don't use the platform?</h3>
-            <p className="text-sm text-gray-600 leading-relaxed">No. Credit is only added to your wallet when you purchase through this platform.</p>
+            <h3 className="text-sm text-[16px] font-semibold text-gray-900 leading-[16px]">Do I get credit if I don't use the platform?</h3>
+            <p className="text-[16px] leading-[16px] mt-[8px] mb-[20px]">No. Credit is only added to your wallet when you purchase through this platform.</p>
           </div>
         </div>
       </div>

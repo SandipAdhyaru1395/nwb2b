@@ -638,36 +638,36 @@ const Helpers = {
   },
 
   // Update light/dark image based on current style
-  switchImage(style) {
-    // Handle 'system' style by checking user's preferred color scheme
-    if (style === 'system') {
-      style = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
+  // switchImage(style) {
+  //   // Handle 'system' style by checking user's preferred color scheme
+  //   if (style === 'system') {
+  //     style = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  //   }
 
-    // Get all images that need to be switched
-    const switchImagesList = Array.from(document.querySelectorAll(`[data-app-${style}-img]`))
+  //   // Get all images that need to be switched
+  //   const switchImagesList = Array.from(document.querySelectorAll(`[data-app-${style}-img]`))
 
-    // Loop through the images and update their `src` attribute
-    switchImagesList.forEach(imageEl => {
-      const setImage = imageEl.getAttribute(`data-app-${style}-img`)
-      if (setImage) {
-        const imagePath = `${assetsPath}img/${setImage}` // Using window.assetsPath for relative path
+  //   // Loop through the images and update their `src` attribute
+  //   switchImagesList.forEach(imageEl => {
+  //     const setImage = imageEl.getAttribute(`data-app-${style}-img`)
+  //     if (setImage) {
+  //       const imagePath = `${assetsPath}/assets/img/${setImage}` // Using window.assetsPath for relative path
 
-        // Preload the image to prevent flickering
-        const img = new Image()
-        img.src = imagePath
+  //       // Preload the image to prevent flickering
+  //       const img = new Image()
+  //       img.src = imagePath
 
-        // Once preloaded, set the image and make it visible
-        img.onload = () => {
-          imageEl.src = img.src
-          imageEl.style.visibility = 'visible' // Make the image visible
-        }
+  //       // Once preloaded, set the image and make it visible
+  //       img.onload = () => {
+  //         imageEl.src = img.src
+  //         imageEl.style.visibility = 'visible' // Make the image visible
+  //       }
 
-        // Hide the image during the switch to prevent flickering
-        imageEl.style.visibility = 'hidden'
-      }
-    })
-  },
+  //       // Hide the image during the switch to prevent flickering
+  //       imageEl.style.visibility = 'hidden'
+  //     }
+  //   })
+  // },
 
   // *******************************************************************************
   // * Getters
