@@ -1,54 +1,56 @@
-"use client"
+"use client";
 
-import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package, ChevronRight } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import api from "@/lib/axios"
-import { useEffect, useState } from "react"
-import { Banner } from "@/components/banner"
+import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package, ChevronRight } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import api from "@/lib/axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { useEffect, useState } from "react";
+import { Banner } from "@/components/banner";
 
 interface MobileOrdersProps {
-  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders") => void
-  onBack: () => void
+  onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders") => void;
+  onBack: () => void;
 }
 
 type OrderItem = {
-  order_number: string
-  ordered_at: string
-  payment_status: string
-  fulfillment_status: string
-  units: number
-  skus: number
-  total_paid: number
-  currency_symbol: string
-}
+  order_number: string;
+  ordered_at: string;
+  payment_status: string;
+  fulfillment_status: string;
+  units: number;
+  skus: number;
+  total_paid: number;
+  currency_symbol: string;
+};
 
 export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
-  const [orders, setOrders] = useState<OrderItem[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
+  const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchAll = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         // Fetch a large number to approximate "all"; could be paginated later
-        const res = await api.get('/orders', { params: { limit: 500 } })
-        const json = res?.data
+        const res = await api.get("/orders", { params: { limit: 500 } });
+        const json = res?.data;
         if (json?.success && Array.isArray(json.orders)) {
-          setOrders(json.orders)
+          setOrders(json.orders);
         } else {
-          setOrders([])
+          setOrders([]);
         }
       } catch {
-        setOrders([])
+        setOrders([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    fetchAll()
-  }, [])
+    };
+    fetchAll();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 w-full max-w-[1000px] mx-auto">
+    <div className="min-h-screen w-full max-w-[1000px] mx-auto">
       {/* Header */}
       <header className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 hover:cursor-pointer rounded-full">
@@ -109,19 +111,25 @@ export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
                       </div>
                       <div className="flex justify-between font-semibold">
                         <span className="text-gray-600">Total Paid:</span>
-                        <span className="text-gray-900">{o.currency_symbol}{o.total_paid.toFixed(2)}</span>
+                        <span className="text-gray-900">
+                          {o.currency_symbol}
+                          {o.total_paid.toFixed(2)}
+                        </span>
                       </div>
                     </div>
-                    <ChevronRight onClick={() => {
-                      try {
-                        const setOrder = (window as any).setSelectedOrderNumber
-                        const setPage = (window as any).setCurrentPage
-                        if (typeof setOrder === 'function' && typeof setPage === 'function') {
-                          setOrder(o.order_number)
-                          setPage('order-details')
-                        }
-                      } catch {}
-                    }} className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer" />
+                    <ChevronRight
+                      onClick={() => {
+                        try {
+                          const setOrder = (window as any).setSelectedOrderNumber;
+                          const setPage = (window as any).setCurrentPage;
+                          if (typeof setOrder === "function" && typeof setPage === "function") {
+                            setOrder(o.order_number);
+                            setPage("order-details");
+                          }
+                        } catch {}
+                      }}
+                      className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer"
+                    />
                   </div>
                 </Card>
               ))
@@ -131,28 +139,26 @@ export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
-        <div className="grid grid-cols-4 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Dashboard</span>
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
+        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="text-xs mt-1">Shop</span>
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Wallet className="w-5 h-5" />
-            <span className="text-xs mt-1">Wallet</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Account</span>
           </button>
         </div>
       </nav>
     </div>
-  )
+  );
 }
-
-

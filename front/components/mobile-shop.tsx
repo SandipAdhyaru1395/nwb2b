@@ -5,6 +5,8 @@ import { Search, Filter, X, ShoppingBag, ChevronDown, ChevronUp, Plus, Minus, St
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
 import api from "@/lib/axios";
 
 interface MobileShopProps {
@@ -236,17 +238,17 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col w-full max-w-[1000px] mx-auto">
+    <div className="min-h-screen flex flex-col w-full max-w-[1000px] mx-auto">
       {/* Header */}
       <div className="bg-white py-2 flex items-center border-b">
-        <div className="mx-5 w-6 h-6 bg-green-500 rounded-lg flex items-center justify-center">{showFavorites ? <Star className="w-4 h-4 text-white" /> : <ShoppingBag className="w-4 h-4 text-white" />}</div>
+        <div className="mx-5 w-6 h-6  flex items-center justify-center">{showFavorites ? <Star className="w-4 h-4 text-white" /> : <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} />}</div>
         <h1 className="text-lg font-semibold">{showFavorites ? "Favorites" : "Shop"}</h1>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white py-2 border-b box-shadow-bottom mb-2">
+      <div className="bg-white py-2 border-b box-shadow-bottom mb-2 sticky top-0 z-50">
         <div className="relative flex items-center">
-          <Filter className="w-6 h-6 mx-5 text-green-500" />
+          <FontAwesomeIcon icon={faFilter} className="text-[#3dbe59] text-[24px] mx-5" />
           <div className="flex-1 relative">
             <Search className="absolute top-1/2 transform -translate-y-1/2 w-7 h-7 text-green-500" />
             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 pr-9 bg-gray-50 border-0 py-0" placeholder="Search products..." />
@@ -272,18 +274,20 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
         {/* Basket Summary (shows when items in cart) */}
         {totals.units > 0 && (
-          <div className="bg-white border-b px-4 py-3 space-y-1">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-700">
-                {totals.units} Units | {totals.skus} SKUs
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{format(totals.total)}</span>
+          <div className="bg-white border-b px-4 py-2 space-y-1 box-shadow-top">
+            <div className="flex items-center justify-center text-sm gap-2 pt-1">
+              <span className="text-black font-semibold">{totals.units} Units</span>
+              <span className="spacer"> | </span>
+              <span className="text-black font-semibold">{totals.skus} SKUs</span>
+              <span className="spacer"> | </span>
+              <span className="font-semibold text-black">{format(totals.total)}</span>
+              <span className="spacer"> | </span>
+              <div className="flex items-center">
                 {totalWalletCredit > 0 && (
-                  <span className="inline-flex items-center gap-1 text-green-600 text-xs">
+                  <span className="inline-flex items-center gap-1 text-green-600 text-sm font-semibold">
                     <Wallet className="w-4 h-4" />
                     <span>
                       {symbol}
@@ -294,28 +298,28 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
                 {totals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>}
               </div>
             </div>
-            <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md font-medium hover:cursor-pointer">
+            <div className="text-sm font-semibold text-center text-gray-400 pb-1">Spend {format(4.5)} more for FREE delivery</div>
+            <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-sm font-semibold hover:cursor-pointer text-lg box-shadow-bottom">
               View Basket
             </button>
-            <div className="text:[11px] text-center text-gray-500">Spend {format(4.5)} more for FREE delivery</div>
           </div>
         )}
-        <div className="grid grid-cols-4 py-3 footer-nav-col">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Home className="w-7 h-7 mb-1" />
-            <span className="text-xs">Dashboard</span>
+        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-green-600 hover:text-green-600 hover:cursor-pointer">
-            <ShoppingBag className="w-7 h-7 mb-1" />
-            <span className="text-xs">Shop</span>
+          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Wallet className="w-7 h-7 mb-1" />
-            <span className="text-xs">Wallet</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <User className="w-7 h-7 mb-1" />
-            <span className="text-xs">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Account</span>
           </button>
         </div>
       </nav>
@@ -374,11 +378,11 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
 
   return (
     <div className="space-y-2">
-      <button onClick={() => togglePath(path, depth === 0)} className={`${buttonClasses} ${marginClass} hover:cursor-pointer`}>
+      <button onClick={() => togglePath(path, depth === 0)} className={`${buttonClasses} ${marginClass} hover:cursor-pointer h-[50px]`}>
         <div className={`flex items-center gap-2 ${padClass}`}>
           {hasProducts && (
-            <div className="w-[42px] h-[42px] bg-white rounded border overflow-hidden flex items-center justify-center offer-products">
-              <img src={node?.image || (node.products && node.products[0]?.image)} alt="" className="w-[42px] h-[42px] object-contain" />
+            <div className="w-[42px] h-[42px] bg-white rounded-md border overflow-hidden flex items-center justify-center offer-products">
+              <img src={node?.image || (node.products && node.products[0]?.image)} alt="" className="w-[42px] h-[42px] object-cover" />
             </div>
           )}
           <span className={`font-semibold ${nameTextColorClass}`}>{node.name}</span>
@@ -421,9 +425,9 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
           {hasProducts && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-8 gap-3 px-3">
               {node.products!.map((product) => (
-                <div key={product.id} className="bg-white border-b relative pb-2 offer-plus-sign">
+                <div key={product.id} className="bg-white border-b relative pb-2 offer-plus-sign z-10 w-[113px]">
                   {cart[product.id]?.quantity ? (
-                    <div className="offer-increase-sign absolute right-0 flex items-center gap-2 bg-black rounded-full px-1 shadow-sm">
+                    <div className="offer-increase-sign absolute z-10 right-0 flex items-center gap-2 bg-black rounded-full px-1 shadow-sm w-[113px]">
                       <button onClick={() => onDecrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
                         <Minus className="w-6 h-6" />
                       </button>
@@ -433,23 +437,23 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                       </button>
                     </div>
                   ) : (
-                    <button onClick={() => onIncrement(product)} className="offer-plus-sign absolute right-0 w-8 h-8 bg-black rounded-full flex items-center justify-center hover:cursor-pointer">
+                    <button onClick={() => onIncrement(product)} className="offer-plus-sign z-10 absolute right-0 w-8 h-8 bg-black rounded-full flex items-center justify-center hover:cursor-pointer">
                       <Plus className="w-6 h-6 text-green-500" />
                     </button>
                   )}
 
                   <div className="aspect-square mb-2 flex items-center relative justify-center">
-                    <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-full object-contain" />
+                    <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-[113px] object-contain" />
                     <div className="absolute right-0 bottom-0">
-                      <button onClick={() => onToggleFavorite(product)} className="w-8 h-8 rounded-full border-2 flex items-center justify-center hover:cursor-pointer" aria-label="Toggle favourite" title="Toggle favourite">
-                        <Star className={`w-4 h-4 ${isFavorite(product.id) ? "text-green-600 fill-green-600" : "text-gray-300 fill-gray-300"}`} />
+                      <button onClick={() => onToggleFavorite(product)} className="w-8 h-8 rounded-full border-2 flex items-center justify-center hover:cursor-pointer bg-white" aria-label="Toggle favourite" title="Toggle favourite">
+                        <Star className={`w-[16px] h-[16px] ${isFavorite(product.id) ? "text-[#3dbe59] fill-[#3dbe59]" : "text-[#c0d3c4] fill-[#c0d3c4]"}`} />
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <div>
-                      <span className="font-bold p-1 bg-green-50 flex justify-between offer-product-price gap-3">
+                      <span className="font-bold p-[2px] bg-[#f0f5f1] flex justify-between offer-product-price gap-3">
                         {product.price}
                         {typeof product.wallet_credit === "number" && (
                           <span className="inline-flex items-center text-green-600 text-xs font-semibold">
@@ -462,7 +466,7 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                         )}
                       </span>
                     </div>
-                    <div className="text-left offer-product-name">
+                    <div className="text-left offer-product-name p-1">
                       <span className="text-sm text-black">{product.name}</span>
                     </div>
                   </div>

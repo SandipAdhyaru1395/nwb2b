@@ -3,6 +3,7 @@ import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 import "./custom.css";
+
 import { Toaster } from "@/components/ui/toaster";
 import FaviconProvider from "@/components/favicon-provider";
 import { CurrencyProvider } from "@/components/currency-provider";

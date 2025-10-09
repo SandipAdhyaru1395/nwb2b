@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react";
 import api from "@/lib/axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faBell } from "@fortawesome/free-solid-svg-icons";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
 
@@ -98,8 +100,8 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       {/* Header */}
       <header className="bg-white flex items-center justify-between inner-header-shadow">
         <div className="flex items-center">
-          <div className="mx-5 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-            <House className="w-4 h-4 text-white" />
+          <div className="mx-5 w-6 h-6  flex items-center justify-center">
+            <FontAwesomeIcon icon={faGauge} className="text-green-600" style={{ width: "24px", height: "24px" }} />
           </div>
           <h1 className="font-semibold text-gray-900">Dashboard</h1>
         </div>
@@ -112,120 +114,120 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
           <Banner />
         </div>
 
-        <div className="quickLinksWrapper bg-gray-100 p-3 my-3">
+        <div className="quickLinksWrapper bg-gray-100 p-[10px] my-[10px]">
           {/* Referral Rewards */}
-          <Card className="bg-green-500 border-0 text-white mb-3 rounded-s">
-            <div className="p-3 flex items-center justify-between">
+          <Card className="bg-green-500 border-0 text-white mb-3 rounded-sm">
+            <div className="p-3 flex items-center justify-between referralbox">
               <div>
-                <h3 className="font-semibold text-l">Referral Rewards</h3>
+                <h3 className="font-semibold text-lg">Referral Rewards</h3>
                 <p className="text-sm mt-1 text-black font-semibold">Refer a Retailer to earn Rewards</p>
               </div>
-              <Gift className="w-8 h-8" />
+              {/* <Gift className="w-8 h-8" /> */}
             </div>
           </Card>
 
           {/* Wallet Credit */}
 
           <Card className="hover:bg-green-100 hover:cursor-pointer mb-3">
-            <div className="p-2 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Wallet className="w-4 h-4 text-green-600" />
-                </div>
+            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "16px", height: "16px" }} />
                 <span className="font-semibold text-sm">
                   {symbol}
                   {wallet.toFixed(2)} credit in your wallet
                 </span>
               </div>
-              <ChevronRight className="w-6 h-6 text-gray-400" />
+              <ChevronRight className="w-8 h-8 text-green-600" />
             </div>
           </Card>
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
-              <ShoppingBag className="w-5 h-5 mr-2" />
-              Shop
+          <div className="grid grid-cols-2 gap-[10px]">
+            <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px] gap-0">
+              <FontAwesomeIcon icon={faShop} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ minWidth: "20px", minHeight: "16px" }} />
+              <span className="font-semibold text-[16px]">Shop</span>
             </Button>
-            <Button onClick={() => onNavigate("shop", true)} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white h-12 rounded-lg">
-              <Heart className="w-5 h-5 mr-2" />
-              Favourites
+            <Button onClick={() => onNavigate("shop", true)} className="gap-0 bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px]">
+              <FontAwesomeIcon icon={faStar} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ minWidth: "20px", minHeight: "16px" }} />
+              <span className="font-semibold text-[16px]">Favourites</span>
             </Button>
           </div>
         </div>
 
         {/* Recent Notifications */}
-        <div className="mx-4 mt-6">
-          <h3 className="font-semibold text-gray-900 mb-3 text-sm">Recent Notifications</h3>
+        <div className="p-[10px]">
+          <h3 className="font-semibold text-gray-900 mb-2 text-sm">Recent Notifications</h3>
 
           <Card className="mb-3 hover:bg-green-100 hover:cursor-pointer">
-            <div className="p-2 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Bell className="w-4 h-4 text-green-600" />
-                </div>
+            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {/* <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"> */}
+                <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "14px", height: "16px" }} />
+                {/* </div> */}
                 <span className="text-sm font-semibold">You've left products in your basket</span>
               </div>
-              <ChevronRight className="w-6 h-6 text-gray-400" />
+              <ChevronRight className="w-8 h-8 text-green-600" />
             </div>
           </Card>
 
           <Card className="hover:bg-green-100 hover:cursor-pointer">
-            <div className="p-2 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                  <Bell className="w-4 h-4 text-green-600" />
-                </div>
+            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {/* <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"> */}
+                <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "14px", height: "16px" }} />
+                {/* </div> */}
                 <span className="text-sm font-semibold">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
               </div>
-              <ChevronRight className="w-6 h-6 text-gray-400" />
+              <ChevronRight className="w-8 h-8 text-green-600" />
             </div>
           </Card>
+
+          <div className="border-t mt-3"></div>
         </div>
 
         {/* Recent Orders */}
         {orders.length > 0 && (
-          <div className="mx-4 mt-6">
-            <h3 className="font-semibold text-gray-900 mb-3">Recent Orders</h3>
+          <div className="px-[10px] pt-0 pb-[10px]">
+            <h3 className="font-semibold text-gray-900 mb-2 text-sm">Recent Orders</h3>
 
             {orders.map((o, idx) => (
-              <Card key={o.order_number + idx} className="mb-3">
-                <div className="p-4 flex">
-                  <div className="space-y-2 text-sm w-full pr-4 border-r border-gray-200">
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Order No:</span>
-                      <span className="text-gray-900">{o.order_number}</span>
+              <Card key={o.order_number + idx} className="mb-3 border-gray-300">
+                <div className="py-3 pl-3 pr-1 flex">
+                  <div className="space-y-2 text-sm w-full pr-3 border-r border-gray-300">
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">Order No:</span>
+                      <span className="text-black">{o.order_number}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Ordered:</span>
-                      <span className="text-gray-900">{o.ordered_at}</span>
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">Ordered:</span>
+                      <span className="text-black">{o.ordered_at}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Payment Status:</span>
-                      <span className="text-gray-900">{o.payment_status}</span>
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">Payment Status:</span>
+                      <span className="text-black">{o.payment_status}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Fulfillment Status:</span>
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">Fulfillment Status:</span>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-900">{o.fulfillment_status}</span>
+                        <span className="text-black">{o.fulfillment_status}</span>
                       </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">Units:</span>
-                      <span className="text-gray-900">{o.units}</span>
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">Units:</span>
+                      <span className="text-black">{o.units}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-600">SKUs:</span>
-                      <span className="text-gray-900">{o.skus}</span>
+                    <div className="flex justify-between mb-0">
+                      <span className="text-black">SKUs:</span>
+                      <span className="text-black">{o.skus}</span>
                     </div>
                     <div className="flex justify-between font-semibold">
-                      <span className="text-gray-600">Total Paid:</span>
-                      <span className="text-gray-900">
+                      <span className="text-black">Total Paid:</span>
+                      <span className="text-black">
                         {o.currency_symbol}
                         {o.total_paid.toFixed(2)}
                       </span>
                     </div>
                   </div>
-                  <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer" />
+                  <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-8 h-8 text-green-600 self-center ml-1 cursor-pointer" />
                 </div>
               </Card>
             ))}
@@ -242,7 +244,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                     // ignore
                   }
                 }}
-                className="w-full bg-white border text-green-600 hover:bg-green-50 hover:cursor-pointer"
+                className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
               >
                 View All Orders
               </Button>
@@ -252,23 +254,23 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
-        <div className="grid grid-cols-4 py-3 footer-nav-col">
-          <button className="flex flex-col items-center text-green-600  hover:cursor-pointer">
-            <Home className="w-7 h-7 mb-1" />
-            <span className="text-xs">Dashboard</span>
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
+        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+          <button className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <ShoppingBag className="w-7 h-7 mb-1" />
-            <span className="text-xs">Shop</span>
+          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Wallet className="w-7 h-7 mb-1" />
-            <span className="text-xs">Wallet</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <User className="w-7 h-7 mb-1" />
-            <span className="text-xs">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Account</span>
           </button>
         </div>
       </nav>

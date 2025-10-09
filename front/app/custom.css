@@ -26,7 +26,7 @@
   --box-shadow-top: 0 -6px 6px -6px #666;
   --border-dark: #5b697c;
   --radius-8: 8px;
-  --fa-font-thin-900: normal 900 1em/1 "Font Awesome 6 Pro"
+  --fa-font-thin-900: normal 900 1em/1 "Font Awesome 6 Pro";
 }
 
 /* Login page css start */
@@ -62,7 +62,7 @@ body {
 }
 .loginRegisterWrapper {
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-8);
   padding: 2px;
   display: flex;
 }
@@ -77,13 +77,13 @@ body {
 }
 .loginRegisterWrapper > a,
 .register-main-wrap .loginRegisterWrapper > button {
-  border-radius: 0px var(--radius) var(--radius) 0px;
+  border-radius: 0px var(--radius-8) var(--radius-8) 0px;
   /* background-color: #eee;
   color: #607565; */
 }
 .loginRegisterWrapper > button,
 .register-main-wrap .loginRegisterWrapper > a {
-  border-radius: var(--radius) 0px 0px var(--radius);
+  border-radius: var(--radius-8) 0px 0px var(--radius-8);
   /* background-color: #3dbe59;
   color: #fff; */
 }
@@ -138,7 +138,7 @@ input[type="password"] {
   display: block;
   width: 100%;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-8);
   padding: 16px;
   outline: none;
   margin-bottom: 8px;
@@ -184,12 +184,10 @@ input[type="password"]:not(:placeholder-shown) ~ label {
   line-height: 18px;
   text-align: center;
   padding: 16px;
-  border-radius: var(--radius);
+  border-radius: var(--radius-8);
   border: none;
 }
-/* .loginregisterform .text-blue-600 {
-  color: rgb(0, 0, 238);
-} */
+
 .register-main-wrap .loginregisterform p {
   line-height: 16px;
 }
@@ -213,60 +211,40 @@ input[type="password"]:not(:placeholder-shown) ~ label {
 .quickLinksWrapper p {
   line-height: 16px;
 }
-#app #body a.referralbox {
+.referralbox {
   display: block;
-  background-image: url("/public/referrals-bg.png");
+  background-image: url("./../public/referrals-bg.png");
   background-repeat: no-repeat;
   background-size: 81px 65px;
   font-weight: 600;
-  margin-bottom: 10px;
   background-position: right center;
   text-decoration: none;
   border-radius: 4px;
 }
-/* .footer-nav-col {
-  background: #fff;
-  height: 72px;
-  max-width: 1000px;
-  width: 100vw;
-  min-width: 375px;
-  box-shadow: 0 -6px 6px -6px #666;
-  position: fixed;
-  bottom: 0;
-  display: block;
-  padding: 0 18px;
-  color: #607565;
-  z-index: 1;
-} */
-/* .footer-nav-col svg {
-  height: 28px;
-  width: 100%;
-} */
 .space-y-2 > .w-full {
   padding: 5px 6px 5px 12px;
 }
 .offer-products {
   border: 1px solid var(--border-dark);
-  border-radius: var(--radius-8);
 }
 .offer-product-price {
   font-size: var(--body-font-size);
+  line-height: 20px;
 }
 .offer-product-name {
   line-height: 16px;
-  padding: 4px;
 }
 .offer-product-name > span.text-sm {
   line-height: 16px;
 }
-.offer-plus-sign {
-  z-index: 1;
-}
 .offer-increase-sign {
-  z-index: 1;
   transition: all 0.4s ease;
 }
 
-.footer-nav{
-  z-index:878;
+.footer-nav {
+  z-index: 878;
+}
+
+button.box-shadow-bottom {
+  line-height: 1.35;
 }

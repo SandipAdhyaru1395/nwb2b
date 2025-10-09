@@ -1,30 +1,28 @@
-"use client"
+"use client";
 
-import { ArrowLeft, User, Home, ShoppingBag, Wallet } from "lucide-react"
-import { useCustomer } from "@/components/customer-provider"
-import { Banner } from "@/components/banner"
+import { ArrowLeft, User, Home, ShoppingBag, Wallet } from "lucide-react";
+import { useCustomer } from "@/components/customer-provider";
+import { Banner } from "@/components/banner";
 
 interface MobileRepDetailsProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void
-  onBack: () => void
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void;
+  onBack: () => void;
 }
 
 export function MobileRepDetails({ onNavigate, onBack }: MobileRepDetailsProps) {
-  const { customer } = useCustomer()
-  
+  const { customer } = useCustomer();
 
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word.charAt(0))
-      .join('')
+      .split(" ")
+      .map((word) => word.charAt(0))
+      .join("")
       .toUpperCase()
-      .slice(0, 2)
-  }
-
+      .slice(0, 2);
+  };
 
   return (
-    <div className="w-full max-w-[1000px] mx-auto bg-gray-50 pb-30 min-h-screen">
+    <div className="w-full max-w-[1000px] mx-auto pb-30 min-h-screen">
       {/* Header */}
       <div className="bg-white p-4 flex items-center gap-3 border-b">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 hover:cursor-pointer rounded-full">
@@ -47,9 +45,7 @@ export function MobileRepDetails({ onNavigate, onBack }: MobileRepDetailsProps) 
         <div className="p-4 border-b border-gray-100">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-lg">
-                {getInitials(customer?.name || "RE")}
-              </span>
+              <span className="text-white font-bold text-lg">{getInitials(customer?.name || "RE")}</span>
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-900">{customer?.name || "Your Representative"}</h2>
@@ -74,26 +70,26 @@ export function MobileRepDetails({ onNavigate, onBack }: MobileRepDetailsProps) 
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
-        <div className="grid grid-cols-4 py-2">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Home className="w-5 h-5" />
-            <span className="text-xs mt-1">Dashboard</span>
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50">
+        <div className="grid grid-cols-4 py-3 footer-nav-col">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <Home className="w-7 h-7 mb-1" />
+            <span className="text-xs">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="text-xs mt-1">Shop</span>
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <ShoppingBag className="w-7 h-7 mb-1" />
+            <span className="text-xs">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center py-2 text-gray-400 hover:text-green-600 hover:cursor-pointer">
-            <Wallet className="w-5 h-5" />
-            <span className="text-xs mt-1">Wallet</span>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+            <Wallet className="w-7 h-7 mb-1" />
+            <span className="text-xs">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center py-2 text-green-600 hover:text-green-600 hover:cursor-pointer">
-            <User className="w-5 h-5" />
-            <span className="text-xs mt-1">Account</span>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-green-600 hover:text-green-600 hover:cursor-pointer">
+            <User className="w-7 h-7 mb-1" />
+            <span className="text-xs">Account</span>
           </button>
         </div>
       </nav>
     </div>
-  )
+  );
 }
