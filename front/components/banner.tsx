@@ -11,7 +11,7 @@ export function Banner() {
 
   return (
     <div className="w-full">
-      <img src={settings.banner} alt="Banner" className="w-full h-auto rounded-lg object-cover" style={{ maxHeight: "270px" }} />
+      <img src={settings.banner} alt="Banner" className="w-full h-auto object-cover" style={{ maxHeight: "266.66px" }} />
     </div>
   );
 }

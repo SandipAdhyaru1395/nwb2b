@@ -3,6 +3,7 @@
 import { Card } from "@/components/ui/card";
 import { useCurrency } from "@/components/currency-provider";
 import { Minus, Plus, Home, ShoppingBag, User, Wallet } from "lucide-react";
+import '../app/globals.css';
 import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { useCustomer } from "@/components/customer-provider";
@@ -32,32 +33,32 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
   return (
     <div className="w-full max-w-[1000px] mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="bg-white p-4 flex items-center gap-3 border-b">
-        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-          <Wallet className="w-5 h-5 text-white" />
+      <div className="h-[50px] bg-white flex items-center">
+        <div className="w-[66px] h-8 rounded-full flex items-center justify-center">
+          <Wallet className="w-[24px] h-[24x] text-green-600" />
         </div>
-        <h1 className="text-lg font-semibold text-gray-900">Wallet</h1>
+        <h1 className="text-lg font-semibold text-black-600 text-[16px]">Wallet</h1>
       </div>
 
       {/* Banner */}
       <Banner />
 
       {/* Wallet Content */}
-      <div className="p-4 space-y-6">
+      <div className="p-[10px] space-y-6">
         {/* Wallet Balance */}
 
         <div>
-          <h2 className="text-base font-medium text-gray-900 mb-3">Your wallet balance</h2>
-          <Card className="p-4 border border-gray-200">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center">
+          <h2 className="leading-[16px] text-base font-semibold text-gray-900 mb-3">Your wallet balance</h2>
+          <Card className="mt-[8px] p-[13px] border border-green-600">
+            <div className="flex items-center justify-center font-proxima font-[800] text-[24px]">
+              <div className="w-[24px] h-[24px] bg-green-500 rounded flex items-center justify-center">
                 <span className="text-white text-xs font-bold">{symbol}</span>
               </div>
-              <span className="text-xl font-semibold text-gray-900">
+              <span className="text-xl  mx-[4px]  ">
                 {symbol}
                 {wallet.toFixed(2)}
               </span>
-              <span className="text-green-600 font-medium">Credit</span>
+              <span className="text-green-600">Credit</span>
             </div>
           </Card>
         </div>

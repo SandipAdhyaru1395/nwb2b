@@ -10,6 +10,12 @@
   font-weight: 600;
 }
 
+@font-face {
+  font-family: "proxima-nova";
+  src: url("fonts/proxima-nova-800.woff2") format("woff2");
+  font-weight: 800;
+}
+
 :root {
   --site-font-family: "proxima-nova" !important;
   --placeholder-text-color: rgba(117, 117, 117);
@@ -20,6 +26,7 @@
   --box-shadow-top: 0 -6px 6px -6px #666;
   --border-dark: #5b697c;
   --radius-8: 8px;
+  --fa-font-thin-900: normal 900 1em/1 "Font Awesome 6 Pro"
 }
 
 /* Login page css start */
