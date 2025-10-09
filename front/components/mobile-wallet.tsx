@@ -8,6 +8,8 @@ import { useEffect, useState } from "react";
 import api from "@/lib/axios";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGauge, faShop, faUser, faWallet } from "@fortawesome/free-solid-svg-icons";
 
 interface ProductItem {
   id: number;
@@ -35,7 +37,7 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       {/* Header */}
       <div className="h-[50px] bg-white flex items-center">
         <div className="w-[66px] h-8 rounded-full flex items-center justify-center">
-          <Wallet className="w-[24px] h-[24x] text-green-600" />
+          <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "30px", height: "24px" }} />
         </div>
         <h1 className="text-lg font-semibold text-black-600 text-[16px]">Wallet</h1>
       </div>
@@ -50,9 +52,7 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
           <h2 className="leading-[16px] text-base font-semibold text-gray-900 mb-0">Your wallet balance</h2>
           <Card className="mt-[8px] p-[13px] border border-green-600 max-h-[53px] leading-[12px] mb-0">
             <div className="flex items-center justify-center font-proxima font-[800] text-[24px]">
-              <div className="w-[24px] h-[24px] bg-green-500 rounded flex items-center justify-center">
-                <span className="text-white text-xs font-bold">{symbol}</span>
-              </div>
+              <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "30px", height: "24px" }} />
               <span className="text-[24px] mx-[4px]  ">
                 {symbol}
                 {wallet.toFixed(2)}
@@ -86,7 +86,7 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
+      {/* <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-3 footer-nav-col">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-7 h-7 mb-1" />
@@ -105,7 +105,29 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
             <span className="text-xs">Account</span>
           </button>
         </div>
-      </nav>
+      </nav> */}
+
+      {/* Bottom Navigation */}
+            <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
+              <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+                <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                  <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+                  <span className="text-xs mt-[5px]">Dashboard</span>
+                </button>
+                <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                  <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
+                  <span className="text-xs mt-[5px]">Shop</span>
+                </button>
+                <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                  <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+                  <span className="text-xs mt-[5px]">Wallet</span>
+                </button>
+                <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                  <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
+                  <span className="text-xs mt-[5px]">Account</span>
+                </button>
+              </div>
+            </nav>
     </div>
   );
 }

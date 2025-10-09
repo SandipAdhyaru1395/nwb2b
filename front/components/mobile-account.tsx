@@ -5,6 +5,8 @@ import { Banner } from "@/components/banner";
 import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faGauge, faShop, faUser, faWallet } from "@fortawesome/free-solid-svg-icons";
 
 interface ProductItem {
   id: number;
@@ -50,7 +52,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       {/* Header */}
       <div className="h-[50px] bg-white flex items-center">
         <div className="w-[66px] h-8 rounded-full flex items-center justify-center">
-          <User className="w-[24px] h-[24x] text-green-600" />
+          <FontAwesomeIcon icon={faUser} className="text-green-600" style={{ width: "30px", height: "24px" }} />
         </div>
         <h1 className="text-lg font-semibold text-black-600 text-[16px]">Account</h1>
       </div>
@@ -128,40 +130,40 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         <hr className="mt-[20px] mb-[20px]"></hr>
 
         {/* Settings Section */}
-        
-          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center">
-              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-                <Bell className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="text-[14px] font-semibold ml-[10px]">My Notification Preferences</span>
-            </div>
-            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
-          </Button>
 
-          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
-            <div className="flex items-center">
-              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-                <Shield className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="text-[14px] font-semibold ml-[10px]">My Authentication Settings</span>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <Bell className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
-          </Button>
+            <span className="text-[14px] font-semibold ml-[10px]">My Notification Preferences</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
 
-          <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
-            <div className="flex items-center">
-              <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-                <LogOut className="w-4 h-4 text-green-600" />
-              </div>
-              <span className="text-[14px] font-semibold ml-[10px]">Logout</span>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <Shield className="w-4 h-4 text-green-600" />
             </div>
-            <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
-          </Button>
+            <span className="text-[14px] font-semibold ml-[10px]">My Authentication Settings</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
+
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
+          <div className="flex items-center">
+            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+              <LogOut className="w-4 h-4 text-green-600" />
+            </div>
+            <span className="text-[14px] font-semibold ml-[10px]">Logout</span>
+          </div>
+          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+        </Button>
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
+      {/* <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-3 footer-nav-col">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
             <Home className="w-7 h-7 mb-1" />
@@ -178,6 +180,28 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-green-600 hover:text-green-600 hover:cursor-pointer">
             <User className="w-7 h-7 mb-1" />
             <span className="text-xs">Account</span>
+          </button>
+        </div>
+      </nav> */}
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
+        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Dashboard</span>
+          </button>
+          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Shop</span>
+          </button>
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Wallet</span>
+          </button>
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+            <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
+            <span className="text-xs mt-[5px]">Account</span>
           </button>
         </div>
       </nav>
