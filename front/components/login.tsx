@@ -91,8 +91,8 @@ export default function Login() {
   return (
     <div className="w-full max-w-[1000px] mx-auto pb-50 login-main-wrap">
       {/* Logo */}
-      <div className="flex justify-center py-2 header-logo">
-        <img width={67.8} height={36} src={settings?.company_logo_url || "placeholder-logo.png"} alt={settings?.company_title || "Logo"} className="h-10" />
+      <div className="flex items-center justify-center h-[50px] shadow-[0_6px_6px_-6px_#666]">
+        <img className="h-[36px] w-[67.8px] my-[7px]" src={settings?.company_logo_url || "placeholder-logo.png"} alt={settings?.company_title || "Logo"} />
       </div>
 
       {/* Tabs */}
@@ -107,8 +107,8 @@ export default function Login() {
         <div className="border-t my-5"></div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4 loginregisterform">
-          <FloatingInput type="email" label="Email" placeholder="Please enter your email address..." {...register("email", { required: "Email is required", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" } })} error={errors.email?.message} />
+        <form onSubmit={handleSubmit(onSubmit)} noValidate className="loginregisterform">
+          <FloatingInput type="email" label="Email Address" placeholder="Please enter your email address..." {...register("email", { required: "Email is required", pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: "Enter a valid email address" } })} error={errors.email?.message} />
           <FloatingInput type="password" label="Password" placeholder="Please enter your password..." {...register("password", { required: "Password is required", minLength: { value: 6, message: "Password must be at least 6 characters" } })} error={errors.password?.message} />
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
@@ -118,7 +118,7 @@ export default function Login() {
             {loading ? "Signing in..." : "Login"}
           </button>
 
-          <p className="text-s text-black-600">
+          <p className="text-s text-black-600 my-[16px] leading-[16px]">
             By selecting Login, you agree to our{" "}
             <a className="text-blue-600" href="#">
               Terms & Conditions
