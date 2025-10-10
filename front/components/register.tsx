@@ -104,8 +104,8 @@ export default function Register() {
   return (
     <div className="w-full max-w-[1000px] mx-auto pb-50 register-main-wrap">
       {/* Logo */}
-      <div className="flex justify-center py-2 header-logo">
-        <img width={67.8} height={36} src={settings?.company_logo_url || "/placeholder-logo.png"} alt={settings?.company_title || "Logo"} className="h-10" />
+      <div className="flex items-center justify-center h-[50px] shadow-[0_6px_6px_-6px_#666]">
+        <img className="h-[36px] w-[67.8px] my-[7px]" src={settings?.company_logo_url || "placeholder-logo.png"} alt={settings?.company_title || "Logo"} />
       </div>
 
       <div className="overflow-hidden wrapper-space">

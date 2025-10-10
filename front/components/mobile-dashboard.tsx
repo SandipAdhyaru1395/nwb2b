@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faBell } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faBell, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
 
@@ -100,7 +100,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       {/* Header */}
       <header className="bg-white flex items-center justify-between inner-header-shadow">
         <div className="flex items-center">
-          <div className="mx-5 w-6 h-6  flex items-center justify-center">
+          <div className="w-[66px] h-6  flex items-center justify-center">
             <FontAwesomeIcon icon={faGauge} className="text-green-600" style={{ width: "24px", height: "24px" }} />
           </div>
           <h1 className="font-semibold text-gray-900">Dashboard</h1>
@@ -116,8 +116,8 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
 
         <div className="quickLinksWrapper bg-gray-100 p-[10px] my-[10px]">
           {/* Referral Rewards */}
-          <Card className="bg-green-500 border-0 text-white mb-3 rounded-sm">
-            <div className="p-3 flex items-center justify-between referralbox">
+          <Card className="bg-green-500 border-0 text-white mb-[10px] rounded">
+            <div className="p-[14px] flex items-center justify-between referralbox">
               <div>
                 <h3 className="font-semibold text-lg">Referral Rewards</h3>
                 <p className="text-sm mt-1 text-black font-semibold">Refer a Retailer to earn Rewards</p>
@@ -128,8 +128,8 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
 
           {/* Wallet Credit */}
 
-          <Card className="hover:bg-green-100 hover:cursor-pointer mb-3">
-            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
+          <Card className="p-[12px] mb-[10px] hover:bg-green-100 hover:cursor-pointer">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "16px", height: "16px" }} />
                 <span className="font-semibold text-sm">
@@ -137,7 +137,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                   {wallet.toFixed(2)} credit in your wallet
                 </span>
               </div>
-              <ChevronRight className="w-8 h-8 text-green-600" />
+              <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
             </div>
           </Card>
           {/* Action Buttons */}
