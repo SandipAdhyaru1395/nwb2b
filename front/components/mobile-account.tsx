@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Banner } from "@/components/banner";
 import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import revoLogoImg from "@/assets/icons/revo-logo.png";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faUser, faWallet } from "@fortawesome/free-solid-svg-icons";
+import { faBarChart, faBell, faBuilding, faChevronRight, faFileSignature, faGauge, faLock, faShop, faStore, faUser, faUserTie, faWallet } from "@fortawesome/free-solid-svg-icons";
+import { JSX } from "react";
 
 interface ProductItem {
   id: number;
@@ -27,6 +29,14 @@ interface MobileAccountProps {
 
 export function MobileAccount({ onNavigate }: MobileAccountProps) {
   const router = useRouter();
+
+  const revoLogo: JSX.Element = (
+  <img
+    src={revoLogoImg.src}           
+    className="w-[20px] h-[20px] overflow-visible"
+    alt="Revo Logo"
+  />
+);
 
   const handleLogout = async () => {
     try {
@@ -65,32 +75,32 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         {/* Account Details Section */}
         <Button variant="outline" onClick={() => onNavigate("rep-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <User className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] flex items-center justify-center">
+              <FontAwesomeIcon icon={faUserTie} className="text-green-600" style={{ width: "14px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">My Rep Details</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <Button variant="outline" onClick={() => onNavigate("company-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <Building className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faBuilding} className="text-green-600" style={{ width: "12px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">My Company</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <GitBranch className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faStore} className="text-green-600" style={{ width: "18px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">My Branches</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <hr className="mt-[20px] mb-[20px]"></hr>
@@ -98,33 +108,33 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         {/* Utilities Section */}
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <Lightbulb className="w-4 h-4 text-yellow-600" />
+            <div className="w-[16px] h-[20px] rounded-full flex items-center justify-center ">
+              {revoLogo}
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">Revo Utilities - guaranteed to reduce your bills!</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         {/* Services Section */}
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <BarChart3 className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faBarChart} className="text-green-600" style={{ width: "20px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">Services & Display Solutions</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <FileText className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faFileSignature} className="text-green-600" style={{ width: "16px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">Contracts</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <hr className="mt-[20px] mb-[20px]"></hr>
@@ -133,32 +143,32 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <Bell className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "16px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">My Notification Preferences</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
-              <Shield className="w-4 h-4 text-green-600" />
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
+              <FontAwesomeIcon icon={faLock} className="text-green-600" style={{ width: "16px", height: "16px" }} />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">My Authentication Settings</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
           <div className="flex items-center">
-            <div className="w-[16px] h-[16px] bg-green-100 rounded-full flex items-center justify-center">
+            <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <LogOut className="w-4 h-4 text-green-600" />
             </div>
             <span className="text-[14px] font-semibold ml-[10px]">Logout</span>
           </div>
-          <ChevronRight width={12.5} height={16} strokeWidth={1.5} className="scale-200 text-green-600" />
+          <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
       </div>
 
