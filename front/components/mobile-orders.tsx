@@ -4,7 +4,7 @@ import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package, ChevronRight } fro
 import { Card } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Banner } from "@/components/banner";
 
@@ -52,7 +52,7 @@ export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
   return (
     <div className="min-h-screen w-full max-w-[1000px] mx-auto">
       {/* Header */}
-      <header className="bg-white px-4 py-3 flex items-center gap-3 border-b">
+      {/* <header className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 hover:cursor-pointer rounded-full">
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
@@ -62,6 +62,13 @@ export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
           </div>
           <span className="text-sm text-gray-600">Orders</span>
         </div>
+      </header> */}
+
+      <header className="bg-white flex items-center border-b h-[50px]">
+        <div className="w-[66px] h-[25px] flex items-center justify-center">
+          <FontAwesomeIcon icon={faTruck} className="text-green-600" style={{ width: "30px", height: "24px" }} />
+        </div>
+        <span className="text-[16px] font-semibold">Orders</span>
       </header>
 
       {/* Banner */}

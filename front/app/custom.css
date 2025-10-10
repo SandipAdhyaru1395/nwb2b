@@ -27,6 +27,7 @@
   --border-dark: #5b697c;
   --radius-8: 8px;
   --fa-font-thin-900: normal 900 1em/1 "Font Awesome 6 Pro";
+  --border-btn-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
 }
 
 /* Login page css start */
@@ -247,4 +248,14 @@ input[type="password"]:not(:placeholder-shown) ~ label {
 
 button.box-shadow-bottom {
   line-height: 1.35;
+}
+
+.border-btn-shadow {
+  box-shadow: var(--border-btn-shadow);
+}
+.pricesWrapper {
+  line-height: 16px;
+}
+.line-16 {
+  line-height: 16px;
 }

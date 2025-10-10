@@ -87,6 +87,7 @@ export default function Home() {
         decrement={decrement}
         totals={totals}
         clearCart={clearCart}
+        onBack={() => setCurrentPage("shop")}
       />
     )
   }

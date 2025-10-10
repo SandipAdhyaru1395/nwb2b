@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "@/lib/axios";
 
 interface MobileShopProps {
@@ -240,18 +240,22 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
   return (
     <div className="min-h-screen flex flex-col w-full max-w-[1000px] mx-auto">
       {/* Header */}
-      <div className="bg-white py-2 flex items-center border-b">
-        <div className="mx-5 w-6 h-6  flex items-center justify-center">{showFavorites ? <Star className="w-4 h-4 text-white" /> : <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} />}</div>
-        <h1 className="text-lg font-semibold">{showFavorites ? "Favorites" : "Shop"}</h1>
+      <div className="h-[50px] bg-white flex items-center border-b">
+        <div className="w-[66px] h-[25px] flex items-center justify-center">
+          {showFavorites ? <FontAwesomeIcon icon={faStar} className="text-green-600" style={{ width: "24px", height: "24px" }} /> : <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} />}
+        </div>
+        <h1 className="text-[16px] font-semibold">{showFavorites ? "Favorites" : "Shop"}</h1>
       </div>
 
       {/* Search Bar */}
-      <div className="bg-white py-2 border-b box-shadow-bottom mb-2 sticky top-0 z-50">
-        <div className="relative flex items-center">
-          <FontAwesomeIcon icon={faFilter} className="text-[#3dbe59] text-[24px] mx-5" />
+      <div className="bg-white border-b box-shadow-bottom mb-2 sticky top-0 z-50 h-[50px]">
+        <div className="relative flex items-center pt-[7px] pb-[6px]">
+          <div className="w-[66px] h-[25px] flex items-center justify-center">
+            <FontAwesomeIcon icon={faFilter} className="text-green-600" style={{ width: "21px", height: "24px" }} />
+          </div>
           <div className="flex-1 relative">
-            <Search className="absolute top-1/2 transform -translate-y-1/2 w-7 h-7 text-green-500" />
-            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 pr-9 bg-gray-50 border-0 py-0" placeholder="Search products..." />
+            <FontAwesomeIcon icon={faSearch} className="text-green-600 absolute top-1/2 transform -translate-y-1/2" style={{ width: "24px", height: "24px" }} />
+            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-[32px] pr-9 bg-transparent shadow-none border-0 py-0" placeholder="Search products..." />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <X className="w-4 h-4 text-gray-400" />
@@ -274,11 +278,11 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
+      <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50">
         {/* Basket Summary (shows when items in cart) */}
         {totals.units > 0 && (
-          <div className="bg-white border-b px-4 py-2 space-y-1 box-shadow-top">
-            <div className="flex items-center justify-center text-sm gap-2 pt-1">
+          <div className="bg-white border-b px-4 py-2 box-shadow-top">
+            <div className="flex items-center justify-center text-sm gap-2 pt-1 h-[20px]">
               <span className="text-black font-semibold">{totals.units} Units</span>
               <span className="spacer"> | </span>
               <span className="text-black font-semibold">{totals.skus} SKUs</span>
@@ -288,7 +292,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
               <div className="flex items-center">
                 {totalWalletCredit > 0 && (
                   <span className="inline-flex items-center gap-1 text-green-600 text-sm font-semibold">
-                    <Wallet className="w-4 h-4" />
+                    <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "14px", height: "14px" }} />
                     <span>
                       {symbol}
                       {totalWalletCredit.toFixed(2)}
@@ -298,13 +302,13 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
                 {totals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>}
               </div>
             </div>
-            <div className="text-sm font-semibold text-center text-gray-400 pb-1">Spend {format(4.5)} more for FREE delivery</div>
+            <div className="text-sm font-semibold text-center text-[#999] py-1">Spend {format(4.5)} more for FREE delivery</div>
             <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-sm font-semibold hover:cursor-pointer text-lg box-shadow-bottom">
               View Basket
             </button>
           </div>
         )}
-        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
+        <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col px-[18px]">
           <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Dashboard</span>

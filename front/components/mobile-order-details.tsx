@@ -4,7 +4,7 @@ import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package } from "lucide-reac
 import { Card } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Banner } from "@/components/banner";
 
@@ -62,7 +62,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
   return (
     <div className="min-h-screen w-full max-w-[1000px] mx-auto">
       {/* Header */}
-      <header className="bg-white px-4 py-3 flex items-center gap-3 border-b">
+      {/* <header className="bg-white px-4 py-3 flex items-center gap-3 border-b">
         <button onClick={onBack} className="p-2 hover:bg-gray-100 hover:cursor-pointer rounded-full">
           <ArrowLeft className="w-5 h-5 text-gray-600" />
         </button>
@@ -72,6 +72,17 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
           </div>
           <span className="text-sm text-gray-600">Orders / Details - {orderNumber}</span>
         </div>
+      </header> */}
+
+      <header className="bg-white flex items-center border-b h-[50px]">
+        <div className="w-[66px] h-[25px] flex items-center justify-center">
+          <FontAwesomeIcon icon={faTruck} className="text-green-600" style={{ width: "30px", height: "24px" }} />
+        </div>
+        <span onClick={onBack} className="text-sm text-[#ccc] text-[12px] hover:cursor-pointer hover:underline">
+          Orders
+        </span>
+        &nbsp;<span className="text-sm text-[#ccc] text-[12px]"> /</span>
+        &nbsp;<span className="text-[16px] font-semibold">Details - {orderNumber}</span>
       </header>
 
       {/* Banner */}
@@ -90,7 +101,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
         ) : (
           <>
             {/* Order Summary (exact style with three sections and right-aligned values) */}
-            <div className="p-[10px]">
+            <div className="px-[10px] pt-[10px]">
               <h3 className="font-semibold text-gray-900 mb-2">Order Summary</h3>
               <div className="bg-white border border-gray-300 rounded-md p-[14px]">
                 {/* Order details row */}
@@ -99,12 +110,12 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                     <span className="font-semibold text-sm text-black">Order details</span>
                     <div className="text-sm w-40">
                       <div className="flex justify-between mb-1 text-right">
-                        <span className="text-black text-right w-52">Units</span>
-                        <span className="text-black text-right w-52">{order.units}</span>
+                        <span className="text-black w-[120px]">Units</span>
+                        <span className="text-black w-[80px]">{order.units}</span>
                       </div>
                       <div className="flex justify-between text-right">
-                        <span className="text-black text-right w-52">SKUs</span>
-                        <span className="text-black text-right w-52">{order.skus}</span>
+                        <span className="text-black w-[120px]">SKUs</span>
+                        <span className="text-black w-[80px]">{order.skus}</span>
                       </div>
                     </div>
                   </div>
@@ -130,33 +141,33 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                     <span className="font-semibold text-sm text-black">Summary</span>
                     <div className="text-sm w-44">
                       <div className="flex justify-between text-right mb-1">
-                        <span className="text-black w-52">Subtotal</span>
-                        <span className="text-black w-52">
+                        <span className="text-black w-[120px]">Subtotal</span>
+                        <span className="text-black w-[80px]">
                           {order.currency_symbol}
                           {order.subtotal.toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between text-right mb-1">
-                        <span className="text-black w-52">Wallet Discount</span>
-                        <span className="text-black w-52">
+                        <span className="text-black w-[120px]">Wallet Discount</span>
+                        <span className="text-black w-[80px]">
                           {order.currency_symbol}
                           {order.wallet_discount.toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between text-right mb-1">
-                        <span className="text-black w-52">Delivery</span>
-                        <span className="text-black w-52">{order.delivery}</span>
+                        <span className="text-black w-[120px]">Delivery</span>
+                        <span className="text-black w-[80px]">{order.delivery}</span>
                       </div>
                       <div className="flex justify-between text-right mb-1">
-                        <span className="text-black w-52">VAT (20%)</span>
-                        <span className="text-black w-52">
+                        <span className="text-black w-[120px]">VAT (20%)</span>
+                        <span className="text-black w-[80px]">
                           {order.currency_symbol}
                           {order.vat_amount.toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between font-semibold text-right">
-                        <span className="text-black w-52">Payment Total</span>
-                        <span className="text-black w-52">
+                        <span className="text-black w-[120px]">Payment Total</span>
+                        <span className="text-black w-[80px]">
                           {order.currency_symbol}
                           {((order as any).payment_amount ?? Math.max(0, (order.total_paid ?? 0) - ((order as any).wallet_credit_used ?? 0))).toFixed(2)}
                         </span>
@@ -184,7 +195,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                       setReordering(false);
                     }
                   }}
-                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-lg py-[50px] rounded-md box-shadow-bottom"
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-lg py-[13px] rounded-md box-shadow-bottom"
                 >
                   {reordering ? "Reordering…" : "Reorder Items"}
                 </button>
@@ -194,22 +205,22 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
             {/* Addresses removed per request */}
 
             {/* Order Lines */}
-            <div className="mx-4 mt-10">
-              <h3 className="font-semibold text-gray-900 mb-3">Order Lines</h3>
+            <div className="px-[10px]">
+              <h3 className="font-semibold text-gray-900 mb-[10px] mt-[20px] line-16">Order Lines</h3>
               {order.items.map((it, idx) => (
-                <div key={it.product_id + "-" + idx} className="py-4 border-b last:border-b-0">
+                <div key={it.product_id + "-" + idx} className="pt-[16px] pb-[15px] border-t last:border-y">
                   <div className="grid grid-cols-[1fr_64px_80px] items-center gap-4">
                     {/* Product info */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      {it.product_image ? <img src={it.product_image} alt="" className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-gray-100" />}
-                      <div className="truncate">
+                    <div className="flex items-start min-w-0">
+                      {it.product_image ? <img src={it.product_image} alt="" className="w-[50px] h-[50px] mr-[10px] object-cover" /> : <div className="w-[50px] h-[50px] mr-[10px] bg-gray-100" />}
+                      <div className="truncate flex-1">
                         <div className="font-medium text-gray-900 truncate">{it.product_name || `Product #${it.product_id}`}</div>
                       </div>
                     </div>
                     {/* Quantity */}
-                    <div className="text-gray-800 text-sm text-center">{it.quantity}</div>
+                    <div className="text-gray-800 text-sm text-center flex-1 w-[100px] text-right">{it.quantity}</div>
                     {/* Line total */}
-                    <div className="text-right font-semibold text-gray-900">
+                    <div className="text-right font-semibold text-gray-900 flex-1">
                       {order.currency_symbol}
                       {it.total_price.toFixed(2)}
                     </div>
