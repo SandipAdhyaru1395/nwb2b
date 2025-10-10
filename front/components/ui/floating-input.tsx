@@ -24,14 +24,17 @@ const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(function 
         type={type}
         value={value}
         onChange={onChange}
-        className={`peer w-full rounded px-3 pt-5 pb-2 mt-1 outline-none placeholder-gray-400 focus:placeholder-transparent transition-all duration-150 peer-focus:pt-7 ${error ? 'border-red-500 focus:border-red-600 border' : 'border focus:border-black/70'} ${rest.className || ''}`}
+        className={`peer w-full rounded px-[16px] py-[16px] mt-1 outline-none placeholder-gray-400 focus:placeholder-transparent transition-all duration-150
+          focus:!px-[16px] focus:!pt-[22px] focus:!pb-[10px]
+          [&:not(:placeholder-shown)]:!px-[16px] [&:not(:placeholder-shown)]:!pt-[22px] [&:not(:placeholder-shown)]:!pb-[10px] [&:not(:placeholder-shown)]:placeholder-transparent
+          ${error ? 'border-red-500 focus:border-red-600 border' : 'border focus:border-black/70'} ${rest.className || ''}`}
         placeholder={placeholder}
         {...rest}
       />
       <label
         htmlFor={id}
-        className={`absolute left-3 top-2 ${error ? 'text-red-600' : 'text-gray-600'} text-[10px] transition-opacity duration-150 pointer-events-none bg-transparent
-          opacity-0 peer-focus:opacity-100
+        className={`absolute left-3 top-2 ${error ? 'text-red-600' : 'text-gray-400'} text-[10px] transition-opacity duration-150 pointer-events-none bg-transparent
+          opacity-0 peer-focus:opacity-100 peer-[:not(:placeholder-shown)]:opacity-100
         `}
       >
         {label}
