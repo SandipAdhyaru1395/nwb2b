@@ -259,3 +259,6 @@ button.box-shadow-bottom {
 .line-16 {
   line-height: 16px;
 }
+.delivery-info div:empty {
+  display: none;
+}
