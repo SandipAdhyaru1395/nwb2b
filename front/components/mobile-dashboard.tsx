@@ -36,7 +36,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
           setOrders(json.orders);
           try {
             sessionStorage.setItem("orders_cache", JSON.stringify({ at: Date.now(), orders: json.orders }));
-          } catch {}
+          } catch { }
         }
       } catch (e) {
         // ignore
@@ -46,7 +46,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         }
         try {
           sessionStorage.removeItem("orders_needs_refresh");
-        } catch {}
+        } catch { }
       }
     };
 
@@ -58,7 +58,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         refreshed = true;
         fetchOrders();
       }
-    } catch {}
+    } catch { }
 
     // 2) Otherwise, use cache if present; if not, fetch once (first login)
     if (!refreshed) {
@@ -108,7 +108,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       </header>
 
       {/* Main Content */}
-      <main className="pb-20">
+      <main className="pb-19">
         {/* Banner */}
         <div className="mt-0">
           <Banner />
@@ -128,11 +128,11 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
 
           {/* Wallet Credit */}
 
-          <Card className="p-[12px] mb-[10px] hover:bg-green-100 hover:cursor-pointer">
-            <div className="flex items-center justify-between">
+          <Card onClick={() => onNavigate("wallet")} className="p-[12px] mb-[10px] hover:bg-green-100 hover:cursor-pointer">
+            <div className="flex items-center justify-between h-[16px]">
               <div className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "16px", height: "16px" }} />
-                <span className="font-semibold text-sm">
+                <span className="font-semibold text-sm h-[16px] leading-[16px]">
                   {symbol}
                   {wallet.toFixed(2)} credit in your wallet
                 </span>
@@ -143,7 +143,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-[10px]">
             <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px] gap-0">
-              <FontAwesomeIcon icon={faShop} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ minWidth: "20px", minHeight: "16px" }} />
+              <FontAwesomeIcon icon={faShop} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ width: "20px", height: "16px" }} />
               <span className="font-semibold text-[16px]">Shop</span>
             </Button>
             <Button onClick={() => onNavigate("shop", true)} className="gap-0 bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px]">
@@ -154,101 +154,103 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         </div>
 
         {/* Recent Notifications */}
-        <div className="p-[10px]">
-          <h3 className="font-semibold text-gray-900 mb-2 text-sm">Recent Notifications</h3>
-
-          <Card className="mb-3 hover:bg-green-100 hover:cursor-pointer">
-            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
-              <div className="flex items-center gap-2">
+        <h3 className="font-semibold text-gray-900 my-[10px] text-[14px] px-[10px] leading-[16px]">Recent Notifications</h3>
+        <div className="my-[10px] px-[10px]">
+          <Card className="h-[42px] mb-[10px] p-[12px] hover:bg-green-100 hover:cursor-pointer">
+            <div className="h-[16px] flex items-center justify-between leading-[16px]">
+              <div className="flex items-center leading-[16px]">
                 {/* <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"> */}
                 <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "14px", height: "16px" }} />
                 {/* </div> */}
-                <span className="text-sm font-semibold">You've left products in your basket</span>
+                <span className="text-sm font-semibold mx-[10px] text-[14px] leading-[16px]">You've left products in your basket</span>
               </div>
-              <ChevronRight className="w-8 h-8 text-green-600" />
+              <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
             </div>
           </Card>
-
-          <Card className="hover:bg-green-100 hover:cursor-pointer">
-            <div className="py-1 pl-3 pr-1 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {/* <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center"> */}
+          <Card className="h-[42px] mb-[10px] p-[12px] hover:bg-green-100 hover:cursor-pointer">
+            <div className="h-[16px] flex items-center justify-between leading-[16px]">
+              <div className="flex items-center leading-[16px]">
+                {/* <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"> */}
                 <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "14px", height: "16px" }} />
                 {/* </div> */}
-                <span className="text-sm font-semibold">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
+                <span className="text-sm font-semibold mx-[10px] text-[14px] leading-[16px]">Lost Mary Nera 30K ONE DAY PROMOTION!</span>
               </div>
-              <ChevronRight className="w-8 h-8 text-green-600" />
+              <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
             </div>
           </Card>
-
-          <div className="border-t mt-3"></div>
         </div>
+
+        <hr className="m-[10px]"></hr>
 
         {/* Recent Orders */}
         {orders.length > 0 && (
-          <div className="px-[10px] pt-0 pb-[10px]">
-            <h3 className="font-semibold text-gray-900 mb-2 text-sm">Recent Orders</h3>
+          <div>
+            <h3 className="font-semibold text-gray-900 my-[10px] px-[10px] leading-[16px] text-[14px]">Recent Orders</h3>
 
             {orders.map((o, idx) => (
-              <Card key={o.order_number + idx} className="mb-3 border-gray-300">
-                <div className="py-3 pl-3 pr-1 flex">
-                  <div className="space-y-2 text-sm w-full pr-3 border-r border-gray-300">
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">Order No:</span>
-                      <span className="text-black">{o.order_number}</span>
-                    </div>
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">Ordered:</span>
-                      <span className="text-black">{o.ordered_at}</span>
-                    </div>
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">Payment Status:</span>
-                      <span className="text-black">{o.payment_status}</span>
-                    </div>
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">Fulfillment Status:</span>
-                      <div className="flex items-center gap-1">
-                        <span className="text-black">{o.fulfillment_status}</span>
+              <div key={o.order_number + idx} className="my-[10px] px-[10px]">
+                <Card className="mb-[10px] py-[12px] pl-[12px] border-gray-300">
+                  <div className="flex">
+                    <div className="space-y-2 text-sm w-full pr-3 border-r border-gray-300">
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Order No:</span>
+                        <span className="text-black">{o.order_number}</span>
+                      </div>
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Ordered:</span>
+                        <span className="text-black">{o.ordered_at}</span>
+                      </div>
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Payment Status:</span>
+                        <span className="text-black">{o.payment_status}</span>
+                      </div>
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Fulfillment Status:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-black">{o.fulfillment_status}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Units:</span>
+                        <span className="text-black">{o.units}</span>
+                      </div>
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">SKUs:</span>
+                        <span className="text-black">{o.skus}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold">
+                        <span className="text-black">Total Paid:</span>
+                        <span className="text-black">
+                          {o.currency_symbol}
+                          {o.total_paid.toFixed(2)}
+                        </span>
                       </div>
                     </div>
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">Units:</span>
-                      <span className="text-black">{o.units}</span>
-                    </div>
-                    <div className="flex justify-between mb-0">
-                      <span className="text-black">SKUs:</span>
-                      <span className="text-black">{o.skus}</span>
-                    </div>
-                    <div className="flex justify-between font-semibold">
-                      <span className="text-black">Total Paid:</span>
-                      <span className="text-black">
-                        {o.currency_symbol}
-                        {o.total_paid.toFixed(2)}
-                      </span>
-                    </div>
+                    <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-8 h-8 text-green-600 self-center ml-1 cursor-pointer" />
                   </div>
-                  <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-8 h-8 text-green-600 self-center ml-1 cursor-pointer" />
+                </Card>
+                <div className="mt-2">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        // const res = await api.get('/orders')
+                        // if (res?.data?.has_more) {
+                        onNavigate("orders");
+                        // }
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
+                  >
+                    View All Orders
+                  </Button>
                 </div>
-              </Card>
+              </div>
+
             ))}
             {/** View All Orders button if more than 10 orders exist (API exposes has_more) **/}
-            <div className="mt-2">
-              <Button
-                onClick={async () => {
-                  try {
-                    // const res = await api.get('/orders')
-                    // if (res?.data?.has_more) {
-                    onNavigate("orders");
-                    // }
-                  } catch {
-                    // ignore
-                  }
-                }}
-                className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
-              >
-                View All Orders
-              </Button>
-            </div>
+
           </div>
         )}
       </main>

@@ -11,6 +11,7 @@ import { Banner } from "@/components/banner";
 interface MobileOrdersProps {
   onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders") => void;
   onBack: () => void;
+  onOpenOrder?: (orderNumber: string) => void;
 }
 
 type OrderItem = {
@@ -24,7 +25,7 @@ type OrderItem = {
   currency_symbol: string;
 };
 
-export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
+export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersProps) {
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -125,16 +126,7 @@ export function MobileOrders({ onNavigate, onBack }: MobileOrdersProps) {
                       </div>
                     </div>
                     <ChevronRight
-                      onClick={() => {
-                        try {
-                          const setOrder = (window as any).setSelectedOrderNumber;
-                          const setPage = (window as any).setCurrentPage;
-                          if (typeof setOrder === "function" && typeof setPage === "function") {
-                            setOrder(o.order_number);
-                            setPage("order-details");
-                          }
-                        } catch {}
-                      }}
+                      onClick={() => onOpenOrder && onOpenOrder(o.order_number)}
                       className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer"
                     />
                   </div>

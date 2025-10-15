@@ -137,10 +137,15 @@ export default function Home() {
   }
 
   if(currentPage === "orders") {
+    const openOrder = (orderNumber: string) => {
+    setSelectedOrderNumber(orderNumber)
+    setCurrentPage("order-details")
+  }
     return (
       <MobileOrders
         onNavigate={handleNavigate}
         onBack={() => setCurrentPage("dashboard")}
+        onOpenOrder={openOrder}
       />
     )
   }

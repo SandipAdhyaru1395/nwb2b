@@ -24,6 +24,7 @@ class OrderController extends Controller
         $totalCount = Order::count();
         $orders = Order::
             latest('created_at')
+            ->where('customer_id', $request->user()->id)
             ->take($limit)
             ->get();
         

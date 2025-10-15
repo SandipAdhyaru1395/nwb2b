@@ -24,8 +24,21 @@ if (typeof window !== "undefined") {
     (error) => {
       const status = error?.response?.status;
       if (status === 401 || status === 403) {
+        // Clear any potentially stale auth token
         try { window.localStorage.removeItem("auth_token"); } catch {}
-        // Do not redirect; keep the current URL and let the UI show unauthenticated state
+
+        // Avoid redirect loops if we're already on the auth pages
+        const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+        const isOnAuthPage = currentPath.startsWith("/login") || currentPath.startsWith("/register");
+        if (!isOnAuthPage) {
+          // Redirect to login
+          try {
+            window.location.assign("/login");
+          } catch {
+            // Fallback
+            window.location.href = "/login";
+          }
+        }
       }
       return Promise.reject(error);
     }

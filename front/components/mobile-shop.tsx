@@ -242,9 +242,9 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       {/* Header */}
       <div className="h-[50px] bg-white flex items-center border-b">
         <div className="w-[66px] h-[25px] flex items-center justify-center">
-          {showFavorites ? <FontAwesomeIcon icon={faStar} className="text-green-600" style={{ width: "24px", height: "24px" }} /> : <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} />}
+          {showFavorites ? <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} /> : <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "30px", height: "24px" }} />}
         </div>
-        <h1 className="text-[16px] font-semibold">{showFavorites ? "Favorites" : "Shop"}</h1>
+        <h1 className="text-[16px] font-semibold">Shop</h1>
       </div>
 
       {/* Search Bar */}
@@ -255,7 +255,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
           </div>
           <div className="flex-1 relative">
             <FontAwesomeIcon icon={faSearch} className="text-green-600 absolute top-1/2 transform -translate-y-1/2" style={{ width: "24px", height: "24px" }} />
-            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-[32px] pr-9 bg-transparent shadow-none border-0 py-0" placeholder="Search products..." />
+            <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-[32px] pr-9 bg-transparent shadow-none border-none focus:border-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none py-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }} placeholder="Start typing to filter products..." />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <X className="w-4 h-4 text-gray-400" />
@@ -302,7 +302,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
                 {totals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>}
               </div>
             </div>
-            <div className="text-sm font-semibold text-center text-[#999] py-1">Spend {format(4.5)} more for FREE delivery</div>
+            <div className="text-sm font-semibold text-center text-[#999] py-1">Includes FREE delivery</div>
             <button onClick={() => onNavigate("basket")} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-sm font-semibold hover:cursor-pointer text-lg box-shadow-bottom">
               View Basket
             </button>
@@ -356,7 +356,7 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
   const depthMargin = ["", "", "", "", "", ""];
   const depthColors = [
     "bg-green-600", // depth 0
-    "bg-green-50", // depth 1
+    "bg-green-50 !pl-[6px]", // depth 1
     "bg-gray-100", // depth 2
     "", // depth 3
     "", // depth 4

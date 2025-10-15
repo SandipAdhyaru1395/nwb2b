@@ -207,26 +207,21 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
             {/* Order Lines */}
             <div className="px-[10px]">
               <h3 className="font-semibold text-gray-900 mb-[10px] mt-[20px] line-16">Order Lines</h3>
-              {order.items.map((it, idx) => (
-                <div key={it.product_id + "-" + idx} className="pt-[16px] pb-[15px] border-t last:border-y">
-                  <div className="grid grid-cols-[1fr_64px_80px] items-center gap-4">
-                    {/* Product info */}
-                    <div className="flex items-start min-w-0">
+              <div className="mt-[10px]">
+                {order.items.map((it, idx) => (
+                  <div key={it.product_id + "-" + idx} className="py-[16px] border-t last:border-y">
+                    <div className="flex">
                       {it.product_image ? <img src={it.product_image} alt="" className="w-[50px] h-[50px] mr-[10px] object-cover" /> : <div className="w-[50px] h-[50px] mr-[10px] bg-gray-100" />}
-                      <div className="truncate flex-1">
-                        <div className="font-medium text-gray-900 truncate">{it.product_name || `Product #${it.product_id}`}</div>
+                      <div className="font-medium text-gray-900 text-[16px] leading-[16px] flex-5">{it.product_name || `Product #${it.product_id}`}</div>
+                      <div className="text-gray-800 text-[16px] leading-[16px] flex-1 text-center">{it.quantity}</div>
+                      <div className="font-semibold text-right text-[16px] leading-[16px]">
+                        {order.currency_symbol}
+                        {it.total_price.toFixed(2)}
                       </div>
                     </div>
-                    {/* Quantity */}
-                    <div className="text-gray-800 text-sm text-center flex-1 w-[100px] text-right">{it.quantity}</div>
-                    {/* Line total */}
-                    <div className="text-right font-semibold text-gray-900 flex-1">
-                      {order.currency_symbol}
-                      {it.total_price.toFixed(2)}
-                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </>
         )}

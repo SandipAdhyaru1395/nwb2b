@@ -242,7 +242,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
                 {totals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>}
               </div>
             </div>
-            <div className="text-sm font-semibold text-center text-[#999] pt-1 pb-2 leading-[16px]">Spend {format(4.5)} more for FREE delivery</div>
+            <div className="text-sm font-semibold text-center text-[#999] pt-1 pb-2 leading-[16px]">Includes FREE delivery</div>
             <button onClick={handleCheckout} disabled={isCheckingOut} className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded-sm font-semibold text-lg hover:cursor-pointer box-shadow-bottom">
               {isCheckingOut ? "Processing..." : "Checkout"}
             </button>
