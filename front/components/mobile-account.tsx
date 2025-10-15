@@ -30,22 +30,16 @@ interface MobileAccountProps {
 export function MobileAccount({ onNavigate }: MobileAccountProps) {
   const router = useRouter();
 
-  const revoLogo: JSX.Element = (
-  <img
-    src={revoLogoImg.src}           
-    className="w-[20px] h-[20px] overflow-visible"
-    alt="Revo Logo"
-  />
-);
+  const revoLogo: JSX.Element = <img src={revoLogoImg.src} className="w-[20px] h-[20px] overflow-visible" alt="Revo Logo" />;
 
   const handleLogout = async () => {
     try {
       try {
         await api.post("/logout");
-      } catch { }
+      } catch {}
       try {
         window.localStorage.removeItem("auth_token");
-      } catch { }
+      } catch {}
     } finally {
       try {
         router.replace("/nwb2b/front/login");
@@ -108,9 +102,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         {/* Utilities Section */}
         <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
-            <div className="w-[16px] h-[20px] rounded-full flex items-center justify-center ">
-              {revoLogo}
-            </div>
+            <div className="w-[16px] h-[20px] rounded-full flex items-center justify-center ">{revoLogo}</div>
             <span className="text-[14px] font-semibold ml-[10px]">Revo Utilities - guaranteed to reduce your bills!</span>
           </div>
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />

@@ -85,41 +85,41 @@ export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersPr
             </div>
           </div>
         ) : (
-          <div className="mx-4 mt-4">
+          <div className="p-[10px]">
             {orders.length === 0 ? (
               <div className="text-center text-gray-500 text-sm">No orders found</div>
             ) : (
               orders.map((o, idx) => (
-                <Card key={o.order_number + idx} className="mb-3">
-                  <div className="p-4 flex">
-                    <div className="space-y-2 text-sm w-full pr-4 border-r border-gray-200">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Order No:</span>
-                        <span className="text-gray-900">{o.order_number}</span>
+                <Card key={o.order_number + idx} className="mb-[10px] border-gray-300">
+                  <div className="py-[13px] pl-[12px] flex">
+                    <div className="text-sm w-full pr-[12px] border-r border-gray-300">
+                      <div className="flex justify-between mb-0">
+                        <span className="text-black">Order No:</span>
+                        <span className="text-black">{o.order_number}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Ordered:</span>
-                        <span className="text-gray-900">{o.ordered_at}</span>
+                        <span className="text-black">Ordered:</span>
+                        <span className="text-black">{o.ordered_at}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Payment Status:</span>
-                        <span className="text-gray-900">{o.payment_status}</span>
+                        <span className="text-black">Payment Status:</span>
+                        <span className="text-black">{o.payment_status}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Fulfillment Status:</span>
-                        <span className="text-gray-900">{o.fulfillment_status}</span>
+                        <span className="text-black">Fulfillment Status:</span>
+                        <span className="text-black">{o.fulfillment_status}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Units:</span>
-                        <span className="text-gray-900">{o.units}</span>
+                        <span className="text-black">Units:</span>
+                        <span className="text-black">{o.units}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">SKUs:</span>
-                        <span className="text-gray-900">{o.skus}</span>
+                        <span className="text-black">SKUs:</span>
+                        <span className="text-black">{o.skus}</span>
                       </div>
-                      <div className="flex justify-between font-semibold">
-                        <span className="text-gray-600">Total Paid:</span>
-                        <span className="text-gray-900">
+                      <div className="flex justify-between">
+                        <span className="text-black">Total Paid:</span>
+                        <span className="text-black">
                           {o.currency_symbol}
                           {o.total_paid.toFixed(2)}
                         </span>
