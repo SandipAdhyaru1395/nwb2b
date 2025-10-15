@@ -130,7 +130,7 @@ export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersPr
                       className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer"
                     /> */}
                     <div className="w-[36.5px] h-[140px] flex items-center text-center">
-                      <FontAwesomeIcon onClick={() => onOpenOrder && onOpenOrder(o.order_number)} icon={faChevronRight} className="text-green-600" style={{ width: "36.5px", height: "21px" }} />
+                      <FontAwesomeIcon onClick={() => onOpenOrder && onOpenOrder(o.order_number)} icon={faChevronRight} className="text-green-600 hover:cursor-pointer" style={{ width: "36.5px", height: "21px" }} />
                     </div>
                   </div>
                 </Card>
