@@ -33,10 +33,10 @@ if (typeof window !== "undefined") {
         if (!isOnAuthPage) {
           // Redirect to login
           try {
-            window.location.assign("/login");
+            window.location.assign("/nwb2b/front/login");
           } catch {
             // Fallback
-            window.location.href = "/login";
+            window.location.href = "/nwb2b/front/login";
           }
         }
       }
