@@ -29,7 +29,7 @@ if (typeof window !== "undefined") {
 
         // Avoid redirect loops if we're already on the auth pages
         const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
-        const isOnAuthPage = currentPath.startsWith("/login") || currentPath.startsWith("/register");
+        const isOnAuthPage = currentPath.startsWith("/nwb2b/front/login") || currentPath.startsWith("/nwb2b/front/register") || currentPath.startsWith("/login") || currentPath.startsWith("/register");
         if (!isOnAuthPage) {
           // Redirect to login
           try {
