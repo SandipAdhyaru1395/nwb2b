@@ -4,7 +4,7 @@ import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package, ChevronRight } fro
 import { Card } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Banner } from "@/components/banner";
 
@@ -75,7 +75,7 @@ export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersPr
       {/* Banner */}
       <Banner />
 
-      <main className="pb-20">
+      <main className="p-[10px] mb-[82px]">
         {loading ? (
           <div className="p-4">
             <div className="space-y-3">
@@ -85,14 +85,14 @@ export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersPr
             </div>
           </div>
         ) : (
-          <div className="p-[10px]">
+          <div>
             {orders.length === 0 ? (
               <div className="text-center text-gray-500 text-sm">No orders found</div>
             ) : (
               orders.map((o, idx) => (
                 <Card key={o.order_number + idx} className="mb-[10px] border-gray-300">
-                  <div className="py-[13px] pl-[12px] flex">
-                    <div className="text-sm w-full pr-[12px] border-r border-gray-300">
+                  <div className="py-[12px] pl-[12px] mb-[10px] flex">
+                    <div className="d-grid text-sm w-full pr-[12px] border-r border-gray-300">
                       <div className="flex justify-between mb-0">
                         <span className="text-black">Order No:</span>
                         <span className="text-black">{o.order_number}</span>
@@ -125,10 +125,13 @@ export function MobileOrders({ onNavigate, onBack, onOpenOrder }: MobileOrdersPr
                         </span>
                       </div>
                     </div>
-                    <ChevronRight
-                      onClick={() => onOpenOrder && onOpenOrder(o.order_number)}
+                    {/* <ChevronRight
+                      
                       className="w-6 h-6 text-green-600 self-center ml-2 cursor-pointer"
-                    />
+                    /> */}
+                    <div className="w-[36.5px] h-[140px] flex items-center text-center">
+                      <FontAwesomeIcon onClick={() => onOpenOrder && onOpenOrder(o.order_number)} icon={faChevronRight} className="text-green-600" style={{ width: "36.5px", height: "21px" }} />
+                    </div>
                   </div>
                 </Card>
               ))
