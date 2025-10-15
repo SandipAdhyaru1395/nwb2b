@@ -229,27 +229,27 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                     <ChevronRight onClick={() => onOpenOrder && onOpenOrder(o.order_number)} className="w-8 h-8 text-green-600 self-center ml-1 cursor-pointer" />
                   </div>
                 </Card>
-                <div className="mt-2">
-                  <Button
-                    onClick={async () => {
-                      try {
-                        // const res = await api.get('/orders')
-                        // if (res?.data?.has_more) {
-                        onNavigate("orders");
-                        // }
-                      } catch {
-                        // ignore
-                      }
-                    }}
-                    className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
-                  >
-                    View All Orders
-                  </Button>
-                </div>
               </div>
 
             ))}
             {/** View All Orders button if more than 10 orders exist (API exposes has_more) **/}
+            <div className="mt-2">  
+              <Button
+                onClick={async () => {
+                  try {
+                    // const res = await api.get('/orders')
+                    // if (res?.data?.has_more) {
+                    onNavigate("orders");
+                    // }
+                  } catch {
+                    // ignore
+                  }
+                }}
+                className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
+              >
+                View All Orders
+              </Button>
+            </div>
 
           </div>
         )}
