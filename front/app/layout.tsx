@@ -11,6 +11,8 @@ import { SettingsProvider } from "@/components/settings-provider";
 import { CustomerProvider } from "@/components/customer-provider";
 import LoadingProvider from "@/components/loading-provider";
 import StoreMaintenanceGate from "@/components/store-maintenance-gate";
+import PwaInstall from "@/components/pwa-install";
+import SwRegister from "@/components/sw-register";
 
 export const metadata: Metadata = {
   title: "NWB2B",
@@ -34,8 +36,14 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
-        <link rel="icon" href="/placeholder-logo.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/placeholder-logo.png" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <meta name="theme-color" content="#000000" />
+        <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="NWB2B" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
         {/* Early redirect to login before any paint if no token */}
@@ -52,6 +60,8 @@ html {
                   {children}
                   <Toaster />
                   <FaviconProvider />
+                  <PwaInstall />
+                  <SwRegister />
                 </CustomerProvider>
               </CurrencyProvider>
             </StoreMaintenanceGate>
