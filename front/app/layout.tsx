@@ -13,6 +13,8 @@ import LoadingProvider from "@/components/loading-provider";
 import StoreMaintenanceGate from "@/components/store-maintenance-gate";
 import PwaInstall from "@/components/pwa-install";
 import SwRegister from "@/components/sw-register";
+import { buildPath } from "@/lib/utils";
+import EarlyRedirect from "@/components/early-redirect";
 
 export const metadata: Metadata = {
   title: "NWB2B",
@@ -36,22 +38,17 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
-        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="manifest" href={buildPath("/manifest.webmanifest")} />
         <meta name="theme-color" content="#000000" />
-        <link rel="icon" href="/icons/icon-192x192.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="icon" href={buildPath("/icons/icon-192x192.png")} type="image/png" />
+        <link rel="apple-touch-icon" href={buildPath("/icons/icon-192x192.png")} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NWB2B" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
-        {/* Early redirect to login before any paint if no token */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(() => { try { var p = window.location.pathname || '/'; var base = p.startsWith('/nwb2b/front') ? '/nwb2b/front' : '/'; var login = (base.replace(/\/$/, '')) + '/login'; if (!p.startsWith(login)) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); var sep = login.indexOf('?') === -1 ? '?' : '&'; window.location.replace(login + sep + q); } } } catch (e) {} })();`,
-          }}
-        />
+        <EarlyRedirect />
         <LoadingProvider>
           <SettingsProvider>
             <StoreMaintenanceGate>
