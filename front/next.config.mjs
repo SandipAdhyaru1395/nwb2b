@@ -30,14 +30,23 @@ const nextConfig = withPWA({
   disable: !isProd,
   register: true,
   skipWaiting: true,
-  // Precache all public assets including nested icons; add prefix in prod
-  workboxOptions: {
-    globDirectory: 'public',
-    globPatterns: [
-      '**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,json,mp3,woff,woff2}'
-    ],
-    modifyURLPrefix: isProd ? { '': '/nwb2b/front/' } : undefined,
-  },
+  // Service worker file name and scope without using Next.js basePath
+  sw: 'sw.js',
+  scope: '/nwb2b/front/',
+  // Runtime caching to ensure icons and images under the subpath are cached
+  runtimeCaching: [
+    {
+      urlPattern: /\/nwb2b\/front\/(?:icons\/.*|.*\.(?:png|jpg|jpeg|svg|webp|ico))$/,
+      handler: 'CacheFirst',
+      options: {
+        cacheName: 'images',
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+  ],
 })(baseConfig)
 
 export default nextConfig
