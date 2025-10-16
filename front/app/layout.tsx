@@ -13,7 +13,7 @@ import LoadingProvider from "@/components/loading-provider";
 import StoreMaintenanceGate from "@/components/store-maintenance-gate";
 import PwaInstall from "@/components/pwa-install";
 import SwRegister from "@/components/sw-register";
-import { buildPath } from "@/lib/utils";
+import { getBasePath } from "@/lib/utils";
 import EarlyRedirect from "@/components/early-redirect";
 
 export const metadata: Metadata = {
@@ -38,10 +38,10 @@ html {
   --font-mono: ${GeistMono.variable};
 }
         `}</style>
-        <link rel="manifest" href={buildPath("/manifest.webmanifest")} />
+        <link rel="manifest" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/manifest.webmanifest" : "/nwb2b/front/manifest.webmanifest"} />
         <meta name="theme-color" content="#000000" />
-        <link rel="icon" href={buildPath("/icons/icon-192x192.png")} type="image/png" />
-        <link rel="apple-touch-icon" href={buildPath("/icons/icon-192x192.png")} />
+        <link rel="icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/icon-192x192.png" : "/nwb2b/front/icons/icon-192x192.png"} type="image/png" />
+        <link rel="apple-touch-icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/icon-192x192.png" : "/nwb2b/front/icons/icon-192x192.png"} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NWB2B" />
