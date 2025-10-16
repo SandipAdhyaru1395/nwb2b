@@ -40,8 +40,8 @@ html {
         `}</style>
         <link rel="manifest" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/manifest.webmanifest" : "/nwb2b/front/manifest.webmanifest"} />
         <meta name="theme-color" content="#000000" />
-        <link rel="icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/icon-192x192.png" : "/nwb2b/front/icons/icon-192x192.png"} type="image/png" />
-        <link rel="apple-touch-icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/icon-192x192.png" : "/nwb2b/front/icons/icon-192x192.png"} />
+        <link rel="icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/192x192.png" : "/nwb2b/front/icons/192x192.png"} type="image/png" />
+        <link rel="apple-touch-icon" href={(!process.env.NEXT_PUBLIC_API_URL) ? "/icons/192x192.png" : "/nwb2b/front/icons/192x192.png"} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="NWB2B" />
