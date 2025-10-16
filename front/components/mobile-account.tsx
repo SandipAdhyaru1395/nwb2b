@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Banner } from "@/components/banner";
 import { ChevronRight, User, Building, GitBranch, Lightbulb, BarChart3, FileText, Bell, Shield, Home, ShoppingBag, Wallet, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { buildPath } from "@/lib/utils";
 import revoLogoImg from "@/assets/icons/revo-logo.png";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -42,10 +43,10 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       } catch {}
     } finally {
       try {
-        router.replace("/nwb2b/front/login");
+        router.replace(buildPath("/login"));
       } catch {
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.href = buildPath("/login");
         }
       }
     }
@@ -193,7 +194,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
             <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Shop</span>
           </button>

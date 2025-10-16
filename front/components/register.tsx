@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { buildPath } from "@/lib/utils";
 import api from "@/lib/axios";
 import FloatingInput from "@/components/ui/floating-input";
 import { useForm } from "react-hook-form";
@@ -63,7 +64,7 @@ export default function Register() {
       if (data?.success) {
         setSuccess("Registration submitted successfully. You can now log in.");
         toast({ title: "Registration successful", description: "You can now log in." });
-        setTimeout(() => router.replace("/login"), 1200);
+        setTimeout(() => router.replace(buildPath("/login")), 1200);
       } else {
         const message = data?.message || "Registration failed";
         setError(message);
@@ -110,7 +111,7 @@ export default function Register() {
 
       <div className="overflow-hidden wrapper-space">
         <div className="grid grid-cols-2 loginRegisterWrapper">
-          <Link href="/nwb2b/front/login" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
+          <Link href={buildPath("/login")} className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
             Login
           </Link>
           <button className="bg-green-500 text-white py-3 font-medium">Register</button>

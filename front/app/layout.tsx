@@ -41,7 +41,7 @@ html {
         {/* Early redirect to login before any paint if no token */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(() => { try { var p = window.location.pathname; if (!p.includes('/nwb2b/front/login')) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); var sep = '?'; window.location.replace('/nwb2b/front/login' + sep + q); } } } catch (e) {} })();`,
+            __html: `(() => { try { var p = window.location.pathname || '/'; var base = p.startsWith('/nwb2b/front') ? '/nwb2b/front' : '/'; var login = (base.replace(/\/$/, '')) + '/login'; if (!p.startsWith(login)) { var t = localStorage.getItem('auth_token'); if (!t) { var q = new URLSearchParams({ redirect: p }).toString(); var sep = login.indexOf('?') === -1 ? '?' : '&'; window.location.replace(login + sep + q); } } } catch (e) {} })();`,
           }}
         />
         <LoadingProvider>

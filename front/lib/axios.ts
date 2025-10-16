@@ -1,4 +1,5 @@
 import axios from "axios";
+import { buildPath } from "./utils";
 
 const rawBase = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
 const normalizedBase = rawBase.endsWith("/api") ? rawBase : `${rawBase.replace(/\/$/, "")}/api`;
@@ -29,14 +30,14 @@ if (typeof window !== "undefined") {
 
         // Avoid redirect loops if we're already on the auth pages
         const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
-        const isOnAuthPage = currentPath.startsWith("/nwb2b/front/login") || currentPath.startsWith("/nwb2b/front/register") || currentPath.startsWith("/login") || currentPath.startsWith("/register");
+        const isOnAuthPage = currentPath.endsWith("/login") || currentPath.endsWith("/register") || currentPath.includes("/login/") || currentPath.includes("/register/");
         if (!isOnAuthPage) {
           // Redirect to login
           try {
-            window.location.assign("/nwb2b/front/login");
+            window.location.assign(buildPath("/login"));
           } catch {
             // Fallback
-            window.location.href = "/nwb2b/front/login";
+            window.location.href = buildPath("/login");
           }
         }
       }

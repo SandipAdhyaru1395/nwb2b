@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
+import { buildPath } from "@/lib/utils";
 import api from "@/lib/axios";
 import { useSettings } from "@/components/settings-provider";
 import FloatingInput from "@/components/ui/floating-input";
@@ -73,7 +74,7 @@ export default function Login() {
           sessionStorage.removeItem("products_cache");
         } catch {}
         toast({ title: "Hello there 👋", description: "You've logged in successfully." });
-           window.location.replace("/nwb2b/front");
+           window.location.replace(buildPath("/"));
       } else {
         const message = data?.message || "Login failed";
         setError(message);
@@ -99,7 +100,7 @@ export default function Login() {
       <div className="overflow-hidden wrapper-space">
         <div className="grid grid-cols-2 loginRegisterWrapper">
           <button className="bg-green-500 text-white py-3 font-medium">Login</button>
-          <Link href="/nwb2b/front/register" className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
+          <Link href={buildPath("/register")} className="text-gray-700 bg-gray-100 py-3 text-center font-medium">
             Register
           </Link>
         </div>
