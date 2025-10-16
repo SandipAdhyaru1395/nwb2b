@@ -22,7 +22,7 @@ const baseConfig = {
 }
 
 const nextConfig = withPWA({
-  dest: (!process.env.NEXT_PUBLIC_API_URL) ? 'public' : 'nwb2b/front/public',
+  dest: (!process.env.NEXT_PUBLIC_API_URL) ? 'public2' : 'public2/nwb2b/front/public',
   disable: (!process.env.NEXT_PUBLIC_API_URL) ? true : false,
   register: true,
   skipWaiting: true,
