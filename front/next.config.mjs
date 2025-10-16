@@ -1,8 +1,6 @@
 import withPWA from 'next-pwa'
 
 /** @type {import('next').NextConfig} */
-const isProd = !!process.env.NEXT_PUBLIC_API_URL
-
 const baseConfig = {
   eslint: { 
     ignoreDuringBuilds: true,
@@ -13,8 +11,6 @@ const baseConfig = {
   images: {
     unoptimized: true,
   },
-  // Ensure Next.js serves assets under the deployed subpath
-  ...(isProd ? { basePath: '/nwb2b/front', assetPrefix: '/nwb2b/front' } : {}),
   // async rewrites() {
   //   return [
   //     {
@@ -26,10 +22,8 @@ const baseConfig = {
 }
 
 const nextConfig = withPWA({
-  // Always generate the service worker into the local public folder
-  dest: 'public',
-  // Disable SW in local dev only
-  disable: !isProd,
+  dest: (!process.env.NEXT_PUBLIC_API_URL) ? 'public' : '/nwb2b/front/public',
+  disable: (!process.env.NEXT_PUBLIC_API_URL) ? true : false,
   register: true,
   skipWaiting: true,
 })(baseConfig)
