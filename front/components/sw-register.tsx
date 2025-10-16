@@ -11,12 +11,17 @@ export default function SwRegister() {
     if (!("serviceWorker" in navigator)) return;
     const register = async () => {
       try {
-        const swUrl = buildPath("/sw.js");
+        // Use versioned SW to force fresh install and avoid stale precache caches
+        const swUrl = buildPath("/sw-v2.js");
         const scope = buildPath("/");
         const registration = await navigator.serviceWorker.register(swUrl, { scope });
         // Ensure the SW controls the page ASAP
         if (!navigator.serviceWorker.controller) {
           await navigator.serviceWorker.ready;
+        }
+        // If there is an old worker waiting, force activation
+        if (registration.waiting) {
+          registration.waiting.postMessage({ type: 'SKIP_WAITING' });
         }
       } catch {
         // noop
