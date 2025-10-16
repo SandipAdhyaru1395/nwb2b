@@ -26,6 +26,9 @@ const nextConfig = withPWA({
   disable: (!process.env.NEXT_PUBLIC_API_URL) ? true : false,
   register: true,
   skipWaiting: true,
+  publicExcludes: [
+    '**/black-vape-bottle.png',
+  ],
 })(baseConfig)
 
 export default nextConfig
