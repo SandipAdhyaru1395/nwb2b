@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faBell, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
+import { startLoading, stopLoading } from "@/lib/loading";
 
 interface MobileDashboardProps {
   onNavigate: (page: "dashboard" | "shop" | "wallet" | "account" | "orders", favorites?: boolean) => void;
@@ -27,7 +28,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
     const fetchOrders = async () => {
       try {
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-start" } }));
+          startLoading();
         }
         const res = await api.get("/orders");
         const json = res.data;
@@ -42,7 +43,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         // ignore
       } finally {
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-stop" } }));
+          stopLoading();
         }
         try {
           sessionStorage.removeItem("orders_needs_refresh");

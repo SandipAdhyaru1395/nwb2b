@@ -10,9 +10,10 @@ import { MobileRepDetails } from "@/components/mobile-rep-details"
 import { MobileCompanyDetails } from "@/components/mobile-company-details"
 import { MobileOrders } from "@/components/mobile-orders"
 import { MobileOrderDetails } from "@/components/mobile-order-details"
+import { MobileBranches } from "@/components/mobile-branches"
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState<"dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details">("dashboard")
+  const [currentPage, setCurrentPage] = useState<"dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches">("dashboard")
   const [showFavorites, setShowFavorites] = useState(false)
   const [selectedOrderNumber, setSelectedOrderNumber] = useState<string | null>(null)
   const [cart, setCart] = useState<Record<number, { product: any; quantity: number }>>({})
@@ -51,7 +52,7 @@ export default function Home() {
     setCart({})
   }
 
-  const handleNavigate = (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details", favorites = false) => {
+  const handleNavigate = (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches", favorites = false) => {
     setCurrentPage(page)
     setShowFavorites(favorites)
   }
@@ -130,6 +131,15 @@ export default function Home() {
   if(currentPage === "company-details") {
     return (
       <MobileCompanyDetails
+        onNavigate={handleNavigate}
+        onBack={() => setCurrentPage("account")}
+      />
+    )
+  }
+
+  if(currentPage === "branches") {
+    return (
+      <MobileBranches
         onNavigate={handleNavigate}
         onBack={() => setCurrentPage("account")}
       />

@@ -20,7 +20,7 @@ interface ProductItem {
 }
 
 interface MobileAccountProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details") => void;
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "branches") => void;
   cart: Record<number, { product: ProductItem; quantity: number }>;
   increment: (product: ProductItem) => void;
   decrement: (product: ProductItem) => void;
@@ -88,7 +88,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" onClick={() => onNavigate("branches")} className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faStore} className="text-green-600" style={{ width: "18px", height: "16px" }} />

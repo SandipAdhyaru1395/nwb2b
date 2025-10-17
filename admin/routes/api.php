@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\BranchController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,4 +41,7 @@ Route::middleware(['store.maintenance','auth:sanctum'])->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index']);
     Route::post('/favorites/add', [FavoriteController::class, 'add']);
     Route::delete('/favorites/remove', [FavoriteController::class, 'remove']);
+
+    //Branch
+    Route::apiResource('branches', BranchController::class);
 });

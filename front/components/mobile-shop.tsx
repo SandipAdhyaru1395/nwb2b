@@ -48,6 +48,7 @@ const initialCategories: TreeNode[] = [];
 import { useCurrency } from "@/components/currency-provider";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
+import { startLoading, stopLoading } from "@/lib/loading";
 
 export function MobileShop({ onNavigate, cart, increment, decrement, totals, showFavorites = false }: MobileShopProps) {
   const { format, symbol } = useCurrency();
@@ -99,7 +100,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
     const fetchData = async () => {
       try {
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-start" } }));
+         startLoading();
         }
         const res = await api.get("/products");
         const data = res.data;
@@ -115,7 +116,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
         // keep categories empty on error
       } finally {
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("global-loading", { detail: { type: "global-loading-stop" } }));
+          stopLoading();
         }
       }
     };
