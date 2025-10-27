@@ -21,7 +21,7 @@ interface ProductItem {
 }
 
 interface MobileBasketProps {
-  onNavigate: (page: "dashboard" | "shop" | "basket" | "wallet" | "account") => void;
+  onNavigate: (page: "dashboard" | "shop" | "basket" | "checkout" | "wallet" | "account") => void;
   cart: Record<number, { product: ProductItem; quantity: number }>;
   increment: (product: ProductItem) => void;
   decrement: (product: ProductItem) => void;
@@ -31,7 +31,6 @@ interface MobileBasketProps {
 }
 
 export function MobileBasket({ onNavigate, cart, increment, decrement, totals, clearCart, onBack }: MobileBasketProps) {
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [favourites, setFavourites] = useState<Record<number, boolean>>({});
   const { toast } = useToast();
   const { symbol, format } = useCurrency();
@@ -55,61 +54,8 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
     }, 0);
   }, [cart]);
 
-  const handleCheckout = async () => {
-    setIsCheckingOut(true);
-    try {
-      const items = Object.values(cart).map(({ product, quantity }) => ({
-        product_id: product.id,
-        quantity: quantity,
-      }));
-
-      const { data: result } = await api.post("/checkout", {
-        items,
-        total: totals.total,
-        units: totals.units,
-        skus: totals.skus,
-      });
-
-      if (result.success) {
-        toast({
-          title: "Order Placed Successfully! 🎉",
-          description: `Order Number: ${result.order_number}`,
-          variant: "default",
-        });
-        // Ask dashboard to refresh orders list on next visit/mount
-        try {
-          sessionStorage.setItem("orders_needs_refresh", "1");
-        } catch {}
-        if (typeof window !== "undefined") {
-          try {
-            window.dispatchEvent(new Event("orders-refresh"));
-          } catch {}
-        }
-        // Do not refresh product listing after checkout as requested
-        // Refresh customer wallet balance
-        try {
-          await refresh();
-        } catch {}
-        // Clear the cart after successful checkout
-        clearCart();
-        onNavigate("dashboard");
-      } else {
-        toast({
-          title: "Checkout Failed",
-          description: result.message,
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Checkout Failed",
-        description: "Please try again later.",
-        variant: "destructive",
-      });
-      console.error("Checkout error:", error);
-    } finally {
-      setIsCheckingOut(false);
-    }
+  const handleCheckout = () => {
+    onNavigate("checkout");
   };
 
   const toggleFavorite = async (product: ProductItem) => {
@@ -243,8 +189,8 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
               </div>
             </div>
             <div className="text-sm font-semibold text-center text-[#999] pt-1 pb-2 leading-[16px]">Includes FREE delivery</div>
-            <button onClick={handleCheckout} disabled={isCheckingOut} className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-2 rounded-sm font-semibold text-lg hover:cursor-pointer box-shadow-bottom">
-              {isCheckingOut ? "Processing..." : "Checkout"}
+            <button onClick={handleCheckout} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-sm font-semibold text-lg hover:cursor-pointer box-shadow-bottom">
+              Checkout
             </button>
           </div>
         )}

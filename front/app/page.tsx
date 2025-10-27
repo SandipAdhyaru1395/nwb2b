@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 import { MobileDashboard } from "@/components/mobile-dashboard"
 import { MobileShop } from "@/components/mobile-shop"
 import { MobileBasket } from "@/components/mobile-basket"
+import { MobileCheckout } from "@/components/mobile-checkout"
 import { MobileWallet } from "@/components/mobile-wallet"
 import { MobileAccount } from "@/components/mobile-account"
 import { MobileRepDetails } from "@/components/mobile-rep-details"
@@ -13,7 +14,7 @@ import { MobileOrderDetails } from "@/components/mobile-order-details"
 import { MobileBranches } from "@/components/mobile-branches"
 
 export default function Home() {
-  const [currentPage, setCurrentPage] = useState<"dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches">("dashboard")
+  const [currentPage, setCurrentPage] = useState<"dashboard" | "shop" | "basket" | "checkout" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches">("dashboard")
   const [showFavorites, setShowFavorites] = useState(false)
   const [selectedOrderNumber, setSelectedOrderNumber] = useState<string | null>(null)
   const [cart, setCart] = useState<Record<number, { product: any; quantity: number }>>({})
@@ -52,7 +53,7 @@ export default function Home() {
     setCart({})
   }
 
-  const handleNavigate = (page: "dashboard" | "shop" | "basket" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches", favorites = false) => {
+  const handleNavigate = (page: "dashboard" | "shop" | "basket" | "checkout" | "wallet" | "account" | "rep-details" | "company-details" | "orders" | "order-details" | "branches", favorites = false) => {
     setCurrentPage(page)
     setShowFavorites(favorites)
   }
@@ -89,6 +90,18 @@ export default function Home() {
         totals={totals}
         clearCart={clearCart}
         onBack={() => setCurrentPage("shop")}
+      />
+    )
+  }
+
+  if (currentPage === "checkout") {
+    return (
+      <MobileCheckout
+        onNavigate={setCurrentPage}
+        onBack={() => setCurrentPage("basket")}
+        cart={cart}
+        totals={totals}
+        clearCart={clearCart}
       />
     )
   }

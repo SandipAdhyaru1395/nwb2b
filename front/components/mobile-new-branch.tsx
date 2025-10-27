@@ -55,9 +55,6 @@ export function MobileNewBranch({ onNavigate, onBack }: MobileNewBranchProps) {
         <div className="w-full max-w-[1000px] mx-auto bg-white min-h-screen">
             {/* Header */}
             <div className="bg-white flex items-center border-b h-[50px]">
-                {/* <button onClick={onBack} className="p-2 hover:bg-gray-100 hover:cursor-pointer rounded-full">
-          <ArrowLeft className="w-5 h-5 text-gray-600" />
-        </button> */}
                 <div className="flex items-center">
                     <div className="w-[66px] h-[25px] rounded-full flex items-center justify-center">
                         <FontAwesomeIcon icon={faShop} className="text-green-600" style={{ width: "27px", height: "24px" }} />
