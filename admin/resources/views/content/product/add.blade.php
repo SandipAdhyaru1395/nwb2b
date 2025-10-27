@@ -87,8 +87,8 @@
                             @enderror
                         </div>
                         <div class="row mb-6">
-                            <div class="col form-control-validation"><label class="form-label"
-                                    for="ecommerce-product-sku">SKU <span class="text-danger">*</span></label>
+                            <div class="col"><label class="form-label"
+                                    for="ecommerce-product-sku">SKU</label>
                                 <input type="text" class="form-control" id="ecommerce-product-sku" placeholder="SKU"
                                     name="productSku" aria-label="Product SKU" value="{{ old('productSku') }}"
                                     autocomplete="off" />

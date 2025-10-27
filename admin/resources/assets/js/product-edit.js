@@ -102,13 +102,6 @@
             }
           }
         },
-        productSku: {
-          validators: {
-            notEmpty: {
-              message: 'Please enter product sku'
-            }
-          }
-        },
         productPrice: {
           validators: {
             notEmpty: {

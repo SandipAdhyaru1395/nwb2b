@@ -30,7 +30,7 @@ class ProductController extends Controller
       'brands' => ['required'],
       'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
-      'productSku' => ['required','unique:products,sku'],
+      'productSku' => ['nullable','unique:products,sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
     ],[
@@ -39,7 +39,6 @@ class ProductController extends Controller
       'step.numeric' => 'Must be valid number',
       'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
-      'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
@@ -94,7 +93,7 @@ class ProductController extends Controller
       'brands' => ['required'],
       'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
-      'productSku' => ['required','unique:products,sku,'.$request->id],
+      'productSku' => ['nullable','unique:products,sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
     ],[
@@ -103,7 +102,6 @@ class ProductController extends Controller
       'step.numeric' => 'Must be valid number',
       'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
-      'productSku.required' => 'SKU is required',
       'productSku.unique' => 'SKU is already taken',
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',

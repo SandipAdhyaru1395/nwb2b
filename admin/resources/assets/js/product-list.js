@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const sku = full['sku'];
 
-            return '<span>' + sku + '</span>';
+            return '<span>' + (sku ? sku : '-') + '</span>';
           }
         },
         {
