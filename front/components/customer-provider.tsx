@@ -14,8 +14,10 @@ type Customer = {
   address_line2?: string | null
   city?: string | null
   country?: string | null
-  state?: string | null
   postcode?: string | null
+  rep_name?: string | null
+  rep_email?: string | null
+  rep_mobile?: string | null
 }
 
 type CustomerContextValue = {
@@ -58,8 +60,10 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
           address_line2: c.address_line2 ?? null,
           city: c.city ?? null,
           country: c.country ?? null,
-          state: c.state ?? null,
           postcode: c.postcode ?? null,
+          rep_name : c.rep_name ?? null,
+          rep_email : c.rep_email ?? null,
+          rep_mobile : c.rep_mobile ?? null
         }
         setCustomer(normalized)
         const ids: number[] = Array.isArray(favRes?.data?.product_ids) ? favRes.data.product_ids.map((n: any) => Number(n)) : []

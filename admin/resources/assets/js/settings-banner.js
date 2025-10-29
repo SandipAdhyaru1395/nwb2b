@@ -46,14 +46,6 @@
       }
     });
 
-    // Browse button click handler
-    if (btnBrowseBanner) {
-      btnBrowseBanner.addEventListener('click', function (e) {
-        e.preventDefault();
-        bannerImageInput.click();
-      });
-    }
-
     // File input change handler
     if (bannerImageInput) {
       bannerImageInput.addEventListener('change', function (e) {

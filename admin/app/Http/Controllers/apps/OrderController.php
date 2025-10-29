@@ -71,24 +71,11 @@ class OrderController extends Controller
       'status' => ['sometimes','string'],
 
       // billing
-      'b_address_type' => ['sometimes','nullable','string','max:50'],
-      'b_country' => ['sometimes','nullable','string','max:100'],
-      'b_address_line1' => ['sometimes','nullable','string'],
-      'b_address_line2' => ['sometimes','nullable','string'],
-      'b_landmark' => ['sometimes','nullable','string'],
-      'b_city' => ['sometimes','nullable','string','max:100'],
-      'b_state' => ['sometimes','nullable','string','max:100'],
-      'b_zip_code' => ['sometimes','nullable','string','max:20'],
-
-      // shipping
-      's_address_type' => ['sometimes','nullable','string','max:50'],
-      's_country' => ['sometimes','nullable','string','max:100'],
-      's_address_line1' => ['sometimes','nullable','string'],
-      's_address_line2' => ['sometimes','nullable','string'],
-      's_landmark' => ['sometimes','nullable','string'],
-      's_city' => ['sometimes','nullable','string','max:100'],
-      's_state' => ['sometimes','nullable','string','max:100'],
-      's_zip_code' => ['sometimes','nullable','string','max:20'],
+      'country' => ['sometimes','nullable','string','max:100'],
+      'address_line1' => ['sometimes','nullable','string'],
+      'address_line2' => ['sometimes','nullable','string'],
+      'city' => ['sometimes','nullable','string','max:100'],
+      'zip_code' => ['sometimes','nullable','string','max:20'],
     ]);
 
     $order = Order::findOrFail($validated['id']);

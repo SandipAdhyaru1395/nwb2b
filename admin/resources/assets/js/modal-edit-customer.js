@@ -12,17 +12,10 @@
   if (!editCustomerForm) return;
   const fv = FormValidation.formValidation(editCustomerForm, {
     fields: {
-      name: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter fullname '
-          }
-        }
-      },
       companyName: {
         validators: {
           notEmpty: {
-            message: 'Please enter company name'
+            message: 'Please enter company name '
           }
         }
       },
@@ -51,10 +44,53 @@
           }
         },
       },
+      password: {
+        validators: {
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
+          }
+        }
+      },
+      confirmPassword: {
+        validators: {
+          identical: {
+            compare: function () {
+              return editCustomerForm.querySelector('[name="password"]').value;
+            },
+            message: 'The password and its confirm are not the same'
+          },
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
+          }
+        }
+      },
       status: {
         validators: {
           notEmpty: {
             message: 'Please select status'
+          }
+        }
+      },
+      addressLine1: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter address line 1'
+          }
+        }
+      },
+      city: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter city'
+          }
+        }
+      },
+      zip_code: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter postcode'
           }
         }
       }

@@ -13,7 +13,7 @@ use App\Http\Controllers\apps\EcommerceCustomerDetailsSecurity;
 use App\Http\Controllers\apps\EcommerceCustomerDetailsBilling;
 use App\Http\Controllers\apps\EcommerceCustomerDetailsNotifications;
 use App\Http\Controllers\apps\EcommerceManageReviews;
-use App\Http\Controllers\AddressController;
+use App\Http\Controllers\apps\BranchController;
 use App\Http\Controllers\apps\EcommerceReferrals;
 use App\Http\Controllers\apps\EcommerceSettingsDetails;
 use App\Http\Controllers\apps\EcommerceSettingsPayments;
@@ -200,15 +200,14 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
 
     Route::get('/customer/{id?}/overview', [CustomerController::class, 'overview'])->name('customer.overview');
     Route::get('/customer/{id?}/security', [CustomerController::class, 'security'])->name('customer.security');
-    Route::get('/customer/{id?}/addresses', [CustomerController::class, 'addresses'])->name('customer.addresses');
+    Route::get('/customer/{id?}/branches', [CustomerController::class, 'branches'])->name('customer.branches');
     Route::get('/customer/{id?}/notifications', [CustomerController::class, 'notifications'])->name('customer.notifications');
 
-    Route::post('/customer/address/store', [AddressController::class, 'store'])->name('customer.address.store');
-    // Address Management Routes - Temporarily without permission middleware for testing
-    Route::get('/customer/address/edit', [AddressController::class, 'edit'])->name('customer.address.edit');
-    Route::post('/customer/address/update', [AddressController::class, 'update'])->name('customer.address.update');
-    Route::get('/customer/address/{address}/delete', [AddressController::class, 'destroy'])->name('customer.address.delete');
-    Route::get('/customer/address/{address}/set-default', [AddressController::class, 'setDefault'])->name('customer.address.set-default');
+    Route::post('/customer/branch/store', [BranchController::class, 'store'])->name('customer.branch.store');
+    // Branch Management Routes - Temporarily without permission middleware for testing
+    Route::get('/customer/branch/edit', [BranchController::class, 'edit'])->name('customer.branch.edit');
+    Route::post('/customer/branch/update', [BranchController::class, 'update'])->name('customer.branch.update');
+    Route::get('/customer/branch/{branch}/delete', [BranchController::class, 'destroy'])->name('customer.branch.delete');
     
     Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer.store');
     Route::post('/customer/update', [CustomerController::class, 'update'])->name('customer.update');

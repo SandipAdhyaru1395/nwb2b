@@ -1,5 +1,5 @@
 /**
- * Add New Address
+ * Add New Branch
  */
 
 'use strict';
@@ -20,13 +20,20 @@
 //   }
 // });
 
-// Edit Address form validation
+// Edit Branch form validation
 document.addEventListener('DOMContentLoaded', function () {
   (function () {
 
 
-    FormValidation.formValidation(document.getElementById('editCustomerAddressForm'), {
+    FormValidation.formValidation(document.getElementById('editCustomerBranchForm'), {
       fields: {
+        name: {
+          validators: {
+            notEmpty: {
+              message: 'Branch name is required'
+            },
+          }
+        },
         address_line1: {
           validators: {
             notEmpty: {

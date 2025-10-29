@@ -30,8 +30,7 @@ type OrderDetails = {
   wallet_discount: number;
   total_paid: number;
   currency_symbol: string;
-  billing_address: Address;
-  shipping_address: Address;
+  address: Address;
   items: Array<{ product_id: number; product_name?: string | null; product_image?: string | null; quantity: number; unit_price: number; wallet_credit_earned: number; total_price: number }>;
 };
 
@@ -124,12 +123,11 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                     <span className="font-semibold text-[14px] text-black flex-1 max-w-[742px] h-[16px]">Delivery</span>
                     <div className="text-right text-[14px] text-black max-w-[60%] gap-x-[4px] gap-y-[8px] flex flex-col">
                       <div className="">Next Working Day Delivery</div>
-                      <div>{order.shipping_address.line1}</div>
-                      {order.shipping_address.line2 && <div>{order.shipping_address.line2}</div>}
-                      <div>{order.shipping_address.city}</div>
-                      <div>{order.shipping_address.state}</div>
-                      <div>{order.shipping_address.zip}</div>
-                      <div>{order.shipping_address.country}</div>
+                      <div>{order.address.line1}</div>
+                      {order.address.line2 && <div>{order.address.line2}</div>}
+                      <div>{order.address.city}</div>
+                      <div>{order.address.zip}</div>
+                      <div>{order.address.country}</div>
                     </div>
                   </div>
                 </div>
@@ -193,7 +191,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                       setReordering(false);
                     }
                   }}
-                  className="w-full h-[50px] bg-green-600 hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-lg py-[13px] rounded-md box-shadow-bottom"
+                  className="w-full h-[50px] bg-green-600 hover:bg-green-700 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-lg py-[13px] rounded-md box-shadow-bottom"
                 >
                   {reordering ? "Reordering…" : "Reorder Items"}
                 </button>

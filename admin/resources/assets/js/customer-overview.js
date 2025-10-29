@@ -4,14 +4,6 @@
 
 'use strict';
 
-const select2 = $('.select2');
-  if (select2.length) {
-    var $this = select2;
-    $this.wrap('<div class="position-relative"></div>').select2({
-      placeholder: 'United States ',
-      dropdownParent: $this.parent()
-    });
-  }
 
 // Datatable (js)
 document.addEventListener('DOMContentLoaded', function (e) {

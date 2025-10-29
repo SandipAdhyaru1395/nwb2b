@@ -3,6 +3,7 @@
  */
 'use strict';
 
+
 document.addEventListener('DOMContentLoaded', function () {
   const formChangePass = document.querySelector('#formChangePassword');
 

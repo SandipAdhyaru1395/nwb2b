@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Address;
 use App\Models\WalletTransaction;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\DB;
@@ -95,21 +97,12 @@ class OrderController extends Controller
                 'total_paid' => (float)($order->total_amount ?? 0),
                 'payment_amount' => (float)($order->payment_amount ?? max(0, ($order->total_amount ?? 0) - ($order->wallet_credit_used ?? 0))),
                 'currency_symbol' => $setting['currency_symbol'] ?? '',
-                'billing_address' => [
-                    'line1' => $order->b_address_line1,
-                    'line2' => $order->b_address_line2,
-                    'city' => $order->b_city,
-                    'state' => $order->b_state,
-                    'zip' => $order->b_zip_code,
-                    'country' => $order->b_country,
-                ],
-                'shipping_address' => [
-                    'line1' => $order->s_address_line1,
-                    'line2' => $order->s_address_line2,
-                    'city' => $order->s_city,
-                    'state' => $order->s_state,
-                    'zip' => $order->s_zip_code,
-                    'country' => $order->s_country,
+                'address' => [
+                    'line1' => $order->address_line1,
+                    'line2' => $order->address_line2,
+                    'city' => $order->city,
+                    'zip' => $order->zip_code,
+                    'country' => $order->country,
                 ],
                 'items' => $items,
             ],
@@ -126,13 +119,31 @@ class OrderController extends Controller
                 'items.*.quantity' => 'required|integer|min:1',
                 'total' => 'required|numeric|min:0',
                 'units' => 'required|integer|min:1',
-                'skus' => 'required|integer|min:1'
+                'skus' => 'required|integer|min:1',
+                'branch_id' => 'required|integer|exists:branches,id',
             ]);
     
             $items = $request->input('items');
             $total = $request->input('total');
             $units = $request->input('units');
             $skus = $request->input('skus');
+            $branchId = (int) $request->input('branch_id');
+            $customer = $request->user();
+
+            // Validate that the address belongs to the authenticated user
+            $branch = Branch::where('id', $branchId)
+                ->where('customer_id', optional($customer)->id)
+                ->first();
+
+            if (!$branch) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid branch selected.',
+                    'errors' => [
+                        'branch_id' => ['The selected branch is invalid.']
+                    ]
+                ], 200);
+            }
             
             $total = 0;
             
@@ -184,7 +195,6 @@ class OrderController extends Controller
             }
 
 			// Auto-apply available wallet credit to this purchase (partial or full)
-			$customer = $request->user();
 			$availableCredit = (float) optional($customer)->credit_balance ?? 0.0;
 			$subtotal = $total;
 			$vatAmount = 0; // extend later if VAT is introduced
@@ -210,7 +220,14 @@ class OrderController extends Controller
 				'payment_status' => ($outstandingAmount <= 0 ? 'Paid' : 'Unpaid'),
 				'outstanding_amount' => $outstandingAmount,
                 'estimated_delivery_date' => now()->addDays(7),
-                'status' => 'New'
+                'status' => 'New',
+                // Persist delivery address snapshot on the order
+                'branch_name' => (string) $branch->name,
+                'country' => (string) $branch->country,
+                'address_line1' => (string) $branch->address_line1,
+                'address_line2' => (string) ($branch->address_line2 ?? ''),
+                'city' => (string) $branch->city,
+                'zip_code' => (string) $branch->zip_code,
             ]);
             
             OrderItem::whereNull('order_id')->update([

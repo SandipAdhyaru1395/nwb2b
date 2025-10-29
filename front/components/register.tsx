@@ -24,7 +24,6 @@ export default function Register() {
     mode: "onSubmit",
     reValidateMode: "onChange",
     defaultValues: {
-      name: "",
       company: "",
       invoice1: "",
       invoice2: "",
@@ -49,7 +48,6 @@ export default function Register() {
     setLoading(true);
     try {
       const { data } = await api.post("/register", {
-        name: values.name,
         companyName: values.company,
         email: values.email,
         mobile: values.mobile,
@@ -60,6 +58,7 @@ export default function Register() {
         state: values.state || undefined,
         country: values.country || undefined,
         zip_code: values.postcode,
+        rep_code : values.repCode
       });
       if (data?.success) {
         setSuccess("Registration submitted successfully. You can now log in.");
@@ -77,7 +76,6 @@ export default function Register() {
           const msg = Array.isArray(msgs) ? msgs[0] : String(msgs);
           // map backend fields to our form fields
           const map: Record<string, string> = {
-            name: "name",
             companyName: "company",
             email: "email",
             password: "password",
@@ -131,7 +129,6 @@ export default function Register() {
               <FloatingInput label="Address line 1" placeholder="Please enter invoice address line 1..." {...register("invoice1", { required: "Address line 1 is required" })} error={(errors as any).invoice1?.message as string} />
               <FloatingInput label="Address line 2" placeholder="Please enter invoice address line 2..." {...register("invoice2")} />
               <FloatingInput label="City" placeholder="Please enter invoice address city..." {...register("city", { required: "City is required" })} error={(errors as any).city?.message as string} />
-              <FloatingInput label="State" placeholder="Please enter state (optional)..." {...register("state")} />
               <FloatingInput label="Country" placeholder="Please enter country (optional)..." {...register("country")} />
               <FloatingInput label="Postcode" placeholder="Please enter invoice address postcode..." {...register("postcode", { required: "Postcode is required" })} error={(errors as any).postcode?.message as string} />
             </div>

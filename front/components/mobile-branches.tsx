@@ -27,6 +27,8 @@ interface Branch {
   city: string;
   zip_code: string;
   country: string;
+  state: string;
+  is_default: boolean;
 }
 
 interface MobileBranchesProps {
@@ -41,20 +43,22 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
 
   // ✅ Fetch branches on component mount
-  useEffect(() => {
-    const fetchBranches = async () => {
-      try {
-        startLoading();
-        const response = await api.get("/branches"); // Axios request
-        setBranches(response.data); // Axios puts data in `response.data`
-      } catch (error) {
-        console.error("Error fetching branches:", error);
-        alert("Failed to load branches");
-      } finally {
-        stopLoading();
+  const fetchBranches = async () => {
+    try {
+      startLoading();
+      const response = await api.get("/branches");
+      if (response.data.success) {
+        setBranches(response.data.branches);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+      alert("Failed to load branches");
+    } finally {
+      stopLoading();
+    }
+  };
 
+  useEffect(() => {
     fetchBranches();
   }, []);
 
@@ -62,8 +66,10 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
     try {
       startLoading();
       const response = await api.get(`/branches/${branchId}`);
-      setSelectedBranch(response.data);
-      setShowEditBranch(true);
+      if (response.data.success) {
+        setSelectedBranch(response.data.branch);
+        setShowEditBranch(true);
+      }
     } catch (error) {
       console.error("Error fetching branch:", error);
       alert("Failed to load branch details");
@@ -73,7 +79,13 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
   };
 
   if (showNewBranch) {
-    return <MobileNewBranch onNavigate={onNavigate} onBack={() => setShowNewBranch(false)} />;
+    return (
+      <MobileNewBranch 
+        onNavigate={onNavigate} 
+        onBack={() => setShowNewBranch(false)}
+        onBranchSaved={fetchBranches}
+      />
+    );
   }
 
   if (showEditBranch && selectedBranch) {
@@ -82,6 +94,7 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
         branchDetails={selectedBranch}
         onNavigate={onNavigate}
         onBack={() => setShowEditBranch(false)}
+        onBranchUpdated={fetchBranches}
       />
     );
   }
@@ -118,9 +131,9 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
             <div
               key={branch.id}
               onClick={() => handleBranchClick(branch.id)}
-              className="h-[42px] leading-[16px] border border-green-600 mb-[10px] p-[12px] rounded-md cursor-pointer flex items-center justify-between"
+              className="min-h-[42px] leading-[16px] border border-green-600 mb-[10px] p-[12px] rounded-md cursor-pointer flex items-center justify-between"
             >
-              <div className="flex items-start">
+              <div className="flex items-center">
                 <FontAwesomeIcon
                   icon={faStore}
                   className="text-green-600"
@@ -132,6 +145,7 @@ export function MobileBranches({ onNavigate, onBack }: MobileBranchesProps) {
                     {branch.address_line1}
                     {branch.address_line2 ? `, ${branch.address_line2}` : ""}
                     {branch.city ? `, ${branch.city}` : ""}
+                    {branch.state ? `, ${branch.state}` : ""}
                     {branch.country ? `, ${branch.country}` : ""}
                     {branch.zip_code ? `, ${branch.zip_code.replace(/^(\w{3})(\w{3})$/, '$1 $2')}` : ""}
                   </strong>

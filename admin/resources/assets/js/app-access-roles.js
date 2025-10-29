@@ -29,9 +29,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
         { data: 'full_name' },
-        { data: 'role' },
-        { data: 'status' },
-        { data: 'id' }
+        { data: 'role', width: '15%' },
+        { data: 'status', width: '15%' },
+        { data: 'id', width: '15%' }
       ],
       columnDefs: [
         {
@@ -102,16 +102,16 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 3,
           render: function (data, type, full, meta) {
             const role = full['role'];
-            const roleBadgeObj = {
-              "User": '<span class="me-2"><i class="icon-base ti tabler-user icon-22px text-success"></i></span>',
-              // "Manager":
-              //   '<span class="me-2"><i class="icon-base ti tabler-device-desktop icon-22px text-danger"></i></span>',
-              "Manager": '<span class="me-2"><i class="icon-base ti tabler-chart-pie icon-22px text-info"></i></span>',
-              // "Manager": '<span class="me-2"><i class="icon-base ti tabler-edit icon-22px text-warning"></i></span>',
-              "Administrator": '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>'
-            };
+            // const roleBadgeObj = {
+            //   "User": '<span class="me-2"><i class="icon-base ti tabler-user icon-22px text-success"></i></span>',
+            //   // "Manager":
+            //   //   '<span class="me-2"><i class="icon-base ti tabler-device-desktop icon-22px text-danger"></i></span>',
+            //   "Manager": '<span class="me-2"><i class="icon-base ti tabler-chart-pie icon-22px text-info"></i></span>',
+            //   // "Manager": '<span class="me-2"><i class="icon-base ti tabler-edit icon-22px text-warning"></i></span>',
+            //   "Administrator": '<span class="me-2"><i class="icon-base ti tabler-crown icon-22px text-primary"></i></span>'
+            // };
 
-            return `<span class='text-truncate d-flex align-items-center'>${roleBadgeObj[role] || ''}${role}</span>`;
+            return `<span class='text-truncate d-flex align-items-center'>${role}</span>`;
           }
         },
         

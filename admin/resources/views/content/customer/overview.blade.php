@@ -31,7 +31,7 @@
     'resources/assets/js/modal-edit-customer.js'
   ])
   <script>
-    @if ($errors->edit->any())
+    @if ($errors->editCustomer->any())
       document.addEventListener("DOMContentLoaded", function () {
         // let offcanvasCustomerEdit = new bootstrap.Offcanvas(document.getElementById('offcanvasCustomerEdit'));
         // offcanvasCustomerEdit.show();
@@ -62,8 +62,8 @@
                 class="icon-base ti tabler-lock icon-sm me-1_5"></i>Security</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{ url('customer/' . $customer->id . '/addresses') }}"><i
-                class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Addresses</a>
+            <a class="nav-link" href="{{ url('customer/' . $customer->id . '/branches') }}"><i
+                class="icon-base ti tabler-map-pin icon-sm me-1_5"></i>Branches</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{ url('customer/' . $customer->id . '/notifications') }}"><i

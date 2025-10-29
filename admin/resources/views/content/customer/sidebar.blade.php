@@ -3,17 +3,7 @@
     <!-- Customer-detail Card -->
     <div class="card mb-6">
       <div class="card-body pt-12">
-        <div class="customer-avatar-section">
-          <div class="d-flex align-items-center flex-column">
-            {{-- <img class="img-fluid rounded mb-4" src="{{ asset('assets/img/avatars/1.png') }}" height="120" width="120"
-              alt="User avatar" /> --}}
-            <div class="customer-info text-center mb-6">
-              <h5 class="mb-0">{{ $customer->name ?? '-' }}</h5>
-              <span>Customer ID #{{ $customer->id ?? '-' }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex justify-content-around flex-wrap mb-6 gap-0 gap-md-3 gap-lg-4">
+        <div class="d-flex justify-content-around flex-wrap mb-10 gap-0 gap-md-3 gap-lg-4">
           <div class="d-flex align-items-center gap-4 me-5">
             <div class="avatar">
               <div class="avatar-initial rounded bg-label-primary">
@@ -39,7 +29,7 @@
         </div>
 
         <div class="info-container">
-          <h5 class="pb-4 border-bottom text-capitalize mt-6 mb-4">Details</h5>
+          <h5 class="pb-4 border-bottom text-capitalize mb-4">Details</h5>
           <ul class="list-unstyled mb-6">
             @if(!empty($customer->company_name))
             <li class="mb-2">
@@ -71,17 +61,17 @@
               <span>{{ $customer->vat_number }}</span>
             </li>
             @endif
-            @if(!empty($customer->business_reg_number))
-            <li class="mb-2">
-              <span class="h6 me-1">Business Reg No:</span>
-              <span>{{ $customer->business_reg_number }}</span>
-            </li>
-            @endif
             @if(isset($customer->credit_balance))
             <li class="mb-2">
               <span class="h6 me-1">Credit Balance:</span>
               <span>{{ $currencySymbol }}{{ number_format($customer->credit_balance, 2) }}</span>
             </li>
+            @endif
+            @if(!empty($customer->approved_by))
+              <li class="mb-2">
+                <span class="h6 me-1">Approved By:</span>
+                <span>{{ $customer->approvedBy->name }}</span>
+              </li>
             @endif
             @if(!empty($customer->approved_at))
             <li class="mb-2">

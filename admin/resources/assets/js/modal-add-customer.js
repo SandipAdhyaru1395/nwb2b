@@ -12,13 +12,6 @@
   if (!addCustomerForm) return;
   const fv = FormValidation.formValidation(addCustomerForm, {
     fields: {
-      name: {
-        validators: {
-          notEmpty: {
-            message: 'Please enter fullname '
-          }
-        }
-      },
       companyName: {
         validators: {
           notEmpty: {

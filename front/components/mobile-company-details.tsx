@@ -21,7 +21,6 @@ const companyDetailsSchema = z.object({
   address_line2: z.string().max(255, "Address line 2 must be less than 255 characters").optional(),
   city: z.string().min(1, "City is required").max(255, "City must be less than 255 characters"),
   country: z.string().max(255, "Country must be less than 255 characters").optional(),
-  state: z.string().max(255, "State must be less than 255 characters").optional(),
   postcode: z.string().min(1, "Postcode is required").max(255, "Postcode must be less than 255 characters"),
 })
 
@@ -47,7 +46,6 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
       address_line2: "",
       city: "",
       country: "",
-      state: "",
       postcode: "",
     }
   })
@@ -61,7 +59,6 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
         address_line2: customer.address_line2 || "",
         city: customer.city || "",
         country: customer.country || "",
-        state: customer.state || "",
         postcode: customer.postcode || "",
       })
       setLoading(false)
@@ -188,14 +185,7 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
               {...form.register("country")}
               error={form.formState.errors.country?.message as string}
             />
-
-            {/* State */}
-            <FloatingInput
-              label="State"
-              placeholder="Please enter invoice address state..."
-              {...form.register("state")}
-              error={form.formState.errors.state?.message as string}
-            />
+           
 
             {/* Postcode */}
             <FloatingInput
@@ -209,7 +199,7 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
               <Button
                 onClick={form.handleSubmit(saveCompanyDetails)}
                 disabled={saving}
-                className="w-full gap-0 leading-[16px] h-[45px] bg-green-600 hover:bg-green-700 text-[16px] text-white !p-[14px] rounded font-medium flex items-center justify-center"
+                className="w-full gap-0 cursor-pointer leading-[16px] h-[45px] bg-green-600 hover:bg-green-700 text-[16px] text-white !p-[14px] rounded font-medium flex items-center justify-center"
               >
                 <FontAwesomeIcon className="mx-[4px] leading-[16px]" icon={faCircleCheck}  style={{ width: "16px", height: "16px" }} />
                 <span className="mx-[4px] font-semibold leading-[16px]">

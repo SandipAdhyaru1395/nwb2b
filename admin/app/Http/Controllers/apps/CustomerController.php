@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Customer;
@@ -18,7 +19,9 @@ class CustomerController extends Controller
 {
   public function index()
   {
-    return view('content.customer.list');
+    $sales_persons = Helpers::getSalesPersons();
+
+    return view('content.customer.list',compact('sales_persons'));
   }
 
   private function init($id = null)
@@ -37,18 +40,19 @@ class CustomerController extends Controller
 
     $settings = Helpers::setting();
     $currencySymbol = $settings['currency_symbol'] ?? '$';
+    $sales_persons = Helpers::getSalesPersons();
 
     return [
       'customer' => $customer,
       'ordersCount' => (int) ($orderAgg->orders_count ?? 0),
       'totalSpent' => (float) ($orderAgg->total_spent ?? 0),
       'currencySymbol' => $currencySymbol,
+      'sales_persons' => $sales_persons
     ];
   }
   public function overview($id = null)
   {
     $data = $this->init($id);
-
     return view('content.customer.overview', $data);
   }
 
@@ -57,14 +61,14 @@ class CustomerController extends Controller
     // Build aggregated customer stats
     $customerStats = Customer::query()
       ->leftJoin('orders', 'orders.customer_id', '=', 'customers.id')
-      ->groupBy('customers.id', 'customers.name', 'customers.email', 'customers.phone', 'customers.credit_balance')
-      ->selectRaw('customers.id, customers.name, customers.email, customers.phone, customers.credit_balance, COUNT(orders.id) as orders_count, COALESCE(SUM(orders.total_amount), 0) as total_spent')
+      ->groupBy('customers.id', 'customers.email', 'customers.phone', 'customers.credit_balance')
+      ->selectRaw('customers.id,customers.email, customers.phone, customers.credit_balance, COUNT(orders.id) as orders_count, COALESCE(SUM(orders.total_amount), 0) as total_spent')
       ->get();
 
     $data = $customerStats->map(function ($row) {
       return [
         'id' => (int) $row->id,
-        'customer' => $row->name ?? '—',
+        // 'customer' => $row->name ?? '—',
         'email' => $row->email ?? '',
         'image' => null, // No avatar stored; handled on client with initials
         'phone' => $row->phone ?? '',
@@ -109,20 +113,19 @@ class CustomerController extends Controller
     return view('content.customer.security', $data);
   }
 
-  public function addresses($id = null)
+  public function branches($id = null)
   {
 
     $data = $this->init($id);
 
     // Load addresses for the customer
-    $addresses = Address::where('customer_id', $id)
-      ->orderBy('is_default', 'desc')
+    $branches = Branch::where('customer_id', $id)
       ->orderBy('created_at', 'asc')
       ->get();
 
-    $data['addresses'] = $addresses;
+    $data['branches'] = $branches;
 
-    return view('content.customer.addresses', $data);
+    return view('content.customer.branches', $data);
   }
 
 
@@ -174,7 +177,6 @@ class CustomerController extends Controller
   {
 
     $validator = Validator::make($request->all(), [
-      'name' => ['required', 'string', 'max:255'],
       'companyName' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', 'unique:customers'],
       'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone'],
@@ -184,7 +186,7 @@ class CustomerController extends Controller
       'city' => ['required', 'string', 'max:255'],
       'zip_code' => ['required', 'string', 'max:255'],
     ], [
-      'name.required' => 'Please enter name',
+      'companyName.required' => 'Please enter company name',
       'email.required' => 'Please enter email',
       'email.unique' => 'Email already exists',
       'password.required' => 'Please enter password',
@@ -204,36 +206,26 @@ class CustomerController extends Controller
 
     try {
       DB::beginTransaction();
-      $customer = Customer::create([
-        'name' => $request->name,
+       
+      Customer::create([
         'company_name' => $request->companyName,
         'email' => $request->email,
         'phone' => $request->mobile,
-        'password' => bcrypt($request->password), // ✅ hash password
-        'vat_number' => $request->vatNumber ?? '',
+        'password' => $request->password, // ✅ hash password
         'approved_at' => now(),
         'approved_by' => auth()->id(),
         'is_active' => $request->status === 'active' ? 1 : 0,
+        'company_address_line1' => $request->addressLine1,
+        'company_address_line2' => $request->addressLine2,
+        'company_city' => $request->city,
+        'company_country' => $request->country,
+        'company_zip_code' => $request->zip_code,
+        'rep_code' => $request->rep_code ?? null,
+        'rep_id' => $request->rep_id ?? null
       ]);
-
-      $address = $customer->addresses()->create([
-        'name' => $request->name,
-        'address_line1' => $request->addressLine1,
-        'address_line2' => $request->addressLine2,
-        'city' => $request->city,
-        'state' => $request->state,
-        'country' => $request->country,
-        'zip_code' => $request->zip_code,
-        'is_default' => 1,
-      ]);
-
-      // Attach default address to customer without extra query
-      $customer->update([
-        'address_id' => $address->id,
-      ]);
-
 
       DB::commit();
+      
       Toastr::success('Customer created successfully!');
     } catch (\Exception $e) {
       Toastr::error('Something went wrong');
@@ -248,35 +240,46 @@ class CustomerController extends Controller
   {
 
     $validator = Validator::make($request->all(), [
-      'name' => ['required', 'string', 'max:255'],
+      'companyName' => ['required', 'string', 'max:255'],
       'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email,' . $request->id],
-      'password' => ['nullable', 'string', 'min:6'],
       'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone,' . $request->id],
+      'password' => ['nullable', 'string', 'min:6'],
       'status' => ['required'],
+      'addressLine1' => ['required', 'string', 'max:255'],
+      'city' => ['required', 'string', 'max:255'],
+      'zip_code' => ['required', 'string', 'max:255'],
     ], [
-      'name.required' => 'Please enter name',
+      'companyName.required' => 'Please enter company name',
       'email.required' => 'Please enter email',
       'email.unique' => 'Email already exists',
       'password.min' => 'Password must be more than 6 characters',
       'mobile.required' => 'Please enter mobile number',
       'mobile.digits' => 'Mobile number must be 10 digits',
       'mobile.unique' => 'Mobile number already exists',
+      'companyName.required' => 'Please enter company name',
+      'addressLine1.required' => 'Please enter address line 1',
+      'city.required' => 'Please enter city',
+      'zip_code.required' => 'Please enter postcode'
     ]);
 
     if ($validator->fails()) {
-      return redirect()->back()->withErrors($validator, 'edit')->withInput();
+      return redirect()->back()->withErrors($validator, 'editCustomer')->withInput();
     }
 
     $customer = Customer::findOrFail($request->id);
 
     $data = [
-      'name' => $request->name,
+      'company_name' => $request->companyName,
       'email' => $request->email,
       'phone' => $request->mobile,
-      'company_name' => $request->companyName ?? '',
-      'vat_number' => $request->vatNumber ?? '',
-      'business_reg_number' => $request->businessRegistrationNumber,
-      'is_active' => ($request->status == 'active') ? 1 : 0,
+      'is_active' => $request->status === 'active' ? 1 : 0,
+      'company_address_line1' => $request->addressLine1,
+      'company_address_line2' => $request->addressLine2,
+      'company_city' => $request->city,
+      'company_country' => $request->country,
+      'company_zip_code' => $request->zip_code,
+      'rep_code' => $request->rep_code ?? null,
+      'rep_id' => $request->rep_id ?? null
     ];
 
     if ($request->password) {

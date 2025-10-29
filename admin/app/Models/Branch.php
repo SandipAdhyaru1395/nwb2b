@@ -4,11 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Address extends Model
+class Branch extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'customer_id',
@@ -17,14 +15,9 @@ class Address extends Model
         'address_line1',
         'address_line2',
         'city',
-        'state',
-        'zip_code',
-        'is_default',
+        'zip_code'
     ];
-
-    protected $casts = [
-        'is_default' => 'boolean',
-    ];
+    
 
     /**
      * Get the customer that owns the address.

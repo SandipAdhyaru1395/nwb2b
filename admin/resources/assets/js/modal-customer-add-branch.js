@@ -1,5 +1,5 @@
 /**
- * Add New Address
+ * Add New Branch
  */
 
 'use strict';
@@ -20,12 +20,19 @@ $(function () {
   }
 });
 
-// Add New Address form validation
+// Add New Branch form validation
 document.addEventListener('DOMContentLoaded', function () {
   (function () {
 
-    FormValidation.formValidation(document.getElementById('addCustomerAddressForm'), {
+    FormValidation.formValidation(document.getElementById('addCustomerBranchForm'), {
       fields: {
+        name: {
+          validators: {
+            notEmpty: {
+              message: 'Branch name is required'
+            },
+          }
+        },
         address_line1: {
           validators: {
             notEmpty: {

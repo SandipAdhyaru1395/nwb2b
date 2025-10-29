@@ -1,6 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import api from "@/lib/axios";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -24,6 +29,7 @@ interface Branch {
   city: string;
   zip_code: string;
   country: string;
+  is_default: boolean;
 }
 
 interface MobileEditBranchProps {
@@ -40,40 +46,100 @@ interface MobileEditBranchProps {
       | "branches"
   ) => void;
   onBack: () => void;
+  onBranchUpdated?: () => void;
 }
 
-export function MobileEditBranch({ branchDetails, onNavigate, onBack }: MobileEditBranchProps) {
-  const [branch, setBranch] = useState(branchDetails);
+export function MobileEditBranch({ branchDetails, onNavigate, onBack, onBranchUpdated }: MobileEditBranchProps) {
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { toast } = useToast();
 
-  // ✅ Simulate fetching branch data (replace with real API call)
-  useEffect(() => {
-    // setBranch({
-    //   id: 1,
-    //   name: "Downtown Branch",
-    //   address_line1: "123 Main Street",
-    //   address_line2: "Suite 4B",
-    //   city: "Mumbai",
-    //   country: "Maharashtra",
-    //   zip_code: "400001"
-    // });
-  }, [branchDetails]);
+  // Validation schema aligned with MobileNewBranch
+  const branchSchema = z.object({
+    name: z.string().min(1, "Branch name is required"),
+    line1: z.string().min(1, "Address line 1 is required"),
+    line2: z.string().optional(),
+    city: z.string().min(1, "City is required"),
+    county: z.string().optional(),
+    postcode: z.string().min(1, "Postcode is required"),
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setBranch((prev) => ({ ...prev, [name]: value }));
-  };
+  type BranchFormData = z.infer<typeof branchSchema>;
 
-  const handleSave = () => {
-    // console.log("Saving branch:", branchId, branch);
-    // TODO: PUT request to /api/branches/:id
-    onBack();
-  };
+  const { register, handleSubmit, formState: { errors } } = useForm<BranchFormData>({
+    resolver: zodResolver(branchSchema),
+    defaultValues: {
+      name: branchDetails.name || "",
+      line1: branchDetails.address_line1 || "",
+      line2: branchDetails.address_line2 || "",
+      city: branchDetails.city || "",
+      county: branchDetails.country || "",
+      postcode: branchDetails.zip_code || "",
+    }
+  });
 
-  const handleDelete = () => {
-    if (confirm("Are you sure you want to delete this branch?")) {
-      // console.log("Deleting branch:", branchId);
-      // TODO: DELETE request to /api/branches/:id
+  const onSubmit = async (data: BranchFormData) => {
+    if (!branchDetails?.id) {
       onBack();
+      return;
+    }
+    try {
+      setIsSaving(true);
+      const payload = {
+         name: data.name,
+        address_line1: data.line1,
+        address_line2: data.line2,
+        city: data.city,
+        country: data.county,
+        zip_code: data.postcode,
+      };
+      const res = await api.put(`/branches/${branchDetails.id}`, payload);
+      if (res?.data?.success) {
+        toast({ title: "Success", description: "Branch updated successfully" });
+        if (onBranchUpdated) {
+          try { await onBranchUpdated(); } catch {}
+        }
+        onBack();
+      } else {
+        toast({ title: "Error", description: "Failed to update branch", variant: "destructive" });
+      }
+    } catch (e: any) {
+      if (e?.response?.status === 422 && e?.response?.data?.errors) {
+        const validationErrors = e.response.data.errors;
+        const firstError = Object.values(validationErrors)[0] as any;
+        const message = Array.isArray(firstError) ? firstError[0] : (firstError || "Validation failed");
+        toast({ title: "Validation Error", description: message, variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDeleteConfirmed = async () => {
+    if (!branchDetails?.id) {
+      onBack();
+      return;
+    }
+    try {
+      setIsDeleting(true);
+      const res = await api.delete(`/branches/${branchDetails.id}`);
+      if (res?.data?.success) {
+        toast({ title: "Deleted", description: "Branch deleted successfully" });
+        if (onBranchUpdated) {
+          try { await onBranchUpdated(); } catch {}
+        }
+        onBack();
+      } else {
+        toast({ title: "Error", description: "Failed to delete branch", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setIsDeleting(false);
+      setConfirmOpen(false);
     }
   };
 
@@ -95,79 +161,101 @@ export function MobileEditBranch({ branchDetails, onNavigate, onBack }: MobileEd
       <Banner />
 
       {/* Form */}
-      <div className="p-[10px] mb-[82px]">
+      <form onSubmit={handleSubmit(onSubmit)} className="p-[10px] mb-[82px]">
         <FloatingInput
           label="Branch Name"
-          name="name"
-          value={branch.name}
-          onChange={handleChange}
           placeholder="Enter branch name..."
+          {...register("name")}
+          error={errors.name?.message}
         />
         <hr className="my-[20px]" />
 
         <FloatingInput
           label="Line 1"
-          name="line1"
-          value={branch.address_line1}
-          onChange={handleChange}
           placeholder="Enter address line 1..."
+          {...register("line1")}
+          error={errors.line1?.message}
         />
 
         <FloatingInput
           label="Line 2"
-          name="line2"
-          value={branch.address_line2}
-          onChange={handleChange}
           placeholder="Enter address line 2..."
+          {...register("line2")}
+          error={errors.line2?.message}
         />
 
         <FloatingInput
           label="City"
-          name="city"
-          value={branch.city}
-          onChange={handleChange}
           placeholder="Enter city..."
+          {...register("city")}
+          error={errors.city?.message}
         />
 
         <FloatingInput
           label="Country"
-          name="county"
-          value={branch.country}
-          onChange={handleChange}
           placeholder="Enter country..."
+          {...register("county")}
+          error={errors.county?.message}
         />
 
         <FloatingInput
           label="Postcode"
-          name="postcode"
-          value={branch.zip_code}
-          onChange={handleChange}
           placeholder="Enter postcode..."
+          {...register("postcode")}
+          error={errors.postcode?.message}
         />
 
         <hr className="my-[20px]" />
 
         {/* Buttons */}
         <Button
-          onClick={handleSave}
+          type="submit"
           className="w-full cursor-pointer rounded bg-green-600 hover:bg-green-700 text-white font-semibold h-[45px] !leading-[13px]"
         >
           <div className="!leading-[13px]">
             <FontAwesomeIcon icon={faCircleCheck} style={{ width: "16px", height: "16px" }} />
           </div>
-          <span className="text-[16px]">Save</span>
+          <span className="text-[16px]">{isSaving ? "Saving..." : "Save"}</span>
         </Button>
         <hr className="my-[20px]"></hr>
         <Button
-          onClick={handleDelete}
+          type="button"
+          onClick={() => setConfirmOpen(true)}
           className="w-full cursor-pointer rounded bg-red-600 hover:bg-red-700 text-white font-semibold h-[45px] !leading-[13px]"
         >
           <div className="!leading-[13px]">
             <FontAwesomeIcon icon={faCircleXmark} style={{ width: "16px", height: "16px" }} />
           </div>
-          <span className="text-[16px]">Delete</span>
+          <span className="text-[16px]">{isDeleting ? "Deleting..." : "Delete"}</span>
         </Button>
-      </div>
+      {confirmOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => !isDeleting && setConfirmOpen(false)}></div>
+          <div className="relative bg-white w-[90%] max-w-[420px] rounded-md shadow-lg p-4">
+            <h3 className="text-[16px] font-semibold mb-2">Delete branch?</h3>
+            <p className="text-[14px] text-gray-600 mb-4">This action cannot be undone.</p>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                onClick={() => setConfirmOpen(false)}
+                className="cursor-pointer rounded bg-gray-200 hover:bg-gray-300 text-black font-semibold h-[40px] px-4 !leading-[13px]"
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleDeleteConfirmed}
+                className="cursor-pointer rounded bg-red-600 hover:bg-red-700 text-white font-semibold h-[40px] px-4 !leading-[13px] disabled:opacity-50"
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+      </form>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">

@@ -26,25 +26,12 @@ class Order extends Model
         'outstanding_amount',
         'estimated_delivery_date',
         'status',
-
-        'b_address_type',
-        'b_country',
-        'b_address_line1',
-        'b_address_line2',
-        'b_landmark',
-        'b_city',
-        'b_state',
-        'b_zip_code',
-
-
-        's_address_type',
-        's_country',
-        's_address_line1',
-        's_address_line2',
-        's_landmark',
-        's_city',
-        's_state',
-        's_zip_code',
+        'branch_name',
+        'country',
+        'address_line1',
+        'address_line2',
+        'city',
+        'zip_code',
     ];
 
     public function customer()

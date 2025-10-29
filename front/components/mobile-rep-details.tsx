@@ -49,10 +49,10 @@ export function MobileRepDetails({ onNavigate, onBack }: MobileRepDetailsProps) 
         <div className="border-b border-gray-100 mb-[24px]">
           <div className="flex items-center">
             <div className="mr-[8px] w-[72px]  h-[72px] bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-[16px]">{getInitials(customer?.name || "RE")}</span>
+              <span className="text-white text-[16px]">{getInitials(customer?.rep_name || "RE")}</span>
             </div>
             <div>
-              <h2 className="text-[1.5em] font-bold text-gray-900">{customer?.name || "Your Representative"}</h2>
+              <h2 className="text-[1.5em] font-bold text-gray-900">{customer?.rep_name || "Your Representative"}</h2>
             </div>
           </div>
         </div>
@@ -62,13 +62,13 @@ export function MobileRepDetails({ onNavigate, onBack }: MobileRepDetailsProps) 
         {/* Phone Number */}
         <div className="mb-[24px] leading-[16px] font-semibold">
           <p className="text-[16px] mb-[8px]">Phone Number</p>
-          <p className="text-[16px] text-green-600 ">{customer?.phone || "Contact your representative"}</p>
+          <p className="text-[16px] text-green-600 ">{customer?.rep_mobile || "Contact your representative"}</p>
         </div>
 
         {/* Email */}
         <div className="mb-[24px] leading-[16px] font-semibold">
           <p className="text-[16px] mb-[8px]">Email</p>
-          <p className="text-[16px] text-green-600">{customer?.email || "rep@company.com"}</p>
+          <p className="text-[16px] text-green-600">{customer?.rep_email || "rep@company.com"}</p>
         </div>
         <hr className="my-[20px]"></hr>
       </div>

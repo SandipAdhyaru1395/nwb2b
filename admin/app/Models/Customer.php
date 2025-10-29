@@ -16,13 +16,9 @@ class Customer extends Model
     protected $table = 'customers';
 
     protected $fillable = [
-        'name',
-        'company_name',
         'email',
         'phone',
         'password',
-        'vat_number',
-        'address_id',
         'approved_at',
         'approved_by',
         'credit_balance',
@@ -30,6 +26,14 @@ class Customer extends Model
         'is_active',
         'remember_token',
         'last_login',
+        'company_name',
+        'company_country',
+        'company_address_line1',
+        'company_address_line2',
+        'company_city',
+        'company_zip_code',
+        'rep_code',
+        'rep_id'
     ];
 
     protected $casts = [
@@ -43,19 +47,19 @@ class Customer extends Model
     ];
 
     /**
-     * Get the default address for the customer.
-     */
-    public function defaultAddress(): BelongsTo
-    {
-        return $this->belongsTo(Address::class, 'address_id');
-    }
-
-    /**
      * Get all addresses for the customer.
      */
-    public function addresses(): HasMany
+    public function branches(): HasMany
     {
-        return $this->hasMany(Address::class);
+        return $this->hasMany(Branch::class);
+    }
+
+    public function approvedBy(){
+        return $this->belongsTo(User::class,'approved_by','id');
+    }
+
+    public function salesPerson(){
+        return $this->belongsTo(User::class,'rep_id','id');
     }
 }
 

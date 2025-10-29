@@ -77,7 +77,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => ['required', 'string', 'max:255'],
             'companyName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:customers,email'],
             'mobile' => ['required', 'string', 'digits:10', 'unique:customers,phone'],
@@ -89,8 +88,8 @@ class AuthController extends Controller
             'state' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'zip_code' => ['required', 'string', 'max:255'],
+            'rep_code' => ['nullable', 'string', 'max:255'],
         ], [
-            'name.required' => 'Please enter name',
             'email.required' => 'Please enter email',
             'email.unique' => 'Email already exists',
             'password.required' => 'Please enter password',
@@ -116,33 +115,21 @@ class AuthController extends Controller
 
         // Create customer first (hash password)
         $customer = Customer::create([
-            'name' => $data['name'],
-            'company_name' => $data['companyName'],
             'email' => $data['email'],
             'phone' => $data['mobile'],
             'password' => bcrypt($data['password']),
             'approved_at' => null,
             'approved_by' => null,
             'is_active' => 1,
+            'company_name' => $data['companyName'],
+            'company_address_line1' => $data['addressLine1'],
+            'company_address_line2' => $data['addressLine2'] ?? null,
+            'company_city' => $data['city'],
+            'company_country' => $data['country'] ?? null,
+            'company_zip_code' => $data['zip_code'],
+            'rep_code' => $data['rep_code'] ?? null
         ]);
-
-        // Create default address
-        $address = Address::create([
-            'customer_id' => $customer->id,
-            'name' => $data['name'],
-            'address_line1' => $data['addressLine1'],
-            'address_line2' => $data['addressLine2'] ?? null,
-            'city' => $data['city'],
-            'state' => $data['state'] ?? null,
-            'country' => $data['country'] ?? null,
-            'zip_code' => $data['zip_code'],
-            'is_default' => 1,
-        ]);
-
-        // Attach default address to customer
-        $customer->update([
-            'address_id' => $address->id,
-        ]);
+    
 
         return response()->json([
             'success' => true,

@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use App\Models\Setting;
+use App\Models\User;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
@@ -334,4 +335,14 @@ CSS;
         return $setting;
     }
 
+    public static function getSalesPersons(){
+
+        $sales_persons = User::select('id','name','email')->where('role_id',2)->where('status','active')->get();
+
+        if($sales_persons->isNotEmpty()){
+          return $sales_persons;
+        }
+        return $sales_persons;
+        return null;
+    }
 }

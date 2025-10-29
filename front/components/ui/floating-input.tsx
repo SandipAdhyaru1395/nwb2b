@@ -4,26 +4,23 @@ import React, { InputHTMLAttributes, forwardRef, useId } from "react"
 
 export type FloatingInputProps = {
   label: string
-  value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   containerClassName?: string
   error?: string | null
-} & Omit<InputHTMLAttributes<HTMLInputElement>, "value" | "onChange"> 
+} & InputHTMLAttributes<HTMLInputElement>
 
 const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(function FloatingInput(
-  { label, value, onChange, containerClassName = "", type = "text", placeholder, error, ...rest },
+  { label, containerClassName = "", type = "text", placeholder, error, ...rest },
   ref
 ) {
   const autoId = useId()
   const id = rest.id || autoId
+  
   return (
     <div className={`relative ${containerClassName}`}>
       <input
         id={id}
         ref={ref}
         type={type}
-        value={value}
-        onChange={onChange}
         className={`peer w-full rounded px-[16px] py-[16px] mt-1 outline-none placeholder-gray-400 focus:placeholder-transparent transition-all duration-150
           focus:!px-[16px] focus:!pt-[22px] focus:!pb-[10px]
           [&:not(:placeholder-shown)]:!px-[16px] [&:not(:placeholder-shown)]:!pt-[22px] [&:not(:placeholder-shown)]:!pb-[10px] [&:not(:placeholder-shown)]:placeholder-transparent
@@ -39,7 +36,7 @@ const FloatingInput = forwardRef<HTMLInputElement, FloatingInputProps>(function 
       >
         {label}
       </label>
-      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+      {error && <p className="text-red-600 text-xs mb-4 ml-4">{error}</p>}
     </div>
   )
 })

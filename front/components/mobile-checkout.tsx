@@ -5,11 +5,22 @@ import { Card } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck, faChevronUp, faChevronDown, faCheck } from "@fortawesome/free-solid-svg-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Banner } from "@/components/banner";
 import { useToast } from "@/hooks/use-toast";
 import { useCustomer } from "@/components/customer-provider";
 import FloatingInput from "./ui/floating-input";
+import { useCurrency } from "@/components/currency-provider";
+
+interface Branch {
+  id: number;
+  name: string;
+  address_line1: string;
+  address_line2: string;
+  city: string;
+  zip_code: string;
+  country: string;
+}
 
 interface ProductItem {
   id: number;
@@ -32,10 +43,51 @@ interface MobileCheckoutProps {
 export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: MobileCheckoutProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isDispatchExpanded, setIsDispatchExpanded] = useState(false);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
+  const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const { toast } = useToast();
-  const { refresh } = useCustomer();
+  const { refresh, customer } = useCustomer();
+  const { format, symbol } = useCurrency();
+
+  // Fetch branches on component mount
+  const fetchBranches = async () => {
+    try {
+      const response = await api.get("/branches");
+      if (response.data.success) {
+        setBranches(response.data.branches);
+        // Select the first branch (ignore is_default for checkout selection)
+        if (Array.isArray(response.data.branches) && response.data.branches.length > 0) {
+          setSelectedBranch(response.data.branches[0]);
+        } else {
+          setSelectedBranch(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  // Calculate total wallet credit from cart items (Credit Awarded)
+  const totalWalletCredit = useMemo(() => {
+    return Object.values(cart).reduce((sum, { product, quantity }) => {
+      const credit = typeof product.wallet_credit === "number" ? product.wallet_credit : 0;
+      return sum + credit * quantity;
+    }, 0);
+  }, [cart]);
+
+  // Calculate wallet discount (assuming 10% of subtotal as example)
+  const walletDiscount = customer?.wallet_balance ? Math.min(customer.wallet_balance, totals.subtotal) : 0;
 
   const handleContinueToPayment = async () => {
+    if (!selectedBranch) {
+      toast({ title: "Select an branch", description: "Please choose a branch before continuing.", variant: "destructive" });
+      return;
+    }
     setIsProcessing(true);
     try {
       const items = Object.values(cart).map(({ product, quantity }) => ({
@@ -48,6 +100,8 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
         total: totals.total,
         units: totals.units,
         skus: totals.skus,
+        address_id: selectedBranch?.id,
+        delivery_instructions: deliveryInstructions,
       });
 
       if (result.success) {
@@ -118,7 +172,14 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
                   <div className="flex-1 h-full items-center border-r border-gray-300">
                     <h3 className="font-semibold text-black mb-[10px] leading-[16px] text-[14px]">Dispatch To:</h3>
                     <div className="text-sm text-black leading-[16px]">
-                      <span className="font-semibold">A & F Supplies Ltd</span>, 13 Fylde Road Industrial Estate, Fylde Road, Preston, Lancashire, PR1 2TY
+                      {selectedBranch ? (
+                        <>
+                          <span className="font-semibold">{selectedBranch.name}</span>, {selectedBranch.address_line1}
+                          {selectedBranch.address_line2 && `, ${selectedBranch.address_line2}`}, {selectedBranch.city}, {selectedBranch.country}, {selectedBranch.zip_code}
+                        </>
+                      ) : (
+                        <span className="text-gray-500">No branch selected</span>
+                      )}
                     </div>
                   </div>
                     <button 
@@ -135,14 +196,23 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
                 
                 {isDispatchExpanded && (
                   <div className="mt-3 pt-3 border-t border-gray-200">
-                    <div className="flex items-center mb-2">
-                      <div className="w-4 h-4 border-2 border-blue-500 rounded-full mr-3 flex items-center justify-center">
-                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    {branches.map((branch) => (
+                      <div key={branch.id} className="flex items-center mb-2">
+                        <input
+                          type="radio"
+                          id={`branch-${branch.id}`}
+                          name="selectedBranch"
+                          value={branch.id}
+                          checked={selectedBranch?.id === branch.id}
+                          onChange={() => setSelectedBranch(branch)}
+                          className="w-4 h-4 border-2 border-blue-500 rounded-full mr-3"
+                        />
+                        <label htmlFor={`branch-${branch.id}`} className="text-sm text-black cursor-pointer flex-1">
+                          <span className="font-semibold">{branch.name}</span>, {branch.address_line1}
+                          {branch.address_line2 && `, ${branch.address_line2}`}, {branch.city}, {branch.country}, {branch.zip_code}
+                        </label>
                       </div>
-                      <div className="text-sm text-black">
-                        A & F Supplies Ltd, 13 Fylde Road Industrial Estate, Fylde Road, Preston, Lancashire, PR1 2TY
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 )}
               </div>
@@ -162,6 +232,8 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
               <FloatingInput
                     label="Delivery Instructions"
                     placeholder="Additional delivery instructions..."
+                    value={deliveryInstructions}
+                    onChange={(e) => setDeliveryInstructions(e.target.value)}
                 />
         </Card>
 
@@ -173,16 +245,16 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
                 <div className="grid grid-cols-[1fr_120px_80px] grid-rows-[auto_16px_16px] text-right gap-x-[4px] gap-y-[8px]">
                     <span className="text-[14px] font-semibold text-left leading-[16px]">Order details</span>
                     <span className="text-sm text-black leading-[16px]">Units</span>
-                    <span className="text-sm text-black leading-[16px]">5</span>
+                    <span className="text-sm text-black leading-[16px]">{totals.units}</span>
                     <span className="text-[14px] font-semibold leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px]">SKUs</span>
-                    <span className="text-sm text-black leading-[16px]">1</span>
+                    <span className="text-sm text-black leading-[16px]">{totals.skus}</span>
                     <span className="text-[14px] font-semibold leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px]">Subtotal</span>
-                    <span className="text-sm text-black leading-[16px]">£23.00</span>
+                    <span className="text-sm text-black leading-[16px]">{format(totals.subtotal)}</span>
                     <span className="text-[14px] font-semibold leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px]">Credit Awarded</span>
-                    <span className="text-sm text-black leading-[16px]">£0.00</span>
+                    <span className="text-sm text-black leading-[16px]">{format(totalWalletCredit)}</span>
                 </div>
             </Card>
             <hr className="border-gray-300 my-[20px] leading-[16px]" />
@@ -191,9 +263,16 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
                 <div className="grid grid-cols-[1fr_200px] text-right gap-x-[4px] gap-y-[4px] leading-[16px]">
                   <span className="text-[14px] font-semibold text-left leading-[16px]">Delivery</span>
                   <span className="text-sm text-black leading-[16px]">Next Working Day Delivery</span>
-                  <span className="h-[64px]"></span>
-                  <div className="text-sm text-black h-[64px] leading-[16px]">
-                    <span className="font-semibold">A & F Supplies Ltd,</span> 13 Fylde Road Industrial Estate, Fylde Road, Preston, Lancashire, PR1 2TY
+                  <span className="min-h-[64px]"></span>
+                  <div className="text-sm text-black min-h-[64px] leading-[16px]">
+                    {selectedBranch ? (
+                      <>
+                        <span className="font-semibold">{selectedBranch.name},</span> {selectedBranch.address_line1}
+                        {selectedBranch.address_line2 && `, ${selectedBranch.address_line2}`}, {selectedBranch.city}, {selectedBranch.country}, {selectedBranch.zip_code}
+                      </>
+                    ) : (
+                      <span className="text-gray-500">No branch selected</span>
+                    )}
                   </div>
                 </div>
             </Card>
@@ -203,10 +282,10 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
               <div className="grid grid-cols-[1fr_120px_80px] grid-rows-[auto_16px_16px] text-right gap-x-[4px] gap-y-[8px]">
                   <span className="text-[14px] font-semibold text-left leading-[16px]">Summary</span>
                     <span className="text-sm text-black leading-[16px]">Subtotal</span>
-                    <span className="text-sm text-black leading-[16px]">£23.00</span>
+                    <span className="text-sm text-black leading-[16px]">{format(totals.subtotal)}</span>
                     <span className="text-sm text-black leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px]">Wallet Discount</span>
-                    <span className="text-sm text-black leading-[16px]">-£2.50</span>
+                    <span className="text-sm text-black leading-[16px]">-{format(walletDiscount)}</span>
                     <span className="text-sm text-black leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px]">Delivery</span>
                     <span className="text-sm text-black leading-[16px]">£5.00</span>
@@ -215,7 +294,7 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
                     <span className="text-sm text-black leading-[16px]">£5.10</span>
                     <span className="text-sm text-black leading-[16px]"></span>
                     <span className="text-sm text-black leading-[16px] font-semibold">Payment Total</span>
-                    <span className="text-sm text-black leading-[16px] font-semibold">£30.60</span>
+                    <span className="text-sm text-black leading-[16px] font-semibold">{format(totals.subtotal - walletDiscount + 5.00 + 5.10)}</span>
                 </div>
             </Card>
         </Card>
@@ -224,8 +303,8 @@ export function MobileCheckout({ onNavigate, onBack, cart, totals, clearCart }: 
         <div className="mt-4">
           <button 
             onClick={handleContinueToPayment} 
-            disabled={isProcessing}
-            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-4 rounded-lg font-semibold text-lg hover:cursor-pointer transition-colors"
+            disabled={isProcessing || !selectedBranch}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white py-4 rounded-lg font-semibold text-lg hover:cursor-pointer disabled:cursor-not-allowed transition-colors"
           >
             {isProcessing ? "Processing..." : "Continue to Payment"}
           </button>

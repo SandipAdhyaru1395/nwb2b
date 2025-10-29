@@ -14,15 +14,22 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // Variable declaration for table
   const dt_customer_table = document.querySelector('.datatables-customers'),
-    select2 = $('.select2'),
     customerView = baseUrl + 'app/ecommerce/customer/details/overview';
-  if (select2.length) {
-    var $this = select2;
-    $this.wrap('<div class="position-relative"></div>').select2({
-      placeholder: 'United States ',
-      dropdownParent: $this.parent()
-    });
-  }
+
+  // $(function () {
+  //   const select2 = $('.select2');
+  
+  //   // Select2 Country
+  //   if (select2.length) {
+  //     select2.each(function () {
+  //       var $this = $(this);
+  //       $this.wrap('<div class="position-relative"></div>').select2({
+  //         placeholder: 'Select value',
+  //         dropdownParent: $this.parent()
+  //       });
+  //     });
+  //   }
+  // });
 
   // customers datatable
   if (dt_customer_table) {
@@ -69,33 +76,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 2,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
-            const name = full['customer'];
+            // const name = full['customer'];
             const email = full['email'];
-            const image = full['image'];
-            let output;
-
-            if (image) {
-              // For Avatar image
-              output = `
-                <img src="${assetsPath}img/avatars/${image}" alt="Avatar" class="rounded-circle">
-              `;
-            } else {
-              // For Avatar badge
-              const stateNum = Math.floor(Math.random() * 6);
-              const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
-              const state = states[stateNum];
-              const initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
-
-              output = `<span class="avatar-initial rounded-circle bg-label-${state}">${initials}</span>`;
-            }
+           
             // Creates full output for customer name and email
             const rowOutput = `
               <div class="d-flex justify-content-start align-items-center customer-name">
-                <div class="avatar-wrapper">
-                  <div class="avatar avatar-sm me-3">${output}</div>
-                </div>
                 <div class="d-flex flex-column">
-                  <span class="fw-medium">${name}</span>
                   <small>${email}</small>
                 </div>
               </div>`;

@@ -13,19 +13,11 @@
                     <div class="row mb-5">
                         <div class="col-md-6">
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="name">Name <span class="text-danger">*</span></label>
-                                <input type="text" autocomplete="off" class="form-control" id="name"
-                                    placeholder="Enter name" name="name" aria-label="Enter name"
-                                    value="{{ old('name') }}" />
-                                @error('name', 'add')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="company-name">Company Name <span class="text-danger">*</span></label>
+                                <label class="form-label" for="company-name">Company Name <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" autocomplete="off" id="company-name" class="form-control"
-                                    placeholder="Enter company name" aria-label="Enter company name"
-                                    name="companyName" value="{{ old('companyName') }}" />
+                                    placeholder="Enter company name" aria-label="Enter company name" name="companyName"
+                                    value="{{ old('companyName') }}" />
                                 @error('companyName', 'add')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -42,7 +34,7 @@
                             </div>
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="mobile">Mobile <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                                 <input type="text" maxlength="10" autocomplete="off"
                                     onkeypress="return /[0-9]/i.test(event.key)" id="mobile" class="form-control"
                                     placeholder="Enter mobile no" aria-label="Enter mobile no" name="mobile"
@@ -51,9 +43,7 @@
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
-                            
-                            
-                            
+
                             <div class="mb-6 form-control-validation form-password-toggle">
                                 <label class="form-label" for="password">Password <span
                                         class="text-danger">*</span></label>
@@ -79,26 +69,22 @@
                                 </div>
                             </div>
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="status">Status <span class="text-danger">*</span></label>
+                                <label class="form-label" for="status">Status <span
+                                        class="text-danger">*</span></label>
                                 <select class="form-select select2" id="status" name="status">
                                     <option value="active" @selected(old('status') == 'active') @selected(old('status') == '')>
                                         Active</option>
                                     <option value="inactive" @selected(old('status') == 'inactive')>Inactive</option>
                                 </select>
-                                 @error('status', 'add')
+                                @error('status', 'add')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
                         <div class="col-md-6 border-start">
-                            <div class="mb-6">
-                                <label class="form-label" for="vat-number">VAT Number</label>
-                                <input type="text" autocomplete="off" id="vat-number" class="form-control"
-                                    placeholder="Enter VAT number" aria-label="Enter VAT number" name="vatNumber"
-                                    value="{{ old('vatNumber') }}" />
-                            </div>
                             <div class="mb-6 form-control-validation">
-                                <label class="form-label" for="address-line1">Address Line 1 <span class="text-danger">*</span></label>
+                                <label class="form-label" for="address-line1">Address Line 1 <span
+                                        class="text-danger">*</span></label>
                                 <input type="text" autocomplete="off" id="address-line1" class="form-control"
                                     placeholder="Enter address" aria-label="Enter address" name="addressLine1"
                                     value="{{ old('addressLine1') }}" />
@@ -114,19 +100,13 @@
                             </div>
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="city">City <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                                 <input type="text" autocomplete="off" id="city" class="form-control"
                                     placeholder="Enter city" aria-label="Enter city" name="city"
                                     value="{{ old('city') }}" />
                                 @error('city', 'add')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
-                            </div>
-                            <div class="mb-6">
-                                <label class="form-label" for="state">State</label>
-                                <input type="text" autocomplete="off" id="state" class="form-control"
-                                    placeholder="Enter state" aria-label="Enter state" name="state"
-                                    value="{{ old('state') }}" />
                             </div>
                             <div class="mb-6">
                                 <label class="form-label" for="country">Country</label>
@@ -136,11 +116,37 @@
                             </div>
                             <div class="mb-6 form-control-validation">
                                 <label class="form-label" for="zip_code">Postcode <span
-                                    class="text-danger">*</span></label>
+                                        class="text-danger">*</span></label>
                                 <input type="text" autocomplete="off" id="zip_code" class="form-control"
                                     placeholder="Enter postcode" aria-label="Enter postcode" name="zip_code"
                                     value="{{ old('zip_code') }}" />
                                 @error('zip_code', 'add')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="mb-6">
+                                <label class="form-label" for="rep_code">Rep Code</label>
+                                <input type="text" autocomplete="off" id="rep_code" class="form-control"
+                                    placeholder="Enter rep code" aria-label="Enter rep code" name="rep_code"
+                                    value="{{ old('rep_code') }}" />
+                                @error('rep_code', 'add')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
+                            </div>
+                            <div class="mb-6">
+                                <label class="form-label" for="rep_id">Sales Person</label>
+                                <select id="rep_id" name="rep_id" class="form-control select2">
+                                    @if ($sales_persons->isNotEmpty())
+                                        <option>Select sales person</option>
+                                        @foreach ($sales_persons as $sales_person)
+                                            <option value="{{ $sales_person->id }}">{{ $sales_person->name }} (
+                                                {{ $sales_person->email }} )</option>
+                                        @endforeach
+                                    @else
+                                        <option value="">No sales person found</option>
+                                    @endforelse
+                                </select>
+                                @error('rep_id', 'add')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
