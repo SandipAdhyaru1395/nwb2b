@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\FavoriteController;
+use App\Http\Controllers\Api\CartController;
 
 
 // Public auth endpoints
@@ -44,4 +45,12 @@ Route::middleware(['store.maintenance','auth:sanctum'])->group(function () {
 
     //Branch
     Route::apiResource('branches', BranchController::class);
+    Route::get('/delivery-methods', [SettingController::class, 'deliveryMethods']);
+
+    // Cart
+    Route::get('/cart', [CartController::class, 'get']);
+    Route::post('/cart/add', [CartController::class, 'add']);
+    Route::post('/cart/decrement', [CartController::class, 'decrement']);
+    Route::post('/cart/set', [CartController::class, 'set']);
+    Route::post('/cart/clear', [CartController::class, 'clear']);
 });

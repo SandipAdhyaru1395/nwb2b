@@ -87,27 +87,7 @@
                             <h5 class="card-title mb-0">Label</h5>
                         </div>
                         <div class="card-body">
-                             <!-- IS NEW -->
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">
-                                    <input type="checkbox" class="form-check-input" name="isNew" id="isNew" @checked($brand->is_new == 1)>
-                                    <label class="form-check-label mb-5" for="isNew">
-                                        New
-                                    </label>
-                                </div>
-                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">    
-                                    <input type="checkbox" class="form-check-input" name="isSale" id="isSale" @checked($brand->is_sale == 1)>
-                                    <label class="form-check-label mb-5" for="isSale">
-                                        Sale
-                                    </label>
-                                </div>
-                                <div class="form-check mb-6 col ecommerce-select2-dropdown form-control-validation">    
-                                    <input type="checkbox" class="form-check-input" name="isHot" id="isHot" @checked($brand->is_hot == 1)>
-                                    <label class="form-check-label mb-5" for="isHot">
-                                        Hot
-                                    </label>
-                                </div>
-                            </div>
+                            
                             <!-- Status -->
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="mb-6 col ecommerce-select2-dropdown form-control-validation">

@@ -88,6 +88,7 @@ class ProductController extends Controller
             'price' =>  $setting['currency_symbol'] . number_format($priceNumber, 2),
             'discount' => $discountNumber !== null ? ('£' . number_format($discountNumber, 2)) : null,
             'wallet_credit' => isset($product->wallet_credit) ? (float)$product->wallet_credit : 0,
+            'vat_amount' => isset($product->vat_amount) ? (float)$product->vat_amount : 0,
         ];
     }
 

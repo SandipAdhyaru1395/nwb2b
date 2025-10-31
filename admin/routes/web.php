@@ -216,12 +216,24 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/settings', [SettingController::class, 'viewGeneralSettings'])->name('settings.general');
         Route::get('/settings/banner', [SettingController::class, 'viewBannerSettings'])->name('settings.banner');
         Route::get('/settings/maintenance', [SettingController::class, 'viewMaintenanceSettings'])->name('settings.maintenance');
+        Route::get('/settings/delivery-method', [SettingController::class, 'viewDeliveryMethod'])->name('settings.deliveryMethod');
+        Route::get('/settings/delivery-method/list/ajax', [SettingController::class, 'deliveryMethodListAjax'])->name('settings.deliveryMethod.list.ajax');
+        Route::get('/settings/delivery-method/ajax/show', [SettingController::class, 'deliveryMethodShow'])->name('settings.deliveryMethod.ajax.show');
+        // VAT Methods (read)
+        Route::get('/settings/vat-method', [SettingController::class, 'viewVatMethod'])->name('settings.vatMethod');
+        Route::get('/settings/vat-method/list/ajax', [SettingController::class, 'vatMethodListAjax'])->name('settings.vatMethod.list.ajax');
+        Route::get('/settings/vat-method/ajax/show', [SettingController::class, 'vatMethodShow'])->name('settings.vatMethod.ajax.show');
     });
 
     Route::middleware('permission:settings.update')->group(function () {
         Route::post('/settings/general/update', [SettingController::class, 'updateGeneralSettings'])->name('settings.general.update');
         Route::post('/settings/banner/update', [SettingController::class, 'updateBannerSettings'])->name('settings.banner.update');
         Route::post('/settings/maintenance/update', [SettingController::class, 'updateMaintenanceSettings'])->name('settings.maintenance.update');
+        Route::post('/settings/delivery-method/store', [SettingController::class, 'deliveryMethodStore'])->name('settings.deliveryMethod.store');
+        Route::post('/settings/delivery-method/update', [SettingController::class, 'deliveryMethodUpdate'])->name('settings.deliveryMethod.update');
+        // VAT Methods (write)
+        Route::post('/settings/vat-method/store', [SettingController::class, 'vatMethodStore'])->name('settings.vatMethod.store');
+        Route::post('/settings/vat-method/update', [SettingController::class, 'vatMethodUpdate'])->name('settings.vatMethod.update');
     });
 });
 

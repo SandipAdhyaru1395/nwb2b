@@ -103,7 +103,6 @@ class OrderController extends Controller
       'orders.order_date',
       'orders.payment_status',
       'orders.status as order_status',
-      'customers.name as customer_name',
       'customers.email as customer_email'
     ])->leftJoin('customers', 'customers.id', '=', 'orders.customer_id')
       ->whereNull('orders.deleted_at')
@@ -112,9 +111,6 @@ class OrderController extends Controller
     return DataTables::eloquent($query)
       ->filterColumn('order_number', function ($query, $keyword) {
         $query->where('orders.order_number', 'like', "%{$keyword}%");
-      })
-      ->filterColumn('customer_name', function ($query, $keyword) {
-        $query->where('customers.name', 'like', "%{$keyword}%");
       })
       ->filterColumn('payment_status', function ($query, $keyword) {
         $query->where('orders.payment_status', 'like', "%{$keyword}%");

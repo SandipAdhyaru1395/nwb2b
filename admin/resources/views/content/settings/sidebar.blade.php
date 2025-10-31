@@ -27,6 +27,18 @@
             <span class="align-middle">Theme</span>
           </a>
         </li>
+        <li class="nav-item mb-1">
+          <a class="nav-link {{ request()->routeIs('settings.deliveryMethod') ? 'active' : '' }}" href="{{ route('settings.deliveryMethod') }}">
+            <i class="icon-base ti tabler-truck-delivery icon-sm me-1_5"></i>
+            <span class="align-middle">Delivery Methods</span>
+          </a>
+        </li>
+        <li class="nav-item mb-1">
+          <a class="nav-link {{ request()->routeIs('settings.vatMethod') ? 'active' : '' }}" href="{{ route('settings.vatMethod') }}">
+            <i class="icon-base ti tabler-percentage icon-sm me-1_5"></i>
+            <span class="align-middle">VAT Methods</span>
+          </a>
+        </li>
       </ul>
     </div>
   </div>

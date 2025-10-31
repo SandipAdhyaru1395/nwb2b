@@ -89,9 +89,6 @@ class BrandController extends Controller
     $brand = Brand::create([
       'name' => $validated['brandTitle'],
       'image' => $path,
-      'is_new' => ($request->isNew == 'on') ? true : false,
-      'is_hot' => ($request->isHot == 'on') ? true : false,
-      'is_sale' => ($request->isSale == 'on') ? true : false,
       'is_active' => $request->brandStatus
     ]);
 
@@ -207,9 +204,6 @@ class BrandController extends Controller
     Brand::find($request->id)->update([
       'name' => $validated['brandTitle'],
       'image' =>  $request->file('brandImage') != null ? $path : Brand::find($request->id)->image,
-      'is_new' => ($request->isNew == 'on') ? true : false,
-      'is_hot' => ($request->isHot == 'on') ? true : false,
-      'is_sale' => ($request->isSale == 'on') ? true : false,
       'is_active' => $request->brandStatus
     ]);
 

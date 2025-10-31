@@ -64,14 +64,78 @@ export default function Login() {
       });
       if (data?.success && data?.token) {
         window.localStorage.setItem("auth_token", data.token);
-        // Refresh customer and settings after login; providers will cache to sessionStorage
-        await refresh();
+        // Stash latest Customer version from login response for CustomerProvider to persist in cache
         try {
-          await refreshSettings();
+          const ver = Number(data?.versions?.Customer || 0);
+          if (!Number.isNaN(ver) && ver > 0) {
+            sessionStorage.setItem("customer_cache_version", String(ver));
+          }
         } catch {}
+        // Clear any stale caches first
         try {
           sessionStorage.removeItem("orders_cache");
           sessionStorage.removeItem("products_cache");
+        } catch {}
+
+        // Pull versions from settings to tag caches
+        let productVersion = 0;
+        let orderVersion = 0;
+        try {
+          const settingsRes = await api.get("/settings");
+          const vers = settingsRes?.data?.versions;
+          if (vers) {
+            productVersion = Number(vers?.Product || 0) || 0;
+            orderVersion = Number(vers?.Order || 0) || 0;
+          }
+        } catch {}
+
+        // Refresh customer; CustomerProvider will persist customer_cache (with version)
+        await refresh();
+
+        // Preload and cache orders and products after successful login
+        try {
+          const ordersRes = await api.get("/orders");
+          if (ordersRes?.data?.success && Array.isArray(ordersRes.data.orders)) {
+            try {
+              sessionStorage.setItem("orders_cache", JSON.stringify({ version: orderVersion, orders: ordersRes.data.orders }));
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent('orders_cache_updated'));
+              }
+            } catch {}
+          }
+        } catch {}
+
+        try {
+          const productsRes = await api.get("/products");
+          const dataP = productsRes?.data;
+          if (Array.isArray(dataP?.categories)) {
+            const filterNodesWithProducts = (nodes: any[]): any[] => {
+              return nodes
+                .map((node: any) => {
+                  const filteredChildren = Array.isArray(node?.subcategories) ? filterNodesWithProducts(node.subcategories) : undefined;
+                  const productsCount = Array.isArray(node?.products) ? node.products.length : 0;
+                  const hasProductsHere = productsCount > 0;
+                  const hasProductsInChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0;
+                  if (!hasProductsHere && !hasProductsInChildren) {
+                    return null as unknown as any;
+                  }
+                  return { ...node, ...(filteredChildren ? { subcategories: filteredChildren } : {}) };
+                })
+                .filter((n: any) => Boolean(n));
+            };
+            const filtered = filterNodesWithProducts(dataP.categories as any[]);
+            try {
+              sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: filtered }));
+              if (typeof window !== "undefined") {
+                window.dispatchEvent(new CustomEvent('products_cache_updated'));
+              }
+            } catch {}
+          }
+        } catch {}
+
+        // Refresh settings last
+        try {
+          await refreshSettings();
         } catch {}
         toast({ title: "Hello there 👋", description: "You've logged in successfully." });
            window.location.replace(buildPath("/"));

@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\RecordsSyncUpdate;
 
 class Order extends Model
 {
     use SoftDeletes;
+    use RecordsSyncUpdate;
     
     protected $fillable = [
         'order_number',
@@ -32,6 +34,11 @@ class Order extends Model
         'address_line2',
         'city',
         'zip_code',
+        'delivery_method_id',
+        'delivery_method_name',
+        'delivery_time',
+        'delivery_charge',
+        'delivery_note',
     ];
 
     public function customer()

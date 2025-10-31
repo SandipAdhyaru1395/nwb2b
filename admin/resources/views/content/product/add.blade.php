@@ -136,13 +136,25 @@
                                     name="quantity" onkeypress="return /^[0-9]+$/.test(event.key)"
                                     aria-label="Product Quantity" value="{{ old('quantity') }}" autocomplete="off" />
                             </div>
-                            <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
-                                    for="min_order_quantity">Min Order Quantity</label>
-                                <input type="text" class="form-control" id="min_order_quantity"
-                                    placeholder="Enter quantity" name="min_order_quantity"
-                                    onkeypress="return /^[0-9]+$/.test(event.key)"
-                                    value="{{ old('min_order_quantity') }}" autocomplete="off" />
-                            </div>
+                            <div class="col-md-4 mb-5 form-control-validation">
+    <label class="form-label" for="vat_method_id">VAT Method</label>
+    <select name="vat_method_id" id="vat_method_id" class="form-select" required>
+        <option value="">-- Select VAT Method --</option>
+        @foreach($vatMethods as $vat)
+            <option value="{{ $vat->id }}" 
+                data-type="{{ $vat->type }}" 
+                data-name="{{ $vat->name }}"
+                data-amount="{{ $vat->amount }}">
+                {{ $vat->name }} ({{ $vat->type == 'Percentage' ? $vat->amount.'%' : $currencySymbol.number_format($vat->amount,2) }})
+            </option>
+        @endforeach
+    </select>
+    <input type="hidden" name="vat_method_name" id="vat_method_name">
+    <input type="hidden" name="vat_method_type" id="vat_method_type">
+    <input type="hidden" name="vat_amount" id="vat_amount">
+    <div class="form-text mt-1">Calculated VAT: <span id="vat_amount_display">0.00</span></div>
+    {{-- @error('vat_method_id') <span class="text-danger">{{ $message }}</span> @enderror --}}
+</div>
                             <div class="col-md-4 col-8 mx-auto mb-5 form-control-validation"><label class="form-label"
                                      for="step_quantity" class="form-label">Step Quantity</label>
                                 <div class="position-relative d-flex gap-2 align-items-center w-75">
@@ -258,3 +270,40 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+var vatMethodsJS = @json($vatMethods);
+var currencySymbol = @json($currencySymbol);
+function updateVatAmount() {
+    var price = parseFloat(document.getElementById('ecommerce-product-price').value) || 0;
+    var select = document.getElementById('vat_method_id');
+    var selected = select.options[select.selectedIndex];
+    if(!selected || !selected.value) {
+        document.getElementById('vat_amount').value = '';
+        document.getElementById('vat_method_type').value = '';
+        document.getElementById('vat_method_name').value = '';
+        document.getElementById('vat_amount_display').innerText = '0.00';
+        return;
+    }
+    var type = selected.getAttribute('data-type');
+    var name = selected.getAttribute('data-name');
+    var amount = parseFloat(selected.getAttribute('data-amount'));
+    var vat = 0;
+    if(type === 'Percentage') {
+        vat = price * amount / 100;
+    } else {
+        vat = amount;
+    }
+    document.getElementById('vat_amount').value = vat.toFixed(2);
+    document.getElementById('vat_method_type').value = type;
+    document.getElementById('vat_method_name').value = name;
+    document.getElementById('vat_amount_display').innerText = vat.toFixed(2)+(type==='Percentage'?'%':' '+currencySymbol);
+}
+document.addEventListener('DOMContentLoaded', function(){
+    document.getElementById('vat_method_id').addEventListener('change', updateVatAmount);
+    document.getElementById('ecommerce-product-price').addEventListener('input', updateVatAmount);
+    updateVatAmount(); // Initial, so if prefilled or browser fill is used, it shows right away
+});
+</script>
+@endpush

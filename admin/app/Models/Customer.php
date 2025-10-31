@@ -8,10 +8,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Concerns\RecordsSyncUpdate;
 
 class Customer extends Model
 {
     use HasFactory, SoftDeletes, HasApiTokens;
+    use RecordsSyncUpdate;
 
     protected $table = 'customers';
 

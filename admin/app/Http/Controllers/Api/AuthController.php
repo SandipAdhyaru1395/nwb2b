@@ -10,6 +10,8 @@ use App\Models\Address;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use App\Models\SyncUpdate;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
@@ -47,8 +49,20 @@ class AuthController extends Controller
 		$deviceName = $validated['device_name'] ?? $request->userAgent() ?? 'api-client';
 		$token = $customer->createToken($deviceName)->plainTextToken;
 
-		$customer->last_login = now();
-		$customer->save();
+		// Update last_login without firing model events to avoid version increment
+		DB::table('customers')->where('id', $customer->id)->update(['last_login' => now()]);
+
+		// Get latest version for Customer model from sync_updates
+		$customerVersion = 0;
+		try {
+			$customerVersion = (int)(SyncUpdate::query()->where('entity', 'Customer')->value('version') ?? 0);
+		} catch (\Throwable $e) {
+			try {
+				$customerVersion = (int)(DB::table('sync_updates')->where('model', 'Customer')->value('version') ?? 0);
+			} catch (\Throwable $e2) {
+				$customerVersion = 0;
+			}
+		}
 
 		return response()->json([
 			'success' => true,
@@ -57,6 +71,9 @@ class AuthController extends Controller
 				'id' => $customer->id,
 				'name' => $customer->name,
 				'email' => $customer->email,
+			],
+			'versions' => [
+				'Customer' => $customerVersion,
 			],
 		]);
 	}

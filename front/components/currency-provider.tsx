@@ -6,7 +6,7 @@ import { useSettings } from "@/components/settings-provider"
 type CurrencyContextValue = {
   symbol: string
   code?: string
-  format: (n: number) => string
+  format: (n: number | string | undefined | null) => string
 }
 
 const CurrencyContext = createContext<CurrencyContextValue | undefined>(undefined)
@@ -26,7 +26,10 @@ export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<CurrencyContextValue>(() => ({
     symbol,
     code,
-    format: (n: number) => `${symbol}${n.toFixed(2)}`
+    format: (n: number | string | undefined | null) => {
+      const num = Number(n);
+      return `${symbol}${!isNaN(num) ? num.toFixed(2) : '0.00'}`;
+    }
   }), [symbol, code])
 
   return (

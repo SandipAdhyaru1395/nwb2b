@@ -4,7 +4,7 @@ import { ArrowLeft, Home, ShoppingBag, User, Wallet, Package } from "lucide-reac
 import { Card } from "@/components/ui/card";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faTruck } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faTruck } from "@fortawesome/free-solid-svg-icons";
 import { useEffect, useState } from "react";
 import { Banner } from "@/components/banner";
 

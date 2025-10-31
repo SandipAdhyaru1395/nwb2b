@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Concerns\RecordsSyncUpdate;
 
 class Product extends Model
 {
     use SoftDeletes;
+    use RecordsSyncUpdate;
     protected $table = 'products';
 
     protected $fillable = [
@@ -21,7 +23,9 @@ class Product extends Model
         'stock_quantity',
         'step_quantity',
         'notification_request_count',
-        'min_order_quantity',
+        'vat_amount',
+        'vat_method_name',
+        'vat_method_type',
         'is_active',
     ];
 

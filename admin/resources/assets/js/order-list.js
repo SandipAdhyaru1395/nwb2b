@@ -92,12 +92,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 4,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
-            const name = full['customer_name'] || '-';
             const email = full['customer_email'] || '';
             return `
               <div class="d-flex justify-content-start align-items-center order-name text-nowrap">
                 <div class="d-flex flex-column">
-                  <span class="m-0">${name}</span>
                   ${email ? `<small>${email}</small>` : ''}
                 </div>
               </div>`;

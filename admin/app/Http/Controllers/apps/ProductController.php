@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Brand;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\VatMethod;
+use App\Models\Setting;
 
 class ProductController extends Controller
 {
@@ -33,6 +35,7 @@ class ProductController extends Controller
       'productSku' => ['nullable','unique:products,sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
+      'vat_method_id' => ['nullable','exists:vat_methods,id'],
     ],[
       'brands.required' => 'Brand is required',
       'step.required' => 'Step quantity is required',
@@ -49,18 +52,27 @@ class ProductController extends Controller
     ]);
 
     $path = $request->file('productImage')->store('products', 'public');
-   
-    $product =Product::create([
+    $price = $validated['productPrice'];
+    $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
+    if ($request->vat_method_id) {
+        $vatMethod = \App\Models\VatMethod::findOrFail($request->vat_method_id);
+        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
+        $vatMethodName = $vatMethod->name;
+        $vatMethodType = $vatMethod->type;
+    }
+    $product = Product::create([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
       'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
-      'price' => $validated['productPrice'] ?? 0,
+      'price' => $price,
       'cost_price' => $request->costPrice ?? 0,
       'wallet_credit' => $request->walletCredit ?? 0,
       'image_url' => $path,
       'stock_quantity' => $request->quantity ?? 0,
-      'min_order_quantity' => $request->min_order_quantity ?? 0,
+      'vat_amount' => $vatAmount,
+      'vat_method_name' => $vatMethodName,
+      'vat_method_type' => $vatMethodType,
       'is_active' => $request->productStatus ?? 0,
       'brand_id' => $request->brand_id,
     ]);
@@ -82,6 +94,9 @@ class ProductController extends Controller
     $data['brands'] = Brand::all();
 
     $data['productBrands'] = ProductBrand::where('product_id', $id)->pluck('brand_id')->toArray();
+    $data['vatMethods'] = VatMethod::where('status', 'Active')->orderBy('name')->get();
+    $settings = Setting::all()->pluck('value', 'key');
+    $data['currencySymbol'] = $settings['currency_symbol'] ?? '₱';
 
     return view('content.product.edit',$data);
   }
@@ -96,6 +111,7 @@ class ProductController extends Controller
       'productSku' => ['nullable','unique:products,sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
+      'vat_method_id' => ['nullable','exists:vat_methods,id'],
     ],[
       'brands.required' => 'Brand is required',
       'step.required' => 'Step quantity is required',
@@ -122,19 +138,27 @@ class ProductController extends Controller
 
       $path = $request->file('productImage')->store('products', 'public');
     }
-   
-
+    $price = $validated['productPrice'];
+    $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
+    if ($request->vat_method_id) {
+        $vatMethod = \App\Models\VatMethod::findOrFail($request->vat_method_id);
+        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
+        $vatMethodName = $vatMethod->name;
+        $vatMethodType = $vatMethod->type;
+    }
     Product::find($request->id)->update([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
       'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
-      'price' => $validated['productPrice'] ?? 0,
+      'price' => $price,
       'cost_price' => $request->costPrice ?? 0,
       'wallet_credit' => $request->walletCredit ?? 0,
       'image_url' => $request->file('productImage') != null ? $path : Product::find($request->id)->image_url,
       'stock_quantity' => $request->quantity ?? 0,
-      'min_order_quantity' => $request->min_order_quantity ?? 0,
+      'vat_amount' => $vatAmount,
+      'vat_method_name' => $vatMethodName,
+      'vat_method_type' => $vatMethodType,
       'is_active' => $request->productStatus ?? 0,
     ]);
 
@@ -155,6 +179,9 @@ class ProductController extends Controller
 
   public function add(){
     $data['brands'] = Brand::all();
+    $data['vatMethods'] = VatMethod::where('status', 'Active')->orderBy('name')->get();
+    $settings = Setting::all()->pluck('value', 'key');
+    $data['currencySymbol'] = $settings['currency_symbol'] ?? '₱';
     return view('content.product.add',$data);
   }
 

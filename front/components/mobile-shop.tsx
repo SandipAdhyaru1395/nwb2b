@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faStar, faSearch } from "@fortawesome/free-solid-svg-icons";
 import api from "@/lib/axios";
 
 interface MobileShopProps {
@@ -26,6 +26,7 @@ interface ProductItem {
   discount?: string;
   step_quantity?: number;
   wallet_credit?: number;
+  stock_quantity?: number;
 }
 
 // Generic tree node that can be either a category (has subcategories)
@@ -58,15 +59,12 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
   const [expandedPaths, setExpandedPaths] = useState<string[]>([]);
   const { toast } = useToast();
   const { isFavorite, setFavorite } = useCustomer();
+  const [cartQuantities, setCartQuantities] = useState<Record<number, number>>({});
+  const [cartTotals, setCartTotals] = useState<{ units: number; skus: number; subtotal: number; totalDiscount: number; total: number }>({ units: 0, skus: 0, subtotal: 0, totalDiscount: 0, total: 0 });
+  const [walletCreditTotal, setWalletCreditTotal] = useState<number>(0);
 
-  // Calculate total wallet credit from cart items
-  const totalWalletCredit = useMemo(() => {
-    return Object.values(cart).reduce((sum, { product, quantity }) => {
-      const credit = typeof product.wallet_credit === "number" ? product.wallet_credit : 0;
-      return sum + credit * quantity;
-    }, 0);
-  }, [cart]);
-
+  // total wallet credit now sourced from backend cart items
+  const totalWalletCredit = walletCreditTotal;
   const togglePath = (path: string, singleRoot = false) => {
     setExpandedPaths((prev) => {
       const isOpen = prev.includes(path);
@@ -79,67 +77,108 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
 
   useEffect(() => {
     let isMounted = true;
-    const filterNodesWithProducts = (nodes: TreeNode[]): TreeNode[] => {
-      return nodes
-        .map((node) => {
-          const filteredChildren = node.subcategories ? filterNodesWithProducts(node.subcategories) : undefined;
-          const productsCount = Array.isArray(node.products) ? node.products.length : 0;
-          const hasProductsHere = productsCount > 0;
-          const hasProductsInChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0;
-          if (!hasProductsHere && !hasProductsInChildren) {
-            return null as unknown as TreeNode;
-          }
-          return {
-            ...node,
-            ...(filteredChildren ? { subcategories: filteredChildren } : {}),
-          };
-        })
-        .filter((n): n is TreeNode => Boolean(n));
-    };
-
-    const fetchData = async () => {
+    const loadCart = async () => {
       try {
-        if (typeof window !== "undefined") {
-         startLoading();
-        }
-        const res = await api.get("/products");
-        const data = res.data;
+        const res = await api.get('/cart');
+        const items: Array<{ product_id: number; quantity: number; product?: { wallet_credit?: number } }> = res?.data?.cart?.items || [];
         if (!isMounted) return;
-        if (Array.isArray(data?.categories)) {
-          const filtered = filterNodesWithProducts(data.categories as TreeNode[]);
-          setCategories(filtered);
-          try {
-            sessionStorage.setItem("products_cache", JSON.stringify({ at: Date.now(), categories: filtered }));
-          } catch {}
-        }
-      } catch (e) {
-        // keep categories empty on error
-      } finally {
-        if (typeof window !== "undefined") {
-          stopLoading();
-        }
-      }
+        const map: Record<number, number> = {};
+        let wallet = 0;
+        items.forEach(it => {
+          const q = Number(it.quantity) || 0;
+          map[Number(it.product_id)] = q;
+          const rawCredit: any = it?.product?.wallet_credit ?? 0;
+          const credit = Number(rawCredit);
+          wallet += (isNaN(credit) ? 0 : credit) * q;
+        });
+        setCartQuantities(map);
+        setWalletCreditTotal(wallet);
+        const c = res?.data?.cart;
+        setCartTotals({
+          units: Number(c?.units || 0),
+          skus: Number(c?.skus || 0),
+          subtotal: Number(c?.subtotal || 0),
+          totalDiscount: Number(c?.total_discount || 0),
+          total: Number(c?.total || 0),
+        });
+        setWalletCreditTotal(Number(c?.wallet_credit_total || wallet));
+      } catch {}
     };
-
-    // Serve cache if present; if not, fetch once (e.g., after login)
+    loadCart();
     try {
       const raw = sessionStorage.getItem("products_cache");
       if (raw) {
         const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed?.categories)) {
+        if (!isMounted) return;
+        if (Array.isArray(parsed)) {
+          setCategories(parsed);
+        } else if (Array.isArray(parsed?.categories)) {
+          // Backward compatibility with older cache shape
           setCategories(parsed.categories);
-        } else {
-          fetchData();
         }
       } else {
-        fetchData();
-      }
-    } catch {
-      fetchData();
-    }
+        // No cache present: fetch settings for version, then products once and cache
+        const filterNodesWithProducts = (nodes: TreeNode[]): TreeNode[] => {
+          return nodes
+            .map((node) => {
+              const filteredChildren = node.subcategories ? filterNodesWithProducts(node.subcategories) : undefined;
+              const productsCount = Array.isArray(node.products) ? node.products.length : 0;
+              const hasProductsHere = productsCount > 0;
+              const hasProductsInChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0;
+              if (!hasProductsHere && !hasProductsInChildren) {
+                return null as unknown as TreeNode;
+              }
+              return {
+                ...node,
+                ...(filteredChildren ? { subcategories: filteredChildren } : {}),
+              };
+            })
+            .filter((n): n is TreeNode => Boolean(n));
+        };
+        (async () => {
+          try {
+            let productVersion = 0;
+            try {
+              const settingsRes = await api.get("/settings");
+              const vers = settingsRes?.data?.versions;
+              productVersion = Number(vers?.Product || 0) || 0;
+            } catch {}
 
+            const res = await api.get("/products");
+            const data = res.data;
+            if (!isMounted) return;
+            if (Array.isArray(data?.categories)) {
+              const filtered = filterNodesWithProducts(data.categories as TreeNode[]);
+              setCategories(filtered);
+              try { sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: filtered })); } catch {}
+            }
+          } catch {}
+        })();
+      }
+    } catch {}
+    // Listen for cache updates to re-render with latest data
+    const onProductsCacheUpdated = () => {
+      try {
+        const raw2 = sessionStorage.getItem("products_cache");
+        if (!raw2) return;
+        const parsed2 = JSON.parse(raw2);
+        if (Array.isArray(parsed2)) {
+          setCategories(parsed2);
+        } else if (Array.isArray(parsed2?.categories)) {
+          setCategories(parsed2.categories);
+        }
+        // Also refresh cart totals using latest prices from backend reprice logic
+        loadCart();
+      } catch {}
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("products_cache_updated", onProductsCacheUpdated);
+    }
     return () => {
       isMounted = false;
+      if (typeof window !== "undefined") {
+        window.removeEventListener("products_cache_updated", onProductsCacheUpdated);
+      }
     };
   }, []);
 
@@ -208,19 +247,77 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
 
   // cart and totals are provided by parent
 
-  const handleIncrement = (product: ProductItem) => {
-    increment(product);
+  const handleIncrement = async (product: ProductItem) => {
+    try {
+      // Front check against stock if provided in product payload
+      const stock = Number((product as any)?.stock_quantity ?? 0);
+      const current = Number(cartQuantities[product.id] || 0);
+      if (stock > 0 && current + 1 > stock) {
+        toast({ title: 'Quantity not available', description: `Only ${stock} in stock`, variant: 'destructive' });
+        return;
+      }
+      const res = await api.post('/cart/add', { product_id: product.id, quantity: 1 });
+      if (res?.data && res.data.success === false) {
+        const msg = res.data.message || 'Requested quantity is not available';
+        toast({ title: 'Quantity not available', description: msg, variant: 'destructive' });
+        return;
+      }
+      const items: Array<{ product_id: number; quantity: number; product?: { wallet_credit?: number } }> = res?.data?.cart?.items || [];
+      const map: Record<number, number> = {};
+      let wallet = 0;
+      items.forEach(it => {
+        const q = Number(it.quantity) || 0;
+        map[Number(it.product_id)] = q;
+        const rawCredit: any = it?.product?.wallet_credit ?? 0;
+        const credit = Number(rawCredit);
+        wallet += (isNaN(credit) ? 0 : credit) * q;
+      });
+      setCartQuantities(map);
+      setWalletCreditTotal(wallet);
+      const c = res?.data?.cart;
+      setCartTotals({
+        units: Number(c?.units || 0),
+        skus: Number(c?.skus || 0),
+        subtotal: Number(c?.subtotal || 0),
+        totalDiscount: Number(c?.total_discount || 0),
+        total: Number(c?.total || 0),
+      });
+      setWalletCreditTotal(Number(c?.wallet_credit_total || wallet));
+    } catch (e: any) {
+      toast({ title: 'Failed to add to cart', description: e?.message || 'Please try again', variant: 'destructive' });
+    }
   };
 
-  const handleDecrement = (product: ProductItem) => {
-    const step = typeof product.step_quantity === "number" && product.step_quantity > 0 ? product.step_quantity : 1;
-    const currentQuantity = cart[product.id]?.quantity || 0;
-    decrement(product);
-    if (currentQuantity === step) {
-      toast({
-        title: "Removed from Cart",
-        description: `${product.name} removed from your basket`,
+  const handleDecrement = async (product: ProductItem) => {
+    try {
+      const res = await api.post('/cart/decrement', { product_id: product.id, quantity: 1 });
+      const items: Array<{ product_id: number; quantity: number; product?: { wallet_credit?: number } }> = res?.data?.cart?.items || [];
+      const map: Record<number, number> = {};
+      let wallet = 0;
+      items.forEach(it => {
+        const q = Number(it.quantity) || 0;
+        map[Number(it.product_id)] = q;
+        const rawCredit: any = it?.product?.wallet_credit ?? 0;
+        const credit = Number(rawCredit);
+        wallet += (isNaN(credit) ? 0 : credit) * q;
       });
+      const prevQty = cartQuantities[product.id] || 0;
+      setCartQuantities(map);
+      setWalletCreditTotal(wallet);
+      const c = res?.data?.cart;
+      setCartTotals({
+        units: Number(c?.units || 0),
+        skus: Number(c?.skus || 0),
+        subtotal: Number(c?.subtotal || 0),
+        totalDiscount: Number(c?.total_discount || 0),
+        total: Number(c?.total || 0),
+      });
+      setWalletCreditTotal(Number(c?.wallet_credit_total || wallet));
+      if (prevQty === 1) {
+        toast({ title: 'Removed from Cart', description: `${product.name} removed from your basket` });
+      }
+    } catch (e: any) {
+      toast({ title: 'Failed to update cart', description: e?.message || 'Please try again', variant: 'destructive' });
     }
   };
 
@@ -251,15 +348,12 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       {/* Search Bar */}
       <div className="bg-white border-b box-shadow-bottom mb-2 sticky top-0 z-50 h-[50px]">
         <div className="relative flex items-center pt-[7px] pb-[6px]">
-          <div className="w-[66px] h-[25px] flex items-center justify-center">
-            <FontAwesomeIcon icon={faFilter} className="text-green-600" style={{ width: "21px", height: "24px" }} />
-          </div>
           <div className="flex-1 relative">
             <FontAwesomeIcon icon={faSearch} className="text-green-600 absolute top-1/2 transform -translate-y-1/2" style={{ width: "24px", height: "24px" }} />
             <Input value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-[32px] pr-9 bg-transparent shadow-none border-none focus:border-none focus:ring-0 focus:ring-offset-0 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none py-0" style={{ border: 'none', outline: 'none', boxShadow: 'none' }} placeholder="Start typing to filter products..." />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <X className="w-4 h-4 text-gray-400" />
+                <X className="cursor-pointer w-4 h-4 text-gray-400" />
               </button>
             )}
           </div>
@@ -274,33 +368,31 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       {/* Categories (recursive) */}
       <div className="space-y-2 overflow-y-auto pb-56">
         {displayedCategories.map((node) => (
-          <CategoryNode key={node.name} node={node} path={node.name} depth={0} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={handleIncrement} onDecrement={handleDecrement} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} />
+          <CategoryNode key={node.name} node={node} path={node.name} depth={0} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={handleIncrement} onDecrement={handleDecrement} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} cartQuantities={cartQuantities} />
         ))}
       </div>
 
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50">
         {/* Basket Summary (shows when items in cart) */}
-        {totals.units > 0 && (
+        {cartTotals.units > 0 && (
           <div className="bg-white border-b px-4 py-2 box-shadow-top">
             <div className="flex items-center justify-center text-sm gap-2 pt-1 h-[20px]">
-              <span className="text-black font-semibold">{totals.units} Units</span>
+              <span className="text-black font-semibold">{cartTotals.units} Units</span>
               <span className="spacer"> | </span>
-              <span className="text-black font-semibold">{totals.skus} SKUs</span>
+              <span className="text-black font-semibold">{cartTotals.skus} SKUs</span>
               <span className="spacer"> | </span>
-              <span className="font-semibold text-black">{format(totals.total)}</span>
+              <span className="font-semibold text-black">{format(cartTotals.total)}</span>
               <span className="spacer"> | </span>
               <div className="flex items-center">
-                {totalWalletCredit > 0 && (
-                  <span className="inline-flex items-center gap-1 text-green-600 text-sm font-semibold">
-                    <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "14px", height: "14px" }} />
-                    <span>
-                      {symbol}
-                      {totalWalletCredit.toFixed(2)}
-                    </span>
+                <span className="inline-flex items-center gap-1 text-green-600 text-sm font-semibold">
+                  <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "14px", height: "14px" }} />
+                  <span>
+                    {symbol}
+                    {totalWalletCredit.toFixed(2)}
                   </span>
-                )}
-                {totals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(totals.totalDiscount)} off</span>}
+                </span>
+                {cartTotals.totalDiscount > 0 && <span className="text-green-600 text-xs">{format(cartTotals.totalDiscount)} off</span>}
               </div>
             </div>
             <div className="text-sm font-semibold text-center text-[#999] py-1">Includes FREE delivery</div>
@@ -343,9 +435,10 @@ type CategoryNodeProps = {
   onDecrement: (product: ProductItem) => void;
   isFavorite: (productId: number) => boolean;
   onToggleFavorite: (product: ProductItem) => void;
+  cartQuantities: Record<number, number>;
 };
 
-function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement, isFavorite, onToggleFavorite }: CategoryNodeProps) {
+function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement, isFavorite, onToggleFavorite, cartQuantities }: CategoryNodeProps) {
   const { symbol } = useCurrency();
   const isOpen = expandedPaths.includes(path);
   const hasChildren = Array.isArray(node.subcategories) && node.subcategories.length > 0;
@@ -424,19 +517,19 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
           {hasChildren &&
             node.subcategories!.map((child) => {
               const childPath = `${path}::${child.name}`;
-              return <CategoryNode key={childPath} node={child} path={childPath} depth={depth + 1} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={onIncrement} onDecrement={onDecrement} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} />;
+              return <CategoryNode key={childPath} node={child} path={childPath} depth={depth + 1} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={onIncrement} onDecrement={onDecrement} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} cartQuantities={cartQuantities} />;
             })}
 
           {hasProducts && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-8 gap-3 px-3">
               {node.products!.map((product) => (
                 <div key={product.id} className="bg-white border-b relative pb-2 offer-plus-sign z-10 w-[113px]">
-                  {cart[product.id]?.quantity ? (
+                  {cartQuantities[product.id] ? (
                     <div className="offer-increase-sign absolute z-10 right-0 flex items-center gap-2 bg-black rounded-full px-1 shadow-sm w-[113px]">
                       <button onClick={() => onDecrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
                         <Minus className="w-6 h-6" />
                       </button>
-                      <span className="min-w-[1.5rem] text-center text-lg font-medium text-white">{cart[product.id]?.quantity}</span>
+                      <span className="min-w-[1.5rem] text-center text-lg font-medium text-white">{cartQuantities[product.id]}</span>
                       <button onClick={() => onIncrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
                         <Plus className="w-6 h-6" />
                       </button>

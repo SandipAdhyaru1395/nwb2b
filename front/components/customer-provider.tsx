@@ -68,7 +68,22 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
         setCustomer(normalized)
         const ids: number[] = Array.isArray(favRes?.data?.product_ids) ? favRes.data.product_ids.map((n: any) => Number(n)) : []
         setFavoriteProductIds(ids)
-        try { sessionStorage.setItem('customer_cache', JSON.stringify({ customer: normalized, favoriteProductIds: ids })) } catch {}
+        try {
+          // Carry forward version set by login flow (if present)
+          let version: number | undefined = undefined;
+          try {
+            const v = sessionStorage.getItem('customer_cache_version');
+            if (v) {
+              const num = Number(v);
+              if (!Number.isNaN(num) && num >= 0) version = num;
+            }
+          } catch {}
+          const payload: any = { customer: normalized, favoriteProductIds: ids };
+          if (typeof version === 'number') payload.version = version;
+          sessionStorage.setItem('customer_cache', JSON.stringify(payload));
+          // Clear the temporary version flag once persisted into customer_cache
+          try { sessionStorage.removeItem('customer_cache_version') } catch {}
+        } catch {}
       } else {
         setCustomer(null)
         setFavoriteProductIds([])
@@ -135,6 +150,7 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
         if (parsed?.customer) {
           setCustomer(parsed.customer as Customer)
           setFavoriteProductIds(Array.isArray(parsed?.favoriteProductIds) ? parsed.favoriteProductIds : [])
+          // parsed.version is optional; retained in cache for consumers if needed
           setLoading(false)
           return
         }
@@ -144,6 +160,29 @@ export function CustomerProvider({ children }: { children: React.ReactNode }) {
     // No cached data available, fetch fresh data
     fetchCustomer()
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Listen for external customer cache updates to re-render immediately
+  useEffect(() => {
+    const onCustomerCacheUpdated = () => {
+      try {
+        const raw = sessionStorage.getItem('customer_cache')
+        if (!raw) return
+        const parsed = JSON.parse(raw)
+        if (parsed?.customer) {
+          setCustomer(parsed.customer as Customer)
+          setFavoriteProductIds(Array.isArray(parsed?.favoriteProductIds) ? parsed.favoriteProductIds : [])
+        }
+      } catch {}
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('customer_cache_updated', onCustomerCacheUpdated)
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('customer_cache_updated', onCustomerCacheUpdated)
+      }
+    }
   }, [])
 
   const value: CustomerContextValue = {

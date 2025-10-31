@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, Heart, Home, Wallet, User, ChevronRight, Bell, Gift, Package, CheckCircle, House } from "lucide-react";
 import api from "@/lib/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faGauge, faShop, faWallet, faUser, faBars, faFilter, faStar, faBell, faChevronRight } from "@fortawesome/free-solid-svg-icons";
+import { faGauge, faShop, faWallet, faUser, faBars, faStar, faBell, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { useCustomer } from "@/components/customer-provider";
 import { Banner } from "@/components/banner";
 import { startLoading, stopLoading } from "@/lib/loading";
@@ -36,7 +36,8 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         if (json?.success && Array.isArray(json.orders)) {
           setOrders(json.orders);
           try {
-            sessionStorage.setItem("orders_cache", JSON.stringify({ at: Date.now(), orders: json.orders }));
+            // Store only the orders array (no metadata like `at`)
+            sessionStorage.setItem("orders_cache", JSON.stringify(json.orders));
           } catch { }
         }
       } catch (e) {
@@ -67,7 +68,10 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         const raw = sessionStorage.getItem("orders_cache");
         if (raw) {
           const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed?.orders)) {
+          if (Array.isArray(parsed)) {
+            setOrders(parsed);
+          } else if (Array.isArray(parsed?.orders)) {
+            // Backward compatibility with older cache shape
             setOrders(parsed.orders);
           } else {
             fetchOrders();
@@ -82,14 +86,28 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
 
     // 3) Listen for explicit refresh events (e.g., after checkout while dashboard is mounted)
     const onRefresh = () => fetchOrders();
+    const onOrdersCacheUpdated = () => {
+      try {
+        const raw = sessionStorage.getItem("orders_cache");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setOrders(parsed);
+        } else if (Array.isArray(parsed?.orders)) {
+          setOrders(parsed.orders);
+        }
+      } catch {}
+    };
     if (typeof window !== "undefined") {
       window.addEventListener("orders-refresh", onRefresh);
+      window.addEventListener("orders_cache_updated", onOrdersCacheUpdated);
     }
 
     return () => {
       isMounted = false;
       if (typeof window !== "undefined") {
         window.removeEventListener("orders-refresh", onRefresh);
+        window.removeEventListener("orders_cache_updated", onOrdersCacheUpdated);
       }
     };
   }, []);
