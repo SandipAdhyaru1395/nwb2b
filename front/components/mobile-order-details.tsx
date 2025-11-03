@@ -26,7 +26,8 @@ type OrderDetails = {
   skus: number;
   subtotal: number;
   vat_amount: number;
-  delivery: string;
+  delivery_method: string;
+  delivery_charge: number;
   wallet_discount: number;
   total_paid: number;
   currency_symbol: string;
@@ -122,7 +123,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                   <div className="flex items-start justify-between gap-x-[4px] gap-y-[8px] my-[4px] leading-[16px]">
                     <span className="font-semibold text-[14px] text-black flex-1 max-w-[742px] h-[16px]">Delivery</span>
                     <div className="text-right text-[14px] text-black max-w-[60%] gap-x-[4px] gap-y-[8px] flex flex-col">
-                      <div className="">Next Working Day Delivery</div>
+                      <div className="">{order.delivery_method}</div>
                       <div>{order.address.line1}</div>
                       {order.address.line2 && <div>{order.address.line2}</div>}
                       <div>{order.address.city}</div>
@@ -152,10 +153,10 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                       </div>
                       <div className="flex justify-between text-right flex-1 text-[14px]">
                         <span className="text-black w-[120px] h-[16px]">Delivery</span>
-                        <span className="text-black w-[80px] h-[16px] flex-1">{order.delivery}</span>
+                        <span className="text-black w-[80px] h-[16px] flex-1">{order.currency_symbol}{order.delivery_charge}</span>
                       </div>
                       <div className="flex justify-between text-right flex-1 text-[14px]">
-                        <span className="text-black w-[120px] h-[16px]">VAT (20%)</span>
+                        <span className="text-black w-[120px] h-[16px]">VAT ({ (order.vat_amount > 0 ? ((order.vat_amount*100) / (order.subtotal+order.delivery_charge-order.wallet_discount)).toFixed(2) : '0.00') }%)</span>
                         <span className="text-black w-[80px] h-[16px] flex-1">
                           {order.currency_symbol}
                           {order.vat_amount.toFixed(2)}

@@ -249,14 +249,15 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
 
   const handleIncrement = async (product: ProductItem) => {
     try {
+      const step = Number(product?.step_quantity) > 0 ? Number(product.step_quantity) : 1;
       // Front check against stock if provided in product payload
       const stock = Number((product as any)?.stock_quantity ?? 0);
       const current = Number(cartQuantities[product.id] || 0);
-      if (stock > 0 && current + 1 > stock) {
+      if (stock > 0 && current + step > stock) {
         toast({ title: 'Quantity not available', description: `Only ${stock} in stock`, variant: 'destructive' });
         return;
       }
-      const res = await api.post('/cart/add', { product_id: product.id, quantity: 1 });
+      const res = await api.post('/cart/add', { product_id: product.id, quantity: step });
       if (res?.data && res.data.success === false) {
         const msg = res.data.message || 'Requested quantity is not available';
         toast({ title: 'Quantity not available', description: msg, variant: 'destructive' });
@@ -290,7 +291,15 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
 
   const handleDecrement = async (product: ProductItem) => {
     try {
-      const res = await api.post('/cart/decrement', { product_id: product.id, quantity: 1 });
+      const step = Number(product?.step_quantity) > 0 ? Number(product.step_quantity) : 1;
+      const current = Number(cartQuantities[product.id] || 0);
+      // Calculate new quantity after decrement
+      const nextQty = Math.max(0, current - step);
+      const decrementQty = current > 0 ? step : 0;
+      
+      if (decrementQty === 0) return;
+      
+      const res = await api.post('/cart/decrement', { product_id: product.id, quantity: decrementQty });
       const items: Array<{ product_id: number; quantity: number; product?: { wallet_credit?: number } }> = res?.data?.cart?.items || [];
       const map: Record<number, number> = {};
       let wallet = 0;
@@ -313,7 +322,8 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
         total: Number(c?.total || 0),
       });
       setWalletCreditTotal(Number(c?.wallet_credit_total || wallet));
-      if (prevQty === 1) {
+      // Show message when item is removed (quantity becomes 0)
+      if (prevQty > 0 && (map[product.id] || 0) === 0) {
         toast({ title: 'Removed from Cart', description: `${product.name} removed from your basket` });
       }
     } catch (e: any) {

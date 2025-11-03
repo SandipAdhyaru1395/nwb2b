@@ -59,6 +59,45 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
     }, 0);
   }, [items]);
 
+  // Helper function to get step_quantity from product or products_cache
+  const getStepQuantity = (productId: number, product?: ProductItem): number => {
+    // First try from the product object passed in
+    if (product?.step_quantity && Number(product.step_quantity) > 0) {
+      return Number(product.step_quantity);
+    }
+    
+    // Try to find it in products_cache
+    try {
+      const raw = sessionStorage.getItem('products_cache');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const categories = Array.isArray(parsed) ? parsed : (parsed?.categories || []);
+        
+        const findProductInNodes = (nodes: any[]): any => {
+          for (const node of nodes) {
+            if (Array.isArray(node.products)) {
+              const found = node.products.find((p: any) => Number(p.id) === productId);
+              if (found) return found;
+            }
+            if (Array.isArray(node.subcategories)) {
+              const found = findProductInNodes(node.subcategories);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        
+        const productFromCache = findProductInNodes(categories);
+        if (productFromCache && productFromCache.step_quantity && Number(productFromCache.step_quantity) > 0) {
+          return Number(productFromCache.step_quantity);
+        }
+      }
+    } catch {}
+    
+    // Default to 1
+    return 1;
+  };
+
   // Load cart from API on mount and when products update (price may change)
   useEffect(() => {
     const loadCart = async () => {
@@ -67,16 +106,23 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
         const apiItems: Array<{ product_id: number; quantity: number; product?: any }> = res?.data?.cart?.items || [];
         const mapped = apiItems
           .filter((it) => it?.product)
-          .map((it) => ({
-            product: {
-              id: Number(it.product.id),
-              name: it.product.name,
-              image: it.product.image,
-              price: String(it.product.price),
-              wallet_credit: Number(it.product.wallet_credit ?? 0),
-            } as ProductItem,
-            quantity: Number(it.quantity) || 0,
-          }));
+          .map((it) => {
+            const productId = Number(it.product.id);
+            const apiStepQty = Number(it.product.step_quantity ?? 0);
+            const stepQty = apiStepQty > 0 ? apiStepQty : getStepQuantity(productId);
+            
+            return {
+              product: {
+                id: productId,
+                name: it.product.name,
+                image: it.product.image,
+                price: String(it.product.price),
+                wallet_credit: Number(it.product.wallet_credit ?? 0),
+                step_quantity: stepQty,
+              } as ProductItem,
+              quantity: Number(it.quantity) || 0,
+            };
+          });
         setItems(mapped);
         if (mapped.length === 0) {
           onNavigate('shop');
@@ -114,7 +160,8 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
 
   const apiIncrement = async (product: ProductItem) => {
     try {
-      const res = await api.post('/cart/add', { product_id: product.id, quantity: 1 });
+      const step = getStepQuantity(product.id, product);
+      const res = await api.post('/cart/add', { product_id: product.id, quantity: step });
       if (res?.data && res.data.success === false) {
         const msg = res.data.message || 'Requested quantity is not available';
         toast({ title: 'Quantity not available', description: msg, variant: 'destructive' });
@@ -123,16 +170,23 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
       const apiItems: Array<{ product_id: number; quantity: number; product?: any }> = res?.data?.cart?.items || [];
       const mapped = apiItems
         .filter((it) => it?.product)
-        .map((it) => ({
-          product: {
-            id: Number(it.product.id),
-            name: it.product.name,
-            image: it.product.image,
-            price: String(it.product.price),
-            wallet_credit: Number(it.product.wallet_credit ?? 0),
-          } as ProductItem,
-          quantity: Number(it.quantity) || 0,
-        }));
+        .map((it) => {
+          const productId = Number(it.product.id);
+          const apiStepQty = Number(it.product.step_quantity ?? 0);
+          const stepQty = apiStepQty > 0 ? apiStepQty : getStepQuantity(productId);
+          
+          return {
+            product: {
+              id: productId,
+              name: it.product.name,
+              image: it.product.image,
+              price: String(it.product.price),
+              wallet_credit: Number(it.product.wallet_credit ?? 0),
+              step_quantity: stepQty,
+            } as ProductItem,
+            quantity: Number(it.quantity) || 0,
+          };
+        });
       setItems(mapped);
       const c = res?.data?.cart;
       setCartTotals({
@@ -149,20 +203,35 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
 
   const apiDecrement = async (product: ProductItem) => {
     try {
-      const res = await api.post('/cart/decrement', { product_id: product.id, quantity: 1 });
+      const step = getStepQuantity(product.id, product);
+      const currentQty = items.find(item => item.product.id === product.id)?.quantity || 0;
+      // Calculate new quantity after decrement
+      const nextQty = Math.max(0, currentQty - step);
+      const decrementQty = currentQty > 0 ? step : 0;
+      
+      if (decrementQty === 0) return;
+      
+      const res = await api.post('/cart/decrement', { product_id: product.id, quantity: decrementQty });
       const apiItems: Array<{ product_id: number; quantity: number; product?: any }> = res?.data?.cart?.items || [];
       const mapped = apiItems
         .filter((it) => it?.product)
-        .map((it) => ({
-          product: {
-            id: Number(it.product.id),
-            name: it.product.name,
-            image: it.product.image,
-            price: String(it.product.price),
-            wallet_credit: Number(it.product.wallet_credit ?? 0),
-          } as ProductItem,
-          quantity: Number(it.quantity) || 0,
-        }));
+        .map((it) => {
+          const productId = Number(it.product.id);
+          const apiStepQty = Number(it.product.step_quantity ?? 0);
+          const stepQty = apiStepQty > 0 ? apiStepQty : getStepQuantity(productId);
+          
+          return {
+            product: {
+              id: productId,
+              name: it.product.name,
+              image: it.product.image,
+              price: String(it.product.price),
+              wallet_credit: Number(it.product.wallet_credit ?? 0),
+              step_quantity: stepQty,
+            } as ProductItem,
+            quantity: Number(it.quantity) || 0,
+          };
+        });
       setItems(mapped);
       const c = res?.data?.cart;
       setCartTotals({
@@ -197,18 +266,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
   };
   return (
     <div className="min-h-screen  flex flex-col w-full max-w-[1000px] mx-auto">
-      {adjustments.length > 0 && (
-        <div className="bg-yellow-100 border-b border-yellow-300 text-yellow-900 px-4 py-2 text-sm">
-          <div className="font-semibold mb-1">We adjusted some items to available stock:</div>
-          <ul className="list-disc pl-5">
-            {adjustments.map((a, idx) => (
-              <li key={idx}>
-                {a.product_name || `#${a.product_id}`}: {a.old_quantity} → {a.new_quantity}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      
       {/* <div className="h-[50px] bg-white flex items-center">
         <div className="w-[66px] h-[25px] flex items-center justify-center">
           <FontAwesomeIcon icon={faBagShopping} className="text-green-600" style={{ width: "21px", height: "24px" }} />
@@ -234,7 +292,18 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
       <div className="mt-0">
         <Banner />
       </div>
-
+      {adjustments.length > 0 && (
+        <div className="bg-yellow-100 border-b border-yellow-300 text-yellow-900 px-4 py-2 text-sm">
+          <div className="font-semibold mb-1">We adjusted some items to available stock:</div>
+          <ul className="list-disc pl-5">
+            {adjustments.map((a, idx) => (
+              <li key={idx}>
+                {a.product_name || `#${a.product_id}`}: {a.old_quantity} → {a.new_quantity}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <div className="flex-1 bg-white overflow-y-auto mt-[10px] pb-48">
         {items.map(({ product, quantity }) => (
           <div key={product.id} className="flex items-start flex-col border-t border-gray-200 py-[16px] mx-[10px]">
@@ -272,16 +341,23 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
                         const apiItems: Array<{ product_id: number; quantity: number; product?: any }> = res?.data?.cart?.items || [];
                         const mapped = apiItems
                           .filter((it) => it?.product)
-                          .map((it) => ({
-                            product: {
-                              id: Number(it.product.id),
-                              name: it.product.name,
-                              image: it.product.image,
-                              price: String(it.product.price),
-                              wallet_credit: Number(it.product.wallet_credit ?? 0),
-                            } as ProductItem,
-                            quantity: Number(it.quantity) || 0,
-                          }));
+                          .map((it) => {
+                            const productId = Number(it.product.id);
+                            const apiStepQty = Number(it.product.step_quantity ?? 0);
+                            const stepQty = apiStepQty > 0 ? apiStepQty : getStepQuantity(productId);
+                            
+                            return {
+                              product: {
+                                id: productId,
+                                name: it.product.name,
+                                image: it.product.image,
+                                price: String(it.product.price),
+                                wallet_credit: Number(it.product.wallet_credit ?? 0),
+                                step_quantity: stepQty,
+                              } as ProductItem,
+                              quantity: Number(it.quantity) || 0,
+                            };
+                          });
                         setItems(mapped);
                         const c = res?.data?.cart;
                         setCartTotals({

@@ -11,6 +11,8 @@ use App\Models\Product;
 use App\Models\Customer;
 use App\Models\Address;
 use App\Models\WalletTransaction;
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -39,7 +41,7 @@ class OrderController extends Controller
                 'units' => (int)($order->units_count ?? 0),
                 'skus' => (int)($order->skus_count ?? 0),
                 'currency_symbol' => $setting['currency_symbol'] ?? '',
-                'total_paid' => (float)($order->total_amount ?? 0),
+                'total_paid' => (float)($order->outstanding_amount ?? 0),
             ];
         });
 
@@ -92,8 +94,9 @@ class OrderController extends Controller
                 'skus' => (int)($order->skus_count ?? 0),
                 'subtotal' => (float)($order->subtotal ?? 0),
                 'vat_amount' => (float)($order->vat_amount ?? 0),
-                'delivery' => 'FREE',
+                'delivery_method' => $order->delivery_method_name,
                 'wallet_discount' => (float)($order->wallet_credit_used ?? 0) * -1,
+                'delivery_charge' => (float)($order->delivery_charge ?? 0),
                 'total_paid' => (float)($order->total_amount ?? 0),
                 'payment_amount' => (float)($order->payment_amount ?? max(0, ($order->total_amount ?? 0) - ($order->wallet_credit_used ?? 0))),
                 'currency_symbol' => $setting['currency_symbol'] ?? '',
@@ -404,8 +407,7 @@ class OrderController extends Controller
     }
 
     /**
-     * Reorder: given an existing order number, return a normalized items payload
-     * suitable for the frontend cart and checkout calculations.
+     * Reorder: given an existing order number, add all items from that order to the customer's cart.
      */
     public function reorder(Request $request, string $orderNumber)
     {
@@ -421,24 +423,40 @@ class OrderController extends Controller
         }
 
         $customer = $request->user();
-        if ($customer && $order->customer_id && (int)$order->customer_id !== (int)$customer->id) {
+        if (!$customer) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Authentication required',
+            ], 401);
+        }
+
+        if ($order->customer_id && (int)$order->customer_id !== (int)$customer->id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Unauthorized to reorder this order',
             ], 403);
         }
 
-        $items = [];
-        $subtotal = 0.0;
-        $units = 0;
-        $skus = 0;
+        // Get or create cart for the customer
+        $cart = Cart::firstOrCreate(
+            ['customer_id' => $customer->id],
+            ['subtotal' => 0, 'total_discount' => 0, 'total' => 0, 'units' => 0, 'skus' => 0]
+        );
+
+        $itemsAdded = 0;
+        $itemsSkipped = [];
 
         foreach (($order->items ?? []) as $item) {
             $product = $item->product ?: Product::find($item->product_id);
             if (!$product || (int)($product->is_active ?? 1) !== 1) {
                 // skip inactive/missing products
+                $itemsSkipped[] = [
+                    'product_id' => $item->product_id,
+                    'reason' => !$product ? 'Product not found' : 'Product is inactive'
+                ];
                 continue;
             }
+
             $qty = (int) $item->quantity;
             // Enforce step multiples by rounding up to nearest valid multiple
             $step = (int)($product->step_quantity ?? 1);
@@ -448,36 +466,123 @@ class OrderController extends Controller
                     $qty = $qty + ($step - $remainder);
                 }
             }
-            if ($qty <= 0) { continue; }
+            if ($qty <= 0) { 
+                $itemsSkipped[] = [
+                    'product_id' => $product->id,
+                    'reason' => 'Invalid quantity'
+                ];
+                continue; 
+            }
+
+            // Check stock availability
+            if (isset($product->stock_quantity) && $product->stock_quantity !== null) {
+                if ($qty > (int) $product->stock_quantity) {
+                    $itemsSkipped[] = [
+                        'product_id' => $product->id,
+                        'product_name' => $product->name,
+                        'reason' => 'Insufficient stock',
+                        'available' => (int) $product->stock_quantity,
+                        'requested' => $qty
+                    ];
+                    // Use available stock if any, otherwise skip
+                    if ((int) $product->stock_quantity <= 0) {
+                        continue;
+                    }
+                    $qty = (int) $product->stock_quantity;
+                }
+            }
 
             $price = (float) $product->price;
-            $subtotal += $price * $qty;
-            $units += $qty;
-            $skus += 1;
+            
+            // Check if item already exists in cart
+            $existingCartItem = CartItem::where('cart_id', $cart->id)
+                ->where('product_id', $product->id)
+                ->first();
 
-            $items[] = [
-                'product_id' => (int) $product->id,
-                'quantity' => $qty,
-                'product' => [
-                    'id' => (int) $product->id,
-                    'name' => (string) $product->name,
-                    'image' => $product->image_url ? (str_starts_with($product->image_url, 'http') ? $product->image_url : asset($product->image_url)) : null,
-                    'step_quantity' => (int)($product->step_quantity ?? 1),
-                    'price' => (string) (Helpers::setting()['currency_symbol'] ?? '£') . number_format($price, 2),
-                    'discount' => null,
-                    'wallet_credit' => isset($product->wallet_credit) ? (float)$product->wallet_credit : 0,
-                    'vat_amount' => isset($product->vat_amount) ? (float)$product->vat_amount : 0,
-                ],
-            ];
+            if ($existingCartItem) {
+                // Add to existing quantity
+                $newQty = (int) $existingCartItem->quantity + $qty;
+                // Check stock again for combined quantity
+                if (isset($product->stock_quantity) && $product->stock_quantity !== null) {
+                    if ($newQty > (int) $product->stock_quantity) {
+                        $itemsSkipped[] = [
+                            'product_id' => $product->id,
+                            'product_name' => $product->name,
+                            'reason' => 'Combined quantity exceeds stock',
+                            'available' => (int) $product->stock_quantity,
+                            'requested' => $newQty
+                        ];
+                        continue;
+                    }
+                }
+                $existingCartItem->quantity = $newQty;
+                $existingCartItem->unit_price = $price; // Update to latest price
+                $existingCartItem->line_total = $price * $newQty;
+                $existingCartItem->save();
+            } else {
+                // Create new cart item
+                CartItem::create([
+                    'cart_id' => $cart->id,
+                    'product_id' => $product->id,
+                    'quantity' => $qty,
+                    'unit_price' => $price,
+                    'line_total' => $price * $qty,
+                ]);
+            }
+            $itemsAdded++;
         }
+
+        // Recalculate cart totals
+        $this->recalcCartTotals($cart->id);
+        $cart->refresh();
 
         return response()->json([
             'success' => true,
-            'items' => $items,
-            'units' => (int) $units,
-            'skus' => (int) $skus,
-            'subtotal' => (float) $subtotal,
-            'total' => (float) $subtotal, // discount handled on frontend if applicable
+            'message' => $itemsAdded > 0 ? 'Items added to cart successfully' : 'No items could be added to cart',
+            'items_added' => $itemsAdded,
+            'items_skipped' => $itemsSkipped,
+            'cart' => [
+                'subtotal' => (float) ($cart->subtotal ?? 0),
+                'total_discount' => (float) ($cart->total_discount ?? 0),
+                'total' => (float) ($cart->total ?? 0),
+                'units' => (int) ($cart->units ?? 0),
+                'skus' => (int) ($cart->skus ?? 0),
+            ],
+        ]);
+    }
+
+    /**
+     * Recalculate cart totals - similar to CartController logic
+     */
+    protected function recalcCartTotals(int $cartId): void
+    {
+        $items = CartItem::where('cart_id', $cartId)->get();
+
+        // Reprice each item using the latest product price before totaling
+        $subtotal = 0.0;
+        $units = 0;
+        foreach ($items as $item) {
+            $product = Product::find($item->product_id);
+            $currentUnit = $product ? (float) $product->price : (float) $item->unit_price;
+            $quantity = (int) $item->quantity;
+            $line = $currentUnit * $quantity;
+            if ((float) $item->unit_price !== $currentUnit || (float) $item->line_total !== $line) {
+                $item->unit_price = $currentUnit;
+                $item->line_total = $line;
+                $item->save();
+            }
+            $subtotal += $line;
+            $units += $quantity;
+        }
+        $skus = (int) $items->count();
+        $totalDiscount = 0; // extend later
+        $total = $subtotal - $totalDiscount;
+        Cart::where('id', $cartId)->update([
+            'subtotal' => $subtotal,
+            'total_discount' => $totalDiscount,
+            'total' => $total,
+            'units' => $units,
+            'skus' => $skus,
         ]);
     }
 }
