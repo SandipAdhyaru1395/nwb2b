@@ -7,7 +7,7 @@ $(function () {
       processing: true,
       serverSide: false,
       ajax: {
-        url: window.routeVatListAjax || $('meta[name="route-vat-list-ajax"]').attr('content') || '/settings/vat-method/list/ajax',
+        url: baseUrl + 'settings/vat-method/list/ajax',
         dataSrc: 'data'
       },
       columns: [
