@@ -153,7 +153,7 @@ export function MobileOrderDetails({ orderNumber, onNavigate, onBack, onReorder 
                       </div>
                       <div className="flex justify-between text-right flex-1 text-[14px]">
                         <span className="text-black w-[120px] h-[16px]">Delivery</span>
-                        <span className="text-black w-[80px] h-[16px] flex-1">{order.currency_symbol}{order.delivery_charge}</span>
+                        <span className="text-black w-[80px] h-[16px] flex-1">{order.currency_symbol}{order.delivery_charge ? order.delivery_charge.toFixed(2) : '0.00'}</span>
                       </div>
                       <div className="flex justify-between text-right flex-1 text-[14px]">
                         <span className="text-black w-[120px] h-[16px]">VAT ({ (order.vat_amount > 0 ? ((order.vat_amount*100) / (order.subtotal+order.delivery_charge-order.wallet_discount)).toFixed(2) : '0.00') }%)</span>

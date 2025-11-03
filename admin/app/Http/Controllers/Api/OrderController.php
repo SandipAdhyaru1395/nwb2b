@@ -253,7 +253,7 @@ class OrderController extends Controller
 
             $deliveryCharge = $deliveryMethod ? (float)$deliveryMethod->rate : 0;
             $totalAmount = $subtotal + $vatAmount + $deliveryCharge;
-			$walletCreditUsed = min($totalAmount, $availableCredit);
+			$walletCreditUsed = min($subtotal, $availableCredit);
 			$outstandingAmount = $totalAmount - $walletCreditUsed; // total - wallet_used = outstanding
 
             $orderNumber = 'ORD-' . strtoupper(uniqid());

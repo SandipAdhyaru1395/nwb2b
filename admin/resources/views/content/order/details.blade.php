@@ -31,6 +31,11 @@
       const editModal = document.getElementById('editItemModal');
       if (editModal) new bootstrap.Modal(editModal).show();
     @endif
+
+    @if ($errors->editAddressModal->any())
+      const editAddress = document.getElementById('editAddress');
+      if (editAddress) new bootstrap.Modal(editAddress).show();
+    @endif
   });
 </script>
 @endsection
@@ -40,7 +45,6 @@
   class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-6 row-gap-4">
   <div class="d-flex flex-column justify-content-center">
     <div class="mb-1"><span class="h5">Order #{{ $order->order_number ?? '' }} 
-      
       @if($order->payment_status == 'Paid')
         </span><span class="badge bg-label-success me-1 ms-2">{{ $order->payment_status ?? '' }}</span>
       @else
@@ -100,16 +104,27 @@
             </div>
           <div class="order-calculations">
             <div class="d-flex justify-content-start mb-2">
-              <span class="w-px-100 text-heading">Subtotal:</span>
-              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->subtotal ?? 0, 2) }}</h6>
+              <span class="w-px-200 text-end text-heading">Subtotal:</span>
+              <h6 class="w-px-100 text-end mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->subtotal ?? 0, 2) }}</h6>
+            </div>
+            
+            <div class="d-flex justify-content-start mb-2">
+              <span class="w-px-200 text-end text-heading">Wallet Discount:</span>
+              <h6 class="w-px-100 text-end mb-0 ">
+                -{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->wallet_credit_used ?? 0, 2) }}
+              </h6>
             </div>
             <div class="d-flex justify-content-start mb-2">
-              <span class="w-px-100 text-heading">Tax:</span>
-              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->vat_amount ?? 0, 2) }}</h6>
+              <span class="w-px-200 text-end text-heading">Delivery:</span>
+              <h6 class="w-px-100 text-end mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->delivery_charge ?? 0, 2) }}</h6>
+            </div>
+            <div class="d-flex justify-content-start mb-2">
+              <span class="w-px-200 text-end text-heading">VAT:</span>
+              <h6 class="w-px-100 text-end mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->vat_amount ?? 0, 2) }}</h6>
             </div>
             <div class="d-flex justify-content-start">
-              <h6 class="w-px-100 mb-0">Total:</h6>
-              <h6 class="mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->total_amount ?? 0, 2) }}</h6>
+              <h6 class="w-px-200 text-end mb-0">Total:</h6>
+              <h6 class="w-px-100 text-end mb-0">{{ $setting['currency_symbol'] ?? ''}}{{ number_format($order->outstanding_amount ?? 0, 2) }}</h6>
             </div>
           </div>
         </div>
@@ -298,39 +313,18 @@
 
     <div class="card mb-6">
       <div class="card-header d-flex justify-content-between">
-        <h5 class="card-title m-0">Shipping address</h5>
-        <h6 class="m-0"><a href=" javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editShippingAddress">Edit</a>
+        <h5 class="card-title m-0">Address</h5>
+        <h6 class="m-0"><a href=" javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editAddress">Edit</a>
         </h6>
       </div>
       <div class="card-body d-flex">
-        @if($order->s_address_type == 'Home')
-          <i class="icon-base ti tabler-home icon-lg me-1 mb-2"></i>
-        @elseif($order->s_address_type == 'Office')
-          <i class="icon-base ti tabler-building icon-lg me-1 mb-2"></i>
-        @endif
-        <p class="mb-0">{{ $order->s_address_line1 ?? '' }}<br />{{ $order->s_address_line2 ?? '' }}<br />{{ $order->s_landmark ?? '' }}<br />{{ $order->s_city ?? '' }}<br />{{ $order->s_state ?? '' }}<br />{{ $order->s_country ?? '' }} {{ $order->s_zip_code ?? '' }}</p>
-      </div>
-    </div>
-    <div class="card mb-6">
-      <div class="card-header d-flex justify-content-between">
-        <h5 class="card-title m-0">Billing address</h5>
-        <h6 class="m-0"><a href=" javascript:void(0)" data-bs-toggle="modal" data-bs-target="#editBillingAddress">Edit</a>
-        </h6>
-      </div>
-      <div class="card-body d-flex">
-        @if($order->b_address_type == 'Home')
-          <i class="icon-base ti tabler-home icon-lg me-1 mb-2"></i>
-        @elseif($order->b_address_type == 'Office')
-          <i class="icon-base ti tabler-building icon-lg me-1 mb-2"></i>
-        @endif
-        <p class="mb-6">{{ $order->b_address_line1 ?? '' }}<br />{{ $order->b_address_line2 ?? '' }}<br />{{ $order->b_landmark ?? '' }}<br />{{ $order->b_city ?? '' }}<br />{{ $order->b_state ?? '' }}<br />{{ $order->b_country ?? '' }} {{ $order->b_zip_code ?? '' }} </p>
+        <p class="mb-0">{{ $order->address_line1 ?? '' }}<br />{{ $order->address_line2 ?? '' }}<br />{{ $order->city ?? '' }}<br />{{ $order->country ?? '' }} {{ $order->zip_code ?? '' }}</p>
       </div>
     </div>
   </div>
 </div>
 
-@include('_partials._modals.modal-edit-order-shipping-address')
-@include('_partials._modals.modal-edit-order-billing-address')
+@include('_partials._modals.modal-edit-order-address')
 @include('_partials._modals.modal-add-order-product')
 @include('_partials._modals.modal-edit-order-product')
 

@@ -63,7 +63,7 @@ class OrderController extends Controller
 
   public function update(Request $request)
   {
-    $validated = $request->validate([
+    $validator =Validator::make($request->all(),[
       'id' => ['required', 'exists:orders,id'],
       'order_number' => ['sometimes','string'],
       'order_date' => ['sometimes','date'],
@@ -71,18 +71,28 @@ class OrderController extends Controller
       'status' => ['sometimes','string'],
 
       // billing
-      'country' => ['sometimes','nullable','string','max:100'],
-      'address_line1' => ['sometimes','nullable','string'],
-      'address_line2' => ['sometimes','nullable','string'],
-      'city' => ['sometimes','nullable','string','max:100'],
-      'zip_code' => ['sometimes','nullable','string','max:20'],
+      'branch_name' => ['required','string'],
+      'address_line1' => ['required','string'],
+      'address_line2' => ['nullable','string'],
+      'city' => ['required','string','max:100'],
+      'country' => ['nullable','string','max:100'],
+      'zip_code' => ['required','string'],
+    ],[
+      'branch_name.required' => 'Please enter branch name',
+      'address_line1.required' => 'Please enter address line 1',
+      'city.required' => 'Please enter city',
+      'zip_code.required' => 'Please enter postcode',
     ]);
 
+    if($validator->fails()){
+      return redirect()->back()->withErrors($validator, 'editAddressModal')->withInput();
+    }
+
+    $validated = $validator->validated();
     $order = Order::findOrFail($validated['id']);
     $originalStatus = $order->status;
     $order->fill($validated);
     $order->save();
-
     if (isset($validated['status']) && $validated['status'] !== $originalStatus) {
       \App\Models\OrderStatusHistory::create([
         'order_id' => $order->id,
