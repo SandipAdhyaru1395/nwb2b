@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <span class="text-nowrap mb-0">${name}</span>
+                  <span class="d-inline-block mb-0" style="max-width: 200px; white-space: normal; word-break: break-word;">${name}</span>
                 </div>
               </div>
             `;
@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           responsivePriority: 3,
           render: function (data, type, full, meta) {
             return `
-              <span class="text-truncate">${full['parent_category']}</span>
+              <div style="max-width: 220px; white-space: normal; word-break: break-word;">${full['parent_category']}</div>
             `;
           }
         },
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           responsivePriority: 4,
           render: function (data, type, full, meta) {
             return `
-              <span class="text-truncate">${full['child_categories']}</span>
+              <div style="max-width: 260px; white-space: normal; word-break: break-word;">${full['child_categories']}</div>
             `;
           }
         },

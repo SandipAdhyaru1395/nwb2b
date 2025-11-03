@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, X, ShoppingBag, ChevronDown, ChevronUp, Plus, Minus, Star, Home, Wallet, User } from "lucide-react";
+import { Search, Filter, X, ShoppingBag, ChevronDown, ChevronUp, Plus, Minus, Star, Home, Wallet, User, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,7 @@ interface ProductItem {
   discount?: string;
   step_quantity?: number;
   wallet_credit?: number;
+  quantity?: number;
   stock_quantity?: number;
 }
 
@@ -182,31 +183,40 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
     };
   }, []);
 
-  // Derived categories filtered by search query (product name) and/or favorites. Keeps hierarchy to matches.
+  // Derived categories filtered by search/favourites and top-level special stock logic.
   const displayedCategories = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
-    const filterByQueryAndFavorites = (nodes: TreeNode[]): TreeNode[] => {
+    const filterForDisplay = (nodes: TreeNode[], topAncestorIsSpecial: boolean): TreeNode[] => {
       return nodes
         .map((node) => {
-          const filteredChildren = node.subcategories ? filterByQueryAndFavorites(node.subcategories) : undefined;
+          const filteredChildren = node.subcategories ? filterForDisplay(node.subcategories, topAncestorIsSpecial) : undefined;
           let filteredProducts = node.products;
 
           if (filteredProducts) {
-            // Filter by search query if provided
             if (query) {
               filteredProducts = filteredProducts.filter((p) => p.name.toLowerCase().includes(query));
             }
-
-            // Filter by favorites if showFavorites is true
             if (showFavorites) {
               filteredProducts = filteredProducts.filter((p) => isFavorite(p.id));
+            }
+            if (topAncestorIsSpecial) {
+              filteredProducts = filteredProducts.filter((p) => {
+                const stock = Number((p as any)?.quantity ?? (p as any)?.stock_quantity ?? 0);
+                const rawPrice: any = (p as any)?.price;
+                const numericPrice = typeof rawPrice === 'number'
+                  ? rawPrice
+                  : Number(String(rawPrice ?? '').replace(/[^0-9.]/g, ''));
+                const priceOk = !isNaN(numericPrice) && numericPrice > 0;
+                return stock > 0 && priceOk;
+              });
             }
           }
 
           const hasChildren = Array.isArray(filteredChildren) && filteredChildren.length > 0;
           const hasProducts = Array.isArray(filteredProducts) && filteredProducts.length > 0;
 
+          // Prune empty categories
           if (!hasChildren && !hasProducts) {
             return null as unknown as TreeNode;
           }
@@ -215,12 +225,18 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
             ...node,
             ...(filteredChildren ? { subcategories: filteredChildren } : {}),
             ...(filteredProducts ? { products: filteredProducts } : {}),
-          };
+          } as TreeNode;
         })
         .filter((n): n is TreeNode => Boolean(n));
     };
 
-    return filterByQueryAndFavorites(categories);
+    return categories
+      .map((root) => {
+        const topIsSpecial = root.is_special === 1;
+        const res = filterForDisplay([root], topIsSpecial);
+        return res[0];
+      })
+      .filter((n): n is TreeNode => Boolean(n));
   }, [categories, searchQuery, showFavorites, isFavorite]);
 
   // Auto-expand paths when searching to reveal matches.
@@ -251,7 +267,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
     try {
       const step = Number(product?.step_quantity) > 0 ? Number(product.step_quantity) : 1;
       // Front check against stock if provided in product payload
-      const stock = Number((product as any)?.stock_quantity ?? 0);
+      const stock = Number((product as any)?.quantity ?? (product as any)?.stock_quantity ?? 0);
       const current = Number(cartQuantities[product.id] || 0);
       if (stock > 0 && current + step > stock) {
         toast({ title: 'Quantity not available', description: `Only ${stock} in stock`, variant: 'destructive' });
@@ -378,7 +394,7 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
       {/* Categories (recursive) */}
       <div className="space-y-2 overflow-y-auto pb-56">
         {displayedCategories.map((node) => (
-          <CategoryNode key={node.name} node={node} path={node.name} depth={0} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={handleIncrement} onDecrement={handleDecrement} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} cartQuantities={cartQuantities} />
+          <CategoryNode key={node.name} node={node} path={node.name} depth={0} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={handleIncrement} onDecrement={handleDecrement} isFavorite={isFavorite} onToggleFavorite={toggleFavorite} cartQuantities={cartQuantities} topAncestorIsSpecial={node.is_special === 1} />
         ))}
       </div>
 
@@ -446,9 +462,10 @@ type CategoryNodeProps = {
   isFavorite: (productId: number) => boolean;
   onToggleFavorite: (product: ProductItem) => void;
   cartQuantities: Record<number, number>;
+  topAncestorIsSpecial: boolean;
 };
 
-function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement, isFavorite, onToggleFavorite, cartQuantities }: CategoryNodeProps) {
+function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIncrement, onDecrement, isFavorite, onToggleFavorite, cartQuantities, topAncestorIsSpecial }: CategoryNodeProps) {
   const { symbol } = useCurrency();
   const isOpen = expandedPaths.includes(path);
   const hasChildren = Array.isArray(node.subcategories) && node.subcategories.length > 0;
@@ -527,31 +544,49 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
           {hasChildren &&
             node.subcategories!.map((child) => {
               const childPath = `${path}::${child.name}`;
-              return <CategoryNode key={childPath} node={child} path={childPath} depth={depth + 1} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={onIncrement} onDecrement={onDecrement} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} cartQuantities={cartQuantities} />;
+              return <CategoryNode key={childPath} node={child} path={childPath} depth={depth + 1} expandedPaths={expandedPaths} togglePath={togglePath} cart={cart} onIncrement={onIncrement} onDecrement={onDecrement} isFavorite={isFavorite} onToggleFavorite={onToggleFavorite} cartQuantities={cartQuantities} topAncestorIsSpecial={topAncestorIsSpecial} />;
             })}
 
           {hasProducts && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-8 gap-3 px-3">
-              {node.products!.map((product) => (
-                <div key={product.id} className="bg-white border-b relative pb-2 offer-plus-sign z-10 w-[113px]">
-                  {cartQuantities[product.id] ? (
-                    <div className="offer-increase-sign absolute z-10 right-0 flex items-center gap-2 bg-black rounded-full px-1 shadow-sm w-[113px]">
-                      <button onClick={() => onDecrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
-                        <Minus className="w-6 h-6" />
-                      </button>
-                      <span className="min-w-[1.5rem] text-center text-lg font-medium text-white">{cartQuantities[product.id]}</span>
-                      <button onClick={() => onIncrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
-                        <Plus className="w-6 h-6" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button onClick={() => onIncrement(product)} className="offer-plus-sign z-10 absolute right-0 w-8 h-8 bg-black rounded-full flex items-center justify-center hover:cursor-pointer">
-                      <Plus className="w-6 h-6 text-green-500" />
-                    </button>
-                  )}
+              {node.products!.map((product) => {
+                const stock = Number((product as any)?.quantity ?? (product as any)?.stock_quantity ?? 0);
+                const isOut = stock <= 0;
+                return (
+                  <div key={product.id} className={`bg-white border-b relative pb-2 offer-plus-sign z-10 w-[113px] ${isOut ? 'opacity-60' : ''}`}>
+                    {(() => {
+                      if (isOut) {
+                        return (
+                          <div className="offer-increase-sign absolute z-10 right-0 flex items-center justify-center rounded-full w-8 h-8 bg-black">
+                            <Bell className="cursor-pointer w-5 h-5 text-green-400" />
+                          </div>
+                        )
+                      }
+                      if (cartQuantities[product.id]) {
+                        return (
+                          <div className="offer-increase-sign absolute z-10 right-0 flex items-center gap-2 bg-black rounded-full px-1 shadow-sm w-[113px]">
+                            <button onClick={() => onDecrement(product)} className="w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer">
+                              <Minus className="w-6 h-6" />
+                            </button>
+                            <span className="min-w-[1.5rem] text-center text-lg font-medium text-white">{cartQuantities[product.id]}</span>
+                            <button onClick={() => onIncrement(product)} className={`w-8 h-8 text-green-500 flex items-center justify-center hover:cursor-pointer`}>
+                              <Plus className="w-6 h-6" />
+                            </button>
+                          </div>
+                        )
+                      }
+                      return (
+                        <button onClick={() => onIncrement(product)} className={`offer-plus-sign z-10 absolute right-0 w-8 h-8 bg-black rounded-full flex items-center justify-center hover:cursor-pointer`}>
+                          <Plus className="w-6 h-6 text-green-500" />
+                        </button>
+                      )
+                    })()}
 
                   <div className="aspect-square mb-2 flex items-center relative justify-center">
                     <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-[113px] object-contain" />
+                    {isOut && (
+                      <div className="absolute inset-0 bg-white/60" />
+                    )}
                     <div className="absolute right-0 bottom-0">
                       <button onClick={() => onToggleFavorite(product)} className="w-8 h-8 rounded-full border-2 flex items-center justify-center hover:cursor-pointer bg-white" aria-label="Toggle favourite" title="Toggle favourite">
                         <Star className={`w-[16px] h-[16px] ${isFavorite(product.id) ? "text-[#3dbe59] fill-[#3dbe59]" : "text-[#c0d3c4] fill-[#c0d3c4]"}`} />
@@ -578,8 +613,9 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                       <span className="text-sm text-black">{product.name}</span>
                     </div>
                   </div>
-                </div>
-              ))}
+                  </div>
+                )
+              })}
             </div>
           )}
         </div>

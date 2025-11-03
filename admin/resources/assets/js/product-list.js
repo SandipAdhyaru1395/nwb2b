@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           targets: 2,
           responsivePriority: 1,
+          width: '35%',
           render: function (data, type, full, meta) {
             let name = full['product_name'],
               id = full['id'],
@@ -100,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <span class="text-nowrap mb-0">${name}</span>
+                  <span class="d-inline-block mb-0" style="max-width: 220px; white-space: normal; word-break: break-word;">${name}</span>
                 </div>
               </div>
             `;
@@ -111,10 +112,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Sku
           targets: 3,
+          width: '20%',
           render: function (data, type, full, meta) {
             const sku = full['sku'];
-
-            return '<span>' + (sku ? sku : '-') + '</span>';
+            return '<span class="d-inline-block text-truncate" style="max-width: 160px;">' + (sku ? sku : '-') + '</span>';
           }
         },
         {

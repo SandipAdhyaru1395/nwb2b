@@ -98,8 +98,26 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
                     .filter((n: any) => Boolean(n))
                 }
                 const filtered = filterNodesWithProducts(data.categories as any[])
+                // Normalize products to include `quantity` alongside `stock_quantity`
+                const normalizeProductQuantities = (nodes: any[]): any[] => {
+                  return nodes.map((node: any) => {
+                    const withProducts = Array.isArray(node?.products)
+                      ? {
+                          products: node.products.map((p: any) => ({
+                            ...p,
+                            quantity: typeof p?.quantity === 'number' ? p.quantity : (p?.stock_quantity ?? 0),
+                          })),
+                        }
+                      : {}
+                    const withChildren = Array.isArray(node?.subcategories)
+                      ? { subcategories: normalizeProductQuantities(node.subcategories) }
+                      : {}
+                    return { ...node, ...withProducts, ...withChildren }
+                  })
+                }
+                const filteredWithQuantities = normalizeProductQuantities(filtered)
                 try {
-                  sessionStorage.setItem('products_cache', JSON.stringify({ version: vers.Product, categories: filtered }))
+                  sessionStorage.setItem('products_cache', JSON.stringify({ version: vers.Product, categories: filteredWithQuantities }))
                   if (typeof window !== 'undefined') {
                     window.dispatchEvent(new CustomEvent('products_cache_updated'))
                   }

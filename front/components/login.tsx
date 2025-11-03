@@ -124,8 +124,26 @@ export default function Login() {
                 .filter((n: any) => Boolean(n));
             };
             const filtered = filterNodesWithProducts(dataP.categories as any[]);
+            // Ensure each product carries a quantity field alongside stock_quantity for cache consumers
+            const normalizeProductQuantities = (nodes: any[]): any[] => {
+              return nodes.map((node: any) => {
+                const withProducts = Array.isArray(node?.products)
+                  ? {
+                      products: node.products.map((p: any) => ({
+                        ...p,
+                        quantity: typeof p?.quantity === "number" ? p.quantity : (p?.stock_quantity ?? 0),
+                      })),
+                    }
+                  : {};
+                const withChildren = Array.isArray(node?.subcategories)
+                  ? { subcategories: normalizeProductQuantities(node.subcategories) }
+                  : {};
+                return { ...node, ...withProducts, ...withChildren };
+              });
+            };
+            const filteredWithQuantities = normalizeProductQuantities(filtered);
             try {
-              sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: filtered }));
+              sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: filteredWithQuantities }));
               if (typeof window !== "undefined") {
                 window.dispatchEvent(new CustomEvent('products_cache_updated'));
               }

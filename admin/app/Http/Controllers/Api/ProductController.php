@@ -85,6 +85,8 @@ class ProductController extends Controller
             'name' => $product->name,
             'image' => $imageUrl,
             'step_quantity' => $product->step_quantity,
+            // Expose available quantity for frontend cache consumers
+            'quantity' => isset($product->stock_quantity) ? (int)$product->stock_quantity : 0,
             'price' =>  $setting['currency_symbol'] . number_format($priceNumber, 2),
             'discount' => $discountNumber !== null ? ('£' . number_format($discountNumber, 2)) : null,
             'wallet_credit' => isset($product->wallet_credit) ? (float)$product->wallet_credit : 0,

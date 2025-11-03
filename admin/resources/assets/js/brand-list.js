@@ -69,10 +69,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           targets: 2,
           responsivePriority: 1,
+          width: '30%',
           render: function (data, type, full, meta) {
             let name = full['brand'],
               id = full['id'],
               image = full['image'];
+
 
             let output;
             
@@ -93,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <div class="avatar avatar me-2 me-sm-4 rounded-2 bg-label-secondary">${output}</div>
                 </div>
                 <div class="d-flex flex-column">
-                  <span class="text-nowrap mb-0">${name}</span>
+                  <span class="d-inline-block mb-0" style="max-width: 200px; white-space: normal; word-break: break-word;">${name}</span>
                 </div>
               </div>
             `;
@@ -104,9 +106,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           targets: 3,
           responsivePriority: 5,
+          width: '40%',
           render: function (data, type, full, meta) {
             return `
-              <span class="text-truncate">${full['categories']}</span>
+              <div style="max-width: 260px; white-space: normal; word-break: break-word;">${full['categories']}</div>
             `;
           }
         },
