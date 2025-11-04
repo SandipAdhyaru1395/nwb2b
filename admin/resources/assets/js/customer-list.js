@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // $(function () {
   //   const select2 = $('.select2');
-  
+
   //   // Select2 Country
   //   if (select2.length) {
   //     select2.each(function () {
@@ -78,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             // const name = full['customer'];
             const email = full['email'];
-           
+
             // Creates full output for customer name and email
             const rowOutput = `
               <div class="d-flex justify-content-start align-items-center customer-name">
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 3,
           render: function (data, type, full, meta) {
             const phone = full['phone'] || '';
-            return '<span>' + (phone ? phone : '-')+ '</span>';
+            return '<span>' + (phone ? phone : '-') + '</span>';
           }
         },
         {
@@ -506,7 +506,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
     }).then(function (result) {
       if (result.value) {
         // TODO: wire actual delete endpoint when available
-        // window.location.href = baseUrl + 'customer/delete/' + id;
+        fetch(baseUrl + 'customer/' + id, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json',
+          },
+        })
+          .then(response => response.json())
+          .then(data => {
+            // optionally redirect or reload
+            window.location.reload();
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         Swal.fire({
           title: 'Cancelled',

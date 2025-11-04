@@ -8,7 +8,7 @@
             action="{{ route('user.create') }}">
             @csrf
             <div class="mb-6 form-control-validation">
-                <label class="form-label" for="modalAddUserName">Name</label>
+                <label class="form-label" for="modalAddUserName">Name <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="modalAddUserName" placeholder="John Doe"
                     name="modalAddUserName" aria-label="John Doe" value="{{ old('modalAddUserName') }}"/>
                 @error('modalAddUserName', 'addModal')
@@ -18,7 +18,7 @@
                 @enderror
             </div>
             <div class="mb-6 form-control-validation">
-                <label class="form-label" for="modalAddUserEmail">Email</label>
+                <label class="form-label" for="modalAddUserEmail">Email <span class="text-danger">*</span></label>
                 <input type="text" id="modalAddUserEmail" class="form-control" placeholder="john.doe@example.com"
                     aria-label="john.doe@example.com" name="modalAddUserEmail" value="{{ old('modalAddUserEmail') }}"/>
                 @error('modalAddUserEmail', 'addModal')
@@ -48,14 +48,14 @@
                 </select>
             </div>
             <div class="mb-6">
-                <label class="form-label" for="modalAddUserStatus">Select Status</label>
+                <label class="form-label" for="modalAddUserStatus">Select Status <span class="text-danger">*</span></label>
                 <select id="modalAddUserStatus" name="modalAddUserStatus" class="form-select">
                     <option value="active" @selected(old('modalAddUserStatus') == 'active')>Active</option>
                     <option value="inactive" @selected(old('modalAddUserStatus') == 'inactive')>Inactive</option>
                 </select>
             </div>
             <div class="mb-6 form-password-toggle form-control-validation">
-                <label class="form-label" for="newPassword">New Password</label>
+                <label class="form-label" for="newPassword">New Password <span class="text-danger">*</span></label>
                 <div class="input-group input-group-merge">
                     <input class="form-control" type="password" id="newPassword" name="newPassword"
                         placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />
@@ -68,7 +68,7 @@
                 @enderror
             </div>
             <div class="mb-6 form-password-toggle form-control-validation">
-                <label class="form-label" for="confirmPassword">Confirm New Password</label>
+                <label class="form-label" for="confirmPassword">Confirm New Password <span class="text-danger">*</span></label> 
                 <div class="input-group input-group-merge">
                     <input class="form-control" type="password" name="confirmPassword" id="confirmPassword"
                         placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;" />

@@ -42,6 +42,12 @@ class SettingController extends Controller
                 'currency_symbol' => $settings->get('currency_symbol') ?? '',
                 'banner' => $bannerUrl,
                 'maintenance_mode_store' => $settings->get('maintenance_mode_store') === '1',
+                'theme' => [
+                    'use_default' => $settings->get('default_theme') === '1',
+                    'button_color' => $settings->get('theme_primary_color'),
+                    'button_hover' => $settings->get('theme_secondary_color'),
+                    'button_login' => $settings->get('theme_button_login'),
+                ],
             ],
             'versions' => [
                 'Product' => (int)($versionsMap['Product'] ?? 0),

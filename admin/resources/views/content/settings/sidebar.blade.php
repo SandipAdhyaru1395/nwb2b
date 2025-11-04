@@ -22,7 +22,7 @@
           </a>
         </li>
         <li class="nav-item mb-1">
-          <a class="nav-link" href="javascript:void(0);">
+          <a class="nav-link {{ request()->routeIs('settings.theme') ? 'active' : '' }}" href="{{ route('settings.theme') }}">
             <i class="icon-base ti tabler-pencil icon-sm me-1_5"></i>
             <span class="align-middle">Theme</span>
           </a>

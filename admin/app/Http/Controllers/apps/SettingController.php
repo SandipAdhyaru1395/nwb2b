@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use App\Models\VatMethod;
+use Illuminate\Support\Facades\DB;
 
 class SettingController extends Controller
 {
@@ -327,5 +328,59 @@ class SettingController extends Controller
     }
 
     return redirect()->route('settings.maintenance');
+  }
+
+  public function viewThemeSettings()
+  {
+    $setting = Setting::all()->pluck('value', 'key');
+    return view('content.settings.theme', compact('setting'));
+  }
+
+  public function updateThemeSettings(Request $request)
+  {
+    $validated = $request->validate([
+      'useDefaultColors' => 'nullable|in:1',
+      'buttonColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'buttonHoverColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'buttonLoginColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+    ]);
+
+    // Store default setting
+    $useDefault = ($validated['useDefaultColors'] ?? '0') === '1';
+    Setting::updateOrCreate(['key' => 'default_theme'], ['value' => $useDefault ? '1' : '0']);
+
+    $map = [
+      'theme_primary_color' => $validated['buttonColor'] ?? '',
+      'theme_secondary_color' => $validated['buttonHoverColor'] ?? '',
+      'theme_button_login' => $validated['buttonLoginColor'] ?? '',
+    ];
+
+    foreach ($map as $key => $value) {
+      if (!empty($value)) {
+        Setting::updateOrCreate(['key' => $key], ['value' => $value]);
+      }
+    }
+
+    Toastr::success('Theme settings updated successfully');
+    return redirect()->route('settings.theme');
+  }
+
+  public function truncateData(Request $request)
+  {
+    // Optional: add authorization/permission checks if needed
+    try {
+      DB::statement('SET FOREIGN_KEY_CHECKS=0');
+      \App\Models\Category::truncate();
+      \App\Models\Brand::truncate();
+      \App\Models\Product::truncate();
+      \App\Models\Order::truncate();
+      DB::statement('SET FOREIGN_KEY_CHECKS=1');
+      Toastr::success('Data truncated successfully');
+    } catch (\Throwable $e) {
+      try { DB::statement('SET FOREIGN_KEY_CHECKS=1'); } catch (\Throwable $e2) {}
+      Toastr::error('Failed to truncate data: ' . $e->getMessage());
+    }
+
+    return redirect()->back();
   }
 }

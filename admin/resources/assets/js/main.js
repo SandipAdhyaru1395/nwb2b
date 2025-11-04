@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function () {
       : document.documentElement.getAttribute('data-bs-theme')); //!if there is no Customizer then use default style as light
 
   // Run switchImage function based on the stored style
-  window.Helpers.switchImage(storedStyle);
+  // window.Helpers.switchImage(storedStyle);
 
   // Update light/dark image based on current style
   window.Helpers.setTheme(window.Helpers.getPreferredTheme());
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function () {
             semiDarkL.classList.remove('d-none');
           }
         }
-        window.Helpers.switchImage(currTheme);
+        // window.Helpers.switchImage(currTheme);
       });
     });
   });

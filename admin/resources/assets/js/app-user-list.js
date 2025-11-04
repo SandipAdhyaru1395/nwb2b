@@ -648,53 +648,53 @@ document.addEventListener('DOMContentLoaded', function (e) {
   // Add New User Form Validation
   if (addNewUserForm) {
   const fv = FormValidation.formValidation(addNewUserForm, {
-    // fields: {
-    //   modalAddUserName: {
-    //     validators: {
-    //       notEmpty: {
-    //         message: 'Please enter name '
-    //       }
-    //     }
-    //   },
-    //   modalAddUserEmail: {
-    //     validators: {
-    //       notEmpty: {
-    //         message: 'Please enter email'
-    //       },
-    //       emailAddress: {
-    //         message: 'The value is not a valid email address'
-    //       }
-    //     }
-    //   },
-    //   newPassword: {
-    //     validators: {
-    //       notEmpty: {
-    //         message: 'Please enter new password'
-    //       },
-    //       stringLength: {
-    //         min: 6,
-    //         message: 'Password must be more than 6 characters'
-    //       }
-    //     }
-    //   },
-    //   confirmPassword: {
-    //     validators: {
-    //       notEmpty: {
-    //         message: 'Please confirm new password'
-    //       },
-    //       identical: {
-    //         compare: function () {
-    //           return document.getElementById('addNewUserForm').querySelector('[name="newPassword"]').value;
-    //         },
-    //         message: 'The password and its confirm are not the same'
-    //       },
-    //       stringLength: {
-    //         min: 6,
-    //         message: 'Password must be more than 6 characters'
-    //       }
-    //     }
-    //   }
-    // },
+    fields: {
+      modalAddUserName: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter name '
+          }
+        }
+      },
+      modalAddUserEmail: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter email'
+          },
+          emailAddress: {
+            message: 'The value is not a valid email address'
+          }
+        }
+      },
+      newPassword: {
+        validators: {
+          notEmpty: {
+            message: 'Please enter new password'
+          },
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
+          }
+        }
+      },
+      confirmPassword: {
+        validators: {
+          notEmpty: {
+            message: 'Please confirm new password'
+          },
+          identical: {
+            compare: function () {
+              return document.getElementById('addNewUserForm').querySelector('[name="newPassword"]').value;
+            },
+            message: 'The password and its confirm are not the same'
+          },
+          stringLength: {
+            min: 6,
+            message: 'Password must be more than 6 characters'
+          }
+        }
+      }
+    },
     plugins: {
       trigger: new FormValidation.plugins.Trigger(),
       bootstrap5: new FormValidation.plugins.Bootstrap5({

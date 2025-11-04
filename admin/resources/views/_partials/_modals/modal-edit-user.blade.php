@@ -12,15 +12,15 @@
           @csrf
           <input type="hidden" name="id" id="id" value="{{ $user->id }}">
           <div class="col-12 col-md-6 form-control-validation">
-            <label class="form-label" for="modalEditUserName">Name</label>
+            <label class="form-label" for="modalEditUserName">Name <span class="text-danger">*</span></label>
             <input type="text" id="modalEditUserName" name="modalEditUserName" class="form-control" placeholder="John" value="{{ $user->name }}" />
           </div>
           <div class="col-12 col-md-6 form-control-validation">
-            <label class="form-label" for="modalEditUserEmail">Email</label>
+            <label class="form-label" for="modalEditUserEmail">Email <span class="text-danger">*</span></label>
             <input type="text" id="modalEditUserEmail" name="modalEditUserEmail" class="form-control" placeholder="example@email.com" value="{{ $user->email }}" />
           </div>
           <div class="col-12 col-md-6 form-control-validation">
-            <label class="form-label" for="modalEditUserStatus">Status</label>
+            <label class="form-label" for="modalEditUserStatus">Status <span class="text-danger">*</span></label>
             <select id="modalEditUserStatus" name="modalEditUserStatus" class="select2 form-select" aria-label="Default select example">
               <option value="active" @selected($user->status=='active')>Active</option>
               <option value="inactive" @selected($user->status=='inactive')>Inactive</option>

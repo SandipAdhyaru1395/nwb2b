@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import FaviconProvider from "@/components/favicon-provider";
 import { CurrencyProvider } from "@/components/currency-provider";
 import { SettingsProvider } from "@/components/settings-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import { CustomerProvider } from "@/components/customer-provider";
 import LoadingProvider from "@/components/loading-provider";
 import StoreMaintenanceGate from "@/components/store-maintenance-gate";
@@ -68,6 +69,7 @@ html {
         <EarlyRedirect />
         <LoadingProvider>
           <SettingsProvider>
+            <ThemeProvider />
             <StoreMaintenanceGate>
               <CurrencyProvider>
                 <CustomerProvider>

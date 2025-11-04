@@ -48,40 +48,7 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/dashboard', [EcommerceDashboard::class, 'index'])->name('dashboard.read');
     });
 
-    // Product
-    Route::middleware('permission:product.read')->group(function () {
-        Route::get('/product', [ProductController::class, 'index'])->name('product.list');
-        Route::get('/product/list/ajax', [ProductController::class, 'ajaxList'])->name('product.list.ajax');
-        Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
-        Route::get('/product/search/ajax', [ProductController::class, 'searchAjax'])->name('product.search.ajax');
-    });
-    
-    Route::middleware('permission:product.create')->group(function () {
-        Route::get('/product/add', [ProductController::class, 'add'])->name('product.add');
-        Route::post('/product/create', [ProductController::class, 'create'])->name('product.create');
-    });
-
-    Route::middleware('permission:product.write')->group(function () {
-        Route::post('/product/update', [ProductController::class, 'update'])->name('product.update');
-        Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
-    });
-
-    Route::middleware('permission:brand.read')->group(function () {
-        Route::get('/brand', [BrandController::class, 'index'])->name('brand.list');
-       Route::get('/brand/edit/{id}', [BrandController::class, 'edit'])->name('brand.edit');
-        Route::get('/brand/list/ajax', [BrandController::class, 'ajaxList'])->name('brand.list.ajax');
-    });
-
-    Route::middleware('permission:brand.write')->group(function () {
-         Route::post('/brand/update', [BrandController::class, 'update'])->name('brand.update');
-         Route::get('/brand/delete/{id}', [BrandController::class, 'delete'])->name('brand.delete');
-    });
-
-    Route::middleware('permission:brand.create')->group(function () {
-        Route::get('/brand/add', [BrandController::class, 'add'])->name('brand.add');
-         Route::post('/brand/create', [BrandController::class, 'create'])->name('brand.create');
-    });
-
+    // Category
 
     Route::middleware('permission:category.read')->group(function () {
         Route::get('/category', [CategoryController::class, 'index'])->name('category.list');
@@ -101,6 +68,42 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     });
 
 
+    // Brand
+    Route::middleware('permission:brand.read')->group(function () {
+        Route::get('/brand', [BrandController::class, 'index'])->name('brand.list');
+       Route::get('/brand/edit/{id}', [BrandController::class, 'edit'])->name('brand.edit');
+        Route::get('/brand/list/ajax', [BrandController::class, 'ajaxList'])->name('brand.list.ajax');
+    });
+
+    Route::middleware('permission:brand.write')->group(function () {
+         Route::post('/brand/update', [BrandController::class, 'update'])->name('brand.update');
+         Route::get('/brand/delete/{id}', [BrandController::class, 'delete'])->name('brand.delete');
+    });
+
+    Route::middleware('permission:brand.create')->group(function () {
+        Route::get('/brand/add', [BrandController::class, 'add'])->name('brand.add');
+         Route::post('/brand/create', [BrandController::class, 'create'])->name('brand.create');
+    });
+
+    // Product
+    Route::middleware('permission:product.read')->group(function () {
+        Route::get('/product', [ProductController::class, 'index'])->name('product.list');
+        Route::get('/product/list/ajax', [ProductController::class, 'ajaxList'])->name('product.list.ajax');
+        Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
+        Route::get('/product/search/ajax', [ProductController::class, 'searchAjax'])->name('product.search.ajax');
+    });
+    
+    Route::middleware('permission:product.create')->group(function () {
+        Route::get('/product/add', [ProductController::class, 'add'])->name('product.add');
+        Route::post('/product/create', [ProductController::class, 'create'])->name('product.create');
+    });
+
+    Route::middleware('permission:product.write')->group(function () {
+        Route::post('/product/update', [ProductController::class, 'update'])->name('product.update');
+        Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
+    });
+
+
     //Order
     Route::middleware('permission:order.read')->group(function () {
         Route::get('/order', [OrderController::class, 'index'])->name('order.list');
@@ -111,28 +114,42 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/order/update', [OrderController::class, 'update'])->name('order.update');
     });
 
-    Route::middleware('permission:order.write')->group(function () {
-        Route::get('/order/delete/{id}', [OrderController::class, 'delete'])->name('order.delete');
+    Route::middleware('permission:order.create')->group(function () {
+        Route::post('/order/item/create', [OrderController::class, 'createItem'])->name('order.item.create');
     });
-
+    
     // Order Items CRUD
     Route::middleware('permission:order.write')->group(function () {
-        Route::post('/order/item/create', [OrderController::class, 'createItem'])->name('order.item.create');
         Route::post('/order/item/update', [OrderController::class, 'updateItem'])->name('order.item.update');
+        Route::get('/order/delete/{id}', [OrderController::class, 'delete'])->name('order.delete');
         Route::delete('/order/item/delete/{id}', [OrderController::class, 'deleteItem'])->name('order.item.delete');
     });
+
 
     //Customer
     Route::middleware('permission:customer.read')->group(function () {
         Route::get('/customer', [CustomerController::class, 'index'])->name('customer.list');
         Route::get('/customer/list/ajax', [CustomerController::class, 'ajaxList'])->name('customer.list.ajax');
         Route::get('/customer/{id}/orders/ajax', [CustomerController::class, 'ordersAjax'])->name('customer.orders.ajax');
+        Route::get('/customer/{id?}/overview', [CustomerController::class, 'overview'])->name('customer.overview');
+        Route::get('/customer/{id?}/security', [CustomerController::class, 'security'])->name('customer.security');
+        Route::get('/customer/{id?}/branches', [CustomerController::class, 'branches'])->name('customer.branches');
+        Route::get('/customer/{id?}/notifications', [CustomerController::class, 'notifications'])->name('customer.notifications');
+        Route::get('/customer/branch/edit', [BranchController::class, 'edit'])->name('customer.branch.edit');
     });
+
     Route::middleware('permission:customer.write')->group(function () {
         Route::delete('/customer/{id}', [CustomerController::class, 'destroy'])->name('customer.destroy');
         Route::post('/customer/update/password', [CustomerController::class, 'updatePassword'])->name('customer.update-password');
+        Route::post('/customer/update', [CustomerController::class, 'update'])->name('customer.update');
+        Route::post('/customer/branch/update', [BranchController::class, 'update'])->name('customer.branch.update');
+        Route::get('/customer/branch/{branch}/delete', [BranchController::class, 'destroy'])->name('customer.branch.delete');
     });
     
+    Route::middleware('permission:customer.create')->group(function () {
+        Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer.store');
+        Route::post('/customer/branch/store', [BranchController::class, 'store'])->name('customer.branch.store');
+    });
 
     // Invoice
     Route::middleware('permission:invoice.read')->group(function () {
@@ -152,7 +169,6 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     });
 
 
-
     // Users
     Route::middleware('permission:user.read')->group(function () {
 
@@ -164,17 +180,22 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/user/view/account/{id}', [UserController::class, 'viewAccount'])->name('user-view-account.read');
         Route::get('/user/view/security/{id}', [UserController::class, 'viewSecurity'])->name('user-view-security.read');
         Route::get('/user/view/notifications/{id}', [UserController::class, 'viewNotifications'])->name('user-view-notifications.read');
+
+        Route::get('/profile-user', [UserProfile::class, 'index'])->name('profile-user.read');
+        Route::get('/profile-teams', [UserTeams::class, 'index'])->name('profile-teams.read');
+        Route::get('/profile-projects', [UserProjects::class, 'index'])->name('profile-projects.read');
+        Route::get('/profile-connections', [UserConnections::class, 'index'])->name('profile-connections.read');
     });
 
     Route::middleware('permission:user.write')->group(function () {
         Route::post('/user/update', [UserController::class, 'update'])->name('user.update');
         Route::post('/user/update/password', [UserController::class, 'updatePassword'])->name('user.update-password');
         Route::get('user/change/status/{id}', [UserController::class, 'changeStatus'])->name('user.change-status');
+        Route::get('/user/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
     });
 
     Route::middleware('permission:user.create')->group(function () {
         Route::post('/user/create', [UserController::class, 'create'])->name('user.create');
-        Route::get('/user/delete/{id}', [UserController::class, 'delete'])->name('user.delete');
     });
 
     // Roles & Permissions
@@ -192,30 +213,13 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/role/update', [RoleController::class, 'update'])->name('role.update');
     });
 
-    Route::get('/profile-user', [UserProfile::class, 'index'])->name('profile-user.read');
-    Route::get('/profile-teams', [UserTeams::class, 'index'])->name('profile-teams.read');
-    Route::get('/profile-projects', [UserProjects::class, 'index'])->name('profile-projects.read');
-    Route::get('/profile-connections', [UserConnections::class, 'index'])->name('profile-connections.read');
-
-
-    Route::get('/customer/{id?}/overview', [CustomerController::class, 'overview'])->name('customer.overview');
-    Route::get('/customer/{id?}/security', [CustomerController::class, 'security'])->name('customer.security');
-    Route::get('/customer/{id?}/branches', [CustomerController::class, 'branches'])->name('customer.branches');
-    Route::get('/customer/{id?}/notifications', [CustomerController::class, 'notifications'])->name('customer.notifications');
-
-    Route::post('/customer/branch/store', [BranchController::class, 'store'])->name('customer.branch.store');
-    // Branch Management Routes - Temporarily without permission middleware for testing
-    Route::get('/customer/branch/edit', [BranchController::class, 'edit'])->name('customer.branch.edit');
-    Route::post('/customer/branch/update', [BranchController::class, 'update'])->name('customer.branch.update');
-    Route::get('/customer/branch/{branch}/delete', [BranchController::class, 'destroy'])->name('customer.branch.delete');
     
-    Route::post('/customer/store', [CustomerController::class, 'store'])->name('customer.store');
-    Route::post('/customer/update', [CustomerController::class, 'update'])->name('customer.update');
 
     Route::middleware('permission:settings.read')->group(function () {
         Route::get('/settings', [SettingController::class, 'viewGeneralSettings'])->name('settings.general');
         Route::get('/settings/banner', [SettingController::class, 'viewBannerSettings'])->name('settings.banner');
         Route::get('/settings/maintenance', [SettingController::class, 'viewMaintenanceSettings'])->name('settings.maintenance');
+        Route::get('/settings/theme', [SettingController::class, 'viewThemeSettings'])->name('settings.theme');
         Route::get('/settings/delivery-method', [SettingController::class, 'viewDeliveryMethod'])->name('settings.deliveryMethod');
         Route::get('/settings/delivery-method/list/ajax', [SettingController::class, 'deliveryMethodListAjax'])->name('settings.deliveryMethod.list.ajax');
         Route::get('/settings/delivery-method/ajax/show', [SettingController::class, 'deliveryMethodShow'])->name('settings.deliveryMethod.ajax.show');
@@ -229,6 +233,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/settings/general/update', [SettingController::class, 'updateGeneralSettings'])->name('settings.general.update');
         Route::post('/settings/banner/update', [SettingController::class, 'updateBannerSettings'])->name('settings.banner.update');
         Route::post('/settings/maintenance/update', [SettingController::class, 'updateMaintenanceSettings'])->name('settings.maintenance.update');
+        Route::post('/settings/truncate', [SettingController::class, 'truncateData'])->name('settings.truncate');
+        Route::post('/settings/theme/update', [SettingController::class, 'updateThemeSettings'])->name('settings.theme.update');
         Route::post('/settings/delivery-method/store', [SettingController::class, 'deliveryMethodStore'])->name('settings.deliveryMethod.store');
         Route::post('/settings/delivery-method/update', [SettingController::class, 'deliveryMethodUpdate'])->name('settings.deliveryMethod.update');
         // VAT Methods (write)

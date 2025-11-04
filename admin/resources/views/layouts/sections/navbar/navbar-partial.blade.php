@@ -11,9 +11,14 @@ use Illuminate\Support\Facades\Route;
     <i class="icon-base ti tabler-menu-2 icon-md"></i>
   </a>
 </div>
-
 <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
   <ul class="navbar-nav flex-row align-items-center ms-md-auto">
+    <li class="nav-item me-2">
+      <form class="m-auto" id="truncate-form" action="{{ route('settings.truncate') }}" method="POST">
+        @csrf
+        <button type="button" id="btn-truncate" class="btn btn-sm btn-danger">Truncate Data</button>
+      </form>
+    </li>
     <!-- User -->
     <li class="nav-item navbar-dropdown dropdown-user dropdown">
       <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
@@ -91,3 +96,32 @@ use Illuminate\Support\Facades\Route;
     <!--/ User -->
   </ul>
 </div>
+<script>
+  (function(){
+    const btn = document.getElementById('btn-truncate');
+    const form = document.getElementById('truncate-form');
+    if (!btn || !form) return;
+    btn.addEventListener('click', function(){
+      if (window.Swal && typeof window.Swal.fire === 'function') {
+        window.Swal.fire({
+          title: 'Are you sure?',
+          text: 'This will TRUNCATE Category, Brand, Product, and Order. This cannot be undone.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Yes, truncate',
+          cancelButtonText: 'Cancel',
+          reverseButtons: true,
+          focusCancel: true
+        }).then((result) => {
+          if (result.isConfirmed) {
+            form.submit();
+          }
+        });
+      } else {
+        if (confirm('Are you sure you want to TRUNCATE Category, Brand, Product, and Order? This cannot be undone.')) {
+          form.submit();
+        }
+      }
+    });
+  })();
+  </script>

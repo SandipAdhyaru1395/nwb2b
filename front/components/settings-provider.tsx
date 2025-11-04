@@ -3,6 +3,13 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react"
 import api from "@/lib/axios"
 
+type Theme = {
+  use_default?: boolean | null
+  button_color?: string | null
+  button_hover?: string | null
+  button_login?: string | null
+}
+
 type Settings = {
   company_title?: string | null
   company_logo_url?: string | null
@@ -10,6 +17,7 @@ type Settings = {
   currency_symbol?: string | null
   banner?: string | null
   maintenance_mode?: boolean | null
+  theme?: Theme | null
 }
 
 type Versions = {
@@ -50,6 +58,12 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         currency_symbol: s?.currency_symbol ?? null,
         banner: s?.banner ?? null,
         maintenance_mode: typeof s?.maintenance_mode === 'boolean' ? s.maintenance_mode : null,
+        theme: s?.theme ? {
+          use_default: typeof s.theme.use_default === 'boolean' ? s.theme.use_default : null,
+          button_color: s.theme.button_color ?? null,
+          button_hover: s.theme.button_hover ?? null,
+          button_login: s.theme.button_login ?? null,
+        } : null,
       }
       setSettings(normalized)
       setVersions({
