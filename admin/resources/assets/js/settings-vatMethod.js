@@ -50,7 +50,7 @@ $(function () {
     // Edit handler: load and show modal
     table.on('click', '.btn-edit-vat', function () {
       const id = $(this).data('id');
-      $.get('/settings/vat-method/ajax/show', { id }, function (res) {
+      $.get(baseUrl +'settings/vat-method/ajax/show', { id }, function (res) {
         if (res) {
           const modal = $('#ajaxEditVATMethodModal');
           modal.find('input#id').val(res.id);
