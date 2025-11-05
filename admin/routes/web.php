@@ -91,6 +91,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/product/list/ajax', [ProductController::class, 'ajaxList'])->name('product.list.ajax');
         Route::get('/product/edit/{id}', [ProductController::class, 'edit'])->name('product.edit');
         Route::get('/product/search/ajax', [ProductController::class, 'searchAjax'])->name('product.search.ajax');
+        Route::post('/check-sku', [ProductController::class, 'checkSku'])->name('product.checkSku');
+        Route::post('/check-unit-sku', [ProductController::class, 'checkUnitSku'])->name('product.checkUnitSku');
     });
     
     Route::middleware('permission:product.create')->group(function () {
@@ -227,6 +229,9 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/settings/vat-method', [SettingController::class, 'viewVatMethod'])->name('settings.vatMethod');
         Route::get('/settings/vat-method/list/ajax', [SettingController::class, 'vatMethodListAjax'])->name('settings.vatMethod.list.ajax');
         Route::get('/settings/vat-method/ajax/show', [SettingController::class, 'vatMethodShow'])->name('settings.vatMethod.ajax.show');
+        Route::get('/settings/unit', [SettingController::class, 'viewUnit'])->name('settings.unit');
+        Route::get('/settings/unit/list/ajax', [SettingController::class, 'unitListAjax'])->name('settings.unit.list.ajax');
+        Route::get('/settings/unit/ajax/show', [SettingController::class, 'unitShow'])->name('settings.unit.ajax.show');
     });
 
     Route::middleware('permission:settings.update')->group(function () {
@@ -240,6 +245,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         // VAT Methods (write)
         Route::post('/settings/vat-method/store', [SettingController::class, 'vatMethodStore'])->name('settings.vatMethod.store');
         Route::post('/settings/vat-method/update', [SettingController::class, 'vatMethodUpdate'])->name('settings.vatMethod.update');
+        Route::post('/settings/unit/store', [SettingController::class, 'unitStore'])->name('settings.unit.store');
+        Route::post('/settings/unit/update', [SettingController::class, 'unitUpdate'])->name('settings.unit.update');
     });
 });
 

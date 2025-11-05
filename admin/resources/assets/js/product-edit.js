@@ -73,6 +73,7 @@
     //Add New customer Form Validation
     const fv = FormValidation.formValidation(editProductForm, {
       fields: {
+        
         brands: {
           selector: 'select[name="brands[]"]', // target the checkbox group
           validators: {
@@ -102,14 +103,82 @@
             }
           }
         },
+        productSku: {
+          validators: {
+            notEmpty: {
+              message: 'Product code is required'
+            },
+            remote: {
+              message: 'This product code already exists',
+              method: 'POST',
+              url: '/check-sku',
+              data: function() {
+                return {
+                  _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                  sku: editProductForm.querySelector('[name="productSku"]').value,
+                  id: editProductForm.querySelector('[name="id"]').value
+                };
+              },
+              delay: 500
+            }
+          }
+        },
+        productUnitSku: {
+          validators: {
+            notEmpty: {
+              message: 'Product unit code is required'
+            },
+            remote: {
+              message: 'This product unit code already exists',
+              method: 'POST',
+              url: '/check-unit-sku',
+              data: function() {
+                return {
+                  _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                  sku: editProductForm.querySelector('[name="productUnitSku"]').value,
+                  id: editProductForm.querySelector('[name="id"]').value
+                };
+              },
+              delay: 500
+            }
+          }
+        },
         productPrice: {
           validators: {
             notEmpty: {
-              message: 'Please enter product price'
+              message: 'Please enter selling price'
             },
             numeric: {
-              message: 'The discounted price must be a number'
+              message: 'Selling price must be a number'
             },
+          }
+        },
+        costPrice: {
+          validators: {
+            numeric: {
+              message: 'Cost price must be a number'
+            },
+          }
+        },
+        walletCredit: {
+          validators: {
+            numeric: {
+              message: 'Wallet credit must be a number'
+            },
+          }
+        },
+        weight: {
+          validators: {
+            numeric: {
+              message: 'Weight must be a number'
+            }
+          }
+        },
+        rrp: {
+          validators: {
+            numeric: {
+              message: 'RRP must be a number'
+            }
           }
         },
         brand_id: {
@@ -159,6 +228,12 @@
 
 //Jquery to handle the e-commerce product edit page
 $(function () {
+  // Init flatpickr for expiry date
+  if (window.flatpickr && $('.flatpickr').length) {
+    $('.flatpickr').each(function(){
+      flatpickr(this, { dateFormat: 'd/m/Y', allowInput: true });
+    });
+  }
   // Select2 for all dropdowns
   var select2 = $('.select2');
   if (select2.length) {

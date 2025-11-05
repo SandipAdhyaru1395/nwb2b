@@ -15,17 +15,22 @@ class Product extends Model
     protected $fillable = [
         'name',
         'sku',
+        'product_unit_sku',
         'description',
         'price',
         'cost_price',
         'image_url',
         'wallet_credit',
+        'weight',
+        'rrp',
+        'expiry_date',
         'stock_quantity',
         'step_quantity',
         'notification_request_count',
         'vat_amount',
         'vat_method_name',
         'vat_method_type',
+        'unit_id',
         'is_active',
     ];
 

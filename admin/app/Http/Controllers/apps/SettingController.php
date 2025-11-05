@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Validator;
 use App\Models\VatMethod;
+use App\Models\Unit;
 use Illuminate\Support\Facades\DB;
 
 class SettingController extends Controller
@@ -32,6 +33,11 @@ class SettingController extends Controller
   public function viewVatMethod()
   {
     return view('content.settings.vat_method');
+  }
+
+  public function viewUnit()
+  {
+    return view('content.settings.unit');
   }
 
   public function deliveryMethodListAjax()
@@ -66,6 +72,20 @@ class SettingController extends Controller
     return response()->json(['data' => $data]);
   }
 
+  public function unitListAjax()
+  {
+    $units = Unit::orderBy('id', 'desc')->get(['id', 'name', 'status']);
+
+    $data = [];
+    foreach ($units as $key => $unit) {
+      $data[$key]['id'] = $unit->id;
+      $data[$key]['name'] = $unit->name;
+      $data[$key]['status'] = $unit->status;
+    }
+
+    return response()->json(['data' => $data]);
+  }
+
   public function deliveryMethodShow(Request $request)
   {
     $method = DeliveryMethod::select('id', 'name', 'time', 'rate', 'status', 'sort_order')
@@ -82,6 +102,15 @@ class SettingController extends Controller
       ->first();
 
     return response()->json($method);
+  }
+
+  public function unitShow(Request $request)
+  {
+    $unit = Unit::select('id', 'name', 'status')
+      ->where('id', $request->id)
+      ->first();
+
+    return response()->json($unit);
   }
 
   public function deliveryMethodStore(Request $request)
@@ -145,6 +174,30 @@ class SettingController extends Controller
     return redirect()->back();
   }
 
+  public function unitStore(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'unitName' => 'required|string|max:255|unique:units,name',
+      'unitStatus' => 'required|in:Active,Inactive',
+    ],[
+      'unitName.required' => 'Unit Name is required.',
+      'unitName.unique' => 'This unit already exists.',
+      'unitStatus.required' => 'Unit Status is required.',
+    ]);
+
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator, 'addUnitModal')->withInput();
+    }
+
+    Unit::create([
+      'name' => $request->unitName,
+      'status' => $request->unitStatus,
+    ]);
+
+    Toastr::success('Unit created successfully!');
+    return redirect()->back();
+  }
+
   public function deliveryMethodUpdate(Request $request)
   {
     $validator = Validator::make($request->all(), [
@@ -205,6 +258,31 @@ class SettingController extends Controller
     $method->save();
 
     Toastr::success('VAT method updated successfully!');
+    return redirect()->back();
+  }
+
+  public function unitUpdate(Request $request)
+  {
+    $validator = Validator::make($request->all(), [
+      'id' => 'required|exists:units,id',
+      'unitName' => 'required|string|max:255|unique:units,name,' . $request->id,
+      'unitStatus' => 'required|in:Active,Inactive',
+    ],[
+      'unitName.required' => 'Unit Name is required.',
+      'unitName.unique' => 'This unit already exists.',
+      'unitStatus.required' => 'Unit Status is required.',
+    ]);
+
+    if ($validator->fails()) {
+      return redirect()->back()->withErrors($validator, 'editUnitModal')->withInput();
+    }
+
+    $unit = Unit::findOrFail($request->id);
+    $unit->name = $request->unitName;
+    $unit->status = $request->unitStatus;
+    $unit->save();
+
+    Toastr::success('Unit updated successfully!');
     return redirect()->back();
   }
 

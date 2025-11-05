@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\VatMethod;
 use App\Models\Setting;
+use App\Models\Unit;
 
 class ProductController extends Controller
 {
@@ -32,23 +33,37 @@ class ProductController extends Controller
       'brands' => ['required'],
       'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
-      'productSku' => ['nullable','unique:products,sku'],
+      'productSku' => ['required','unique:products,sku'],
+      'productUnitSku' => ['required','unique:products,product_unit_sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
+      'unit_id' => ['nullable','exists:units,id'],
+      'costPrice' => ['nullable', 'numeric', 'min:0'],
+      'weight' => ['nullable','numeric'],
+      'rrp' => ['nullable','numeric'],
+      'expiry_date' => ['nullable','date_format:d/m/Y'],
     ],[
       'brands.required' => 'Brand is required',
       'step.required' => 'Step quantity is required',
       'step.numeric' => 'Must be valid number',
       'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
-      'productSku.unique' => 'SKU is already taken',
+      'productSku.unique' => 'Product code is already taken',
+      'productSku.required' => 'Product code is required',
+      'productUnitSku.required' => 'Product unit code is required',
+      'productUnitSku.unique' => 'Product unit code is already taken',
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
       'productPrice.min' => 'Price can not be less than 0',
       'productImage.required' => 'Image is required',
       'productImage.image' => 'Must be valid image',
       'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'costPrice.numeric' => 'Cost price must be valid number',
+      'costPrice.min' => 'Cost price can not be less than 0',
+      'weight.numeric' => 'Weight must be a number',
+      'rrp.numeric' => 'RRP must be a number',
+      'expiry_date.date_format' => 'Expiry date must be in dd/mm/yyyy format',
     ]);
 
     $path = $request->file('productImage')->store('products', 'public');
@@ -60,19 +75,29 @@ class ProductController extends Controller
         $vatMethodName = $vatMethod->name;
         $vatMethodType = $vatMethod->type;
     }
+    $expiryDate = null;
+    if ($request->expiry_date) {
+      $dt = \DateTime::createFromFormat('d/m/Y', $request->expiry_date);
+      $expiryDate = $dt ? $dt->format('Y-m-d') : null;
+    }
     $product = Product::create([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
+      'product_unit_sku' => $validated['productUnitSku'],
       'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
       'price' => $price,
       'cost_price' => $request->costPrice ?? 0,
       'wallet_credit' => $request->walletCredit ?? 0,
+      'weight' => $request->weight ?? null,
+      'rrp' => $request->rrp ?? null,
+      'expiry_date' => $expiryDate,
       'image_url' => $path,
       'stock_quantity' => $request->quantity ?? 0,
       'vat_amount' => $vatAmount,
       'vat_method_name' => $vatMethodName,
       'vat_method_type' => $vatMethodType,
+      'unit_id' => $request->unit_id,
       'is_active' => $request->productStatus ?? 0,
       'brand_id' => $request->brand_id,
     ]);
@@ -95,6 +120,7 @@ class ProductController extends Controller
 
     $data['productBrands'] = ProductBrand::where('product_id', $id)->pluck('brand_id')->toArray();
     $data['vatMethods'] = VatMethod::where('status', 'Active')->orderBy('name')->get();
+    $data['units'] = Unit::where('status', 'Active')->orderBy('name')->get();
     $settings = Setting::all()->pluck('value', 'key');
     $data['currencySymbol'] = $settings['currency_symbol'] ?? '₱';
 
@@ -104,27 +130,40 @@ class ProductController extends Controller
   public function update(Request $request){
     
     
-     $validated = $request->validate([
+    $validated = $request->validate([
       'brands' => ['required'],
       'step' => ['required', 'numeric', 'min:1'],
       'productTitle' => ['required'],
-      'productSku' => ['nullable','unique:products,sku,'.$request->id],
+      'productSku' => ['required','unique:products,sku,'.$request->id],
+      'productUnitSku' => ['required','unique:products,product_unit_sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
+      'unit_id' => ['nullable','exists:units,id'],
+      'costPrice' => ['nullable', 'numeric', 'min:0'],
+      'weight' => ['nullable','numeric'],
+      'rrp' => ['nullable','numeric'],
+      'expiry_date' => ['nullable','date_format:d/m/Y'],
     ],[
       'brands.required' => 'Brand is required',
       'step.required' => 'Step quantity is required',
       'step.numeric' => 'Must be valid number',
       'step.min' => 'Must be greater than 0',
       'productTitle.required' => 'Name is required',
-      'productSku.unique' => 'SKU is already taken',
+      'productSku.unique' => 'Product code is already taken',
+      'productSku.required' => 'Product code is required',
+      'productUnitSku.required' => 'Product unit code is required',
+      'productUnitSku.unique' => 'Product unit code is already taken',
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
       'productPrice.min' => 'Price can not be less than 0',
-      'productImage.required' => 'Image is required',
       'productImage.image' => 'Must be valid image',
       'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'costPrice.numeric' => 'Cost price must be valid number',
+      'costPrice.min' => 'Cost price can not be less than 0',
+      'weight.numeric' => 'Weight must be a number',
+      'rrp.numeric' => 'RRP must be a number',
+      'expiry_date.date_format' => 'Expiry date must be in dd/mm/yyyy format',
     ]);
      
 
@@ -146,19 +185,29 @@ class ProductController extends Controller
         $vatMethodName = $vatMethod->name;
         $vatMethodType = $vatMethod->type;
     }
+    $expiryDate = null;
+    if ($request->expiry_date) {
+      $dt = \DateTime::createFromFormat('d/m/Y', $request->expiry_date);
+      $expiryDate = $dt ? $dt->format('Y-m-d') : null;
+    }
     Product::find($request->id)->update([
       'name' => $validated['productTitle'],
       'sku' => $validated['productSku'],
+      'product_unit_sku' => $validated['productUnitSku'],
       'step_quantity' => $validated['step'],
       'description' => $request->productDescription ?? null,
       'price' => $price,
       'cost_price' => $request->costPrice ?? 0,
       'wallet_credit' => $request->walletCredit ?? 0,
+      'weight' => $request->weight ?? null,
+      'rrp' => $request->rrp ?? null,
+      'expiry_date' => $expiryDate,
       'image_url' => $request->file('productImage') != null ? $path : Product::find($request->id)->image_url,
       'stock_quantity' => $request->quantity ?? 0,
       'vat_amount' => $vatAmount,
       'vat_method_name' => $vatMethodName,
       'vat_method_type' => $vatMethodType,
+      'unit_id' => $request->unit_id,
       'is_active' => $request->productStatus ?? 0,
     ]);
 
@@ -180,6 +229,7 @@ class ProductController extends Controller
   public function add(){
     $data['brands'] = Brand::all();
     $data['vatMethods'] = VatMethod::where('status', 'Active')->orderBy('name')->get();
+    $data['units'] = Unit::where('status', 'Active')->orderBy('name')->get();
     $settings = Setting::all()->pluck('value', 'key');
     $data['currencySymbol'] = $settings['currency_symbol'] ?? '₱';
     return view('content.product.add',$data);
@@ -247,5 +297,39 @@ class ProductController extends Controller
     $product->delete();
     Toastr::success('Product deleted successfully!');
     return redirect()->back();
+  }
+
+  public function checkSku(Request $request)
+  {
+    $request->validate([
+      'sku' => ['required','string'],
+      'id' => ['nullable','integer']
+    ]);
+
+    $sku = trim($request->sku);
+    $id = $request->id;
+
+    $exists = Product::where('sku', $sku)
+      ->when(!empty($id), function($q) use ($id) { $q->where('id', '!=', $id); })
+      ->exists();
+
+    return response()->json(['valid' => !$exists]);
+  }
+
+  public function checkUnitSku(Request $request)
+  {
+    $request->validate([
+      'sku' => ['required','string'],
+      'id' => ['nullable','integer']
+    ]);
+
+    $sku = trim($request->sku);
+    $id = $request->id;
+
+    $exists = Product::where('product_unit_sku', $sku)
+      ->when(!empty($id), function($q) use ($id) { $q->where('id', '!=', $id); })
+      ->exists();
+
+    return response()->json(['valid' => !$exists]);
   }
 }

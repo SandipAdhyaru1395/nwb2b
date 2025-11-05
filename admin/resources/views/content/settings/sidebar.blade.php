@@ -39,6 +39,12 @@
             <span class="align-middle">VAT Methods</span>
           </a>
         </li>
+        <li class="nav-item mb-1">
+          <a class="nav-link {{ request()->routeIs('settings.unit') ? 'active' : '' }}" href="{{ route('settings.unit') }}">
+            <i class="icon-base ti tabler-scale icon-sm me-1_5"></i>
+            <span class="align-middle">Units</span>
+          </a>
+        </li>
       </ul>
     </div>
   </div>

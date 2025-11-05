@@ -3,11 +3,11 @@
 @section('title', 'Edit Product')
 
 @section('vendor-style')
-    @vite(['resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/tagify/tagify.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
+    @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/quill/typography.scss', 'resources/assets/vendor/libs/quill/katex.scss', 'resources/assets/vendor/libs/quill/editor.scss', 'resources/assets/vendor/libs/select2/select2.scss', 'resources/assets/vendor/libs/dropzone/dropzone.scss', 'resources/assets/vendor/libs/flatpickr/flatpickr.scss', 'resources/assets/vendor/libs/tagify/tagify.scss', 'resources/assets/vendor/libs/@form-validation/form-validation.scss'])
 @endsection
 
 @section('vendor-script')
-    @vite(['resources/assets/vendor/libs/quill/quill.js','resources/assets/vendor/libs/select2/select2.js','resources/assets/vendor/libs/dropzone/dropzone.js','resources/assets/vendor/libs/@form-validation/popular.js','resources/assets/vendor/libs/@form-validation/bootstrap5.js','resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+    @vite(['resources/assets/vendor/libs/flatpickr/flatpickr.js', 'resources/assets/vendor/libs/quill/quill.js', 'resources/assets/vendor/libs/select2/select2.js', 'resources/assets/vendor/libs/dropzone/dropzone.js', 'resources/assets/vendor/libs/@form-validation/popular.js', 'resources/assets/vendor/libs/@form-validation/bootstrap5.js', 'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
 @endsection
 
 @section('page-script')
@@ -40,6 +40,45 @@
             $('#step').on('paste', function(e) {
                 e.preventDefault();
             });
+        });
+
+
+        function updateVatAmount() {
+
+            var price = parseFloat($('#ecommerce-product-price').val()) || 0;
+            var $selected = $('#vat_method_id option:selected');
+
+            if (!$selected.val()) {
+                $('#vat_amount').val('');
+                $('#vat_method_type').val('');
+                $('#vat_method_name').val('');
+                $('#vat_amount_display').text(currencySymbol + '0.00');
+                return;
+            }
+
+            var type = $selected.data('type');
+            var name = $selected.data('name');
+            var amount = parseFloat($selected.data('amount'));
+            var vat = 0;
+
+            if (type === 'Percentage') {
+                vat = price * amount / 100;
+            } else {
+                vat = amount;
+            }
+
+            $('#vat_amount').val(vat.toFixed(2));
+            $('#vat_method_type').val(type);
+            $('#vat_method_name').val(name);
+            $('#vat_amount_display').text(
+                currencySymbol + vat.toFixed(2)
+            );
+        }
+
+        $(document).ready(function() {
+            $('#vat_method_id').on('change', updateVatAmount);
+            $('#ecommerce-product-price').on('input', updateVatAmount);
+            updateVatAmount(); // Run initially in case fields are pre-filled
         });
     </script>
 @endsection
@@ -86,12 +125,21 @@
                                 @enderror
                             </div>
                             <div class="row mb-6">
-                                <div class="col"><label class="form-label"
-                                        for="ecommerce-product-sku">SKU</label>
-                                    <input type="text" class="form-control" id="ecommerce-product-sku" placeholder="SKU"
-                                        name="productSku" aria-label="Product SKU" value="{{ $product->sku }}"
+                                <div class="col form-control-validation"><label class="form-label" for="ecommerce-product-sku">Product Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="ecommerce-product-sku" placeholder="Product Code"
+                                        name="productSku" aria-label="Product Code" value="{{ $product->sku }}"
                                         autocomplete="off" />
                                     @error('productSku')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="col form-control-validation"><label class="form-label" for="ecommerce-product-unit-sku">Product Unit Code <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" id="ecommerce-product-unit-sku" placeholder="Product Unit Code"
+                                        name="productUnitSku" aria-label="Product Unit Code" value="{{ $product->product_unit_sku }}"
+                                        autocomplete="off" />
+                                    @error('productUnitSku')
                                         <span class="text-danger" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -102,10 +150,10 @@
                             <div class="row">
                                 <!-- Base Price -->
                                 <div class="col-lg-4 mb-5 form-control-validation">
-                                    <label class="form-label" for="ecommerce-product-price">Price <span
+                                    <label class="form-label" for="ecommerce-product-price">Selling Price <span
                                             class="text-danger">*</span></label>
                                     <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                        class="form-control" id="ecommerce-product-price" placeholder="Price"
+                                        class="form-control" id="ecommerce-product-price" placeholder="Selling Price"
                                         name="productPrice" aria-label="Product price" value="{{ $product->price }}"
                                         autocomplete="off" />
                                     @error('productPrice')
@@ -116,9 +164,9 @@
                                 </div>
                                 <!-- Cost Price -->
                                 <div class="col-lg-4 mb-5 form-control-validation">
-                                    <label class="form-label" for="cost-price">Purchase Price </label>
+                                    <label class="form-label" for="cost-price">Cost Price </label>
                                     <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)"
-                                        class="form-control" id="cost-price" placeholder="Price" name="costPrice"
+                                        class="form-control" id="cost-price" placeholder="Cost Price" name="costPrice"
                                         aria-label="Cost price" value="{{ $product->cost_price }}" autocomplete="off" />
                                 </div>
                                 <!-- Wallet Credit -->
@@ -130,6 +178,29 @@
                                         autocomplete="off" />
                                 </div>
                             </div>
+                            <div class="row">
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="weight">Weight (Kg)</label>
+                                    <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="weight" placeholder="Weight" name="weight" value="{{ $product->weight }}" autocomplete="off" />
+                                    @error('weight')
+                                        <span class="text-danger" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="rrp">RRP</label>
+                                    <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="rrp" placeholder="RRP" name="rrp" value="{{ $product->rrp }}" autocomplete="off" />
+                                    @error('rrp')
+                                        <span class="text-danger" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                                <div class="col-lg-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="expiry_date">Expiry Date</label>
+                                    <input type="text" class="form-control flatpickr" id="expiry_date" name="expiry_date" placeholder="dd/mm/yyyy" value="{{ $product->expiry_date ? \Carbon\Carbon::parse($product->expiry_date)->format('d/m/Y') : '' }}" readonly />
+                                    @error('expiry_date')
+                                        <span class="text-danger" role="alert"><strong>{{ $message }}</strong></span>
+                                    @enderror
+                                </div>
+                            </div>
                             <div class="row mb-6">
                                 <div class="col-md-4 mb-5 form-control-validation"><label class="form-label"
                                         for="quantity">Quantity</label>
@@ -139,23 +210,34 @@
                                         autocomplete="off" />
                                 </div>
                                 <div class="col-md-4 mb-5 form-control-validation">
+                                    <label class="form-label" for="unit_id">Product Unit</label>
+                                    <select name="unit_id" id="unit_id" class="form-select select2">
+                                        <option value="">Select Unit</option>
+                                        @foreach ($units as $unit)
+                                            <option value="{{ $unit->id }}" @selected($product->unit_id == $unit->id)>
+                                                {{ $unit->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4 mb-5 form-control-validation">
                                     <label class="form-label" for="vat_method_id">VAT Method</label>
-                                    <select name="vat_method_id" id="vat_method_id" class="form-select" required>
-                                        <option value="">-- Select VAT Method --</option>
-                                        @foreach($vatMethods as $vat)
-                                            <option value="{{ $vat->id }}"
-                                                data-type="{{ $vat->type }}"
-                                                data-name="{{ $vat->name }}"
-                                                data-amount="{{ $vat->amount }}"
-                                                @if($product->vat_method_name == $vat->name && $product->vat_method_type == $vat->type) selected @endif>
-                                                {{ $vat->name }} ({{ $vat->type == 'Percentage' ? $vat->amount.'%' : $currencySymbol.number_format($vat->amount,2) }})
+                                    <select name="vat_method_id" id="vat_method_id" class="form-select select2">
+                                        <option value="">Select VAT Method</option>
+                                        @foreach ($vatMethods as $vat)
+                                            <option value="{{ $vat->id }}" data-type="{{ $vat->type }}"
+                                                data-name="{{ $vat->name }}" data-amount="{{ $vat->amount }}"
+                                                @if ($product->vat_method_name == $vat->name && $product->vat_method_type == $vat->type) selected @endif>
+                                                {{ $vat->name }}
+                                                ({{ $vat->type == 'Percentage' ? $vat->amount . '%' : $currencySymbol . number_format($vat->amount, 2) }})
                                             </option>
                                         @endforeach
                                     </select>
                                     <input type="hidden" name="vat_method_name" id="vat_method_name">
                                     <input type="hidden" name="vat_method_type" id="vat_method_type">
                                     <input type="hidden" name="vat_amount" id="vat_amount">
-                                    <div class="form-text mt-1">Calculated VAT: <span id="vat_amount_display">0.00</span></div>
+                                    <div class="form-text mt-1">Calculated VAT: <span id="vat_amount_display">0.00</span>
+                                    </div>
                                 </div>
                                 <div class="col-md-4 col-8 mx-auto mb-5 form-control-validation"><label class="form-label"
                                         for="step_quantity" class="form-label">Step Quantity</label>
@@ -280,49 +362,52 @@
 @endsection
 
 @push('scripts')
-<script>
-var vatMethodsJS = @json($vatMethods);
-var currencySymbol = @json($currencySymbol);
-function updateVatAmount() {
-    var price = parseFloat(document.getElementById('ecommerce-product-price').value) || 0;
-    var select = document.getElementById('vat_method_id');
-    var selected = select.options[select.selectedIndex];
-    if(!selected || !selected.value) {
-        document.getElementById('vat_amount').value = '';
-        document.getElementById('vat_method_type').value = '';
-        document.getElementById('vat_method_name').value = '';
-        document.getElementById('vat_amount_display').innerText = '0.00';
-        return;
-    }
-    var type = selected.getAttribute('data-type');
-    var name = selected.getAttribute('data-name');
-    var amount = parseFloat(selected.getAttribute('data-amount'));
-    var vat = 0;
-    if(type === 'Percentage') {
-        vat = price * amount / 100;
-    } else {
-        vat = amount;
-    }
-    document.getElementById('vat_amount').value = vat.toFixed(2);
-    document.getElementById('vat_method_type').value = type;
-    document.getElementById('vat_method_name').value = name;
-    document.getElementById('vat_amount_display').innerText = vat.toFixed(2)+(type==='Percentage'?'%':' '+currencySymbol);
-}
-document.addEventListener('DOMContentLoaded', function(){
-    document.getElementById('vat_method_id').addEventListener('change', updateVatAmount);
-    document.getElementById('ecommerce-product-price').addEventListener('input', updateVatAmount);
-    // Pre-fill on load if product already has VAT
-    let preType = "{{ $product->vat_method_type ?? '' }}";
-    let preName = "{{ $product->vat_method_name ?? '' }}";
-    let preVat = parseFloat("{{ $product->vat_amount ?? 0 }}");
-    if(preType && preName) {
-        document.getElementById('vat_method_type').value = preType;
-        document.getElementById('vat_method_name').value = preName;
-        document.getElementById('vat_amount').value = preVat;
-        document.getElementById('vat_amount_display').innerText = preVat.toFixed(2)+(preType==='Percentage'?'%':' '+currencySymbol);
-    }
-    // Always trigger update, even for initial blank or browser-prefill situations
-    updateVatAmount();
-});
-</script>
+    <script>
+        var vatMethodsJS = @json($vatMethods);
+        var currencySymbol = @json($currencySymbol);
+
+        function updateVatAmount() {
+            var price = parseFloat(document.getElementById('ecommerce-product-price').value) || 0;
+            var select = document.getElementById('vat_method_id');
+            var selected = select.options[select.selectedIndex];
+            if (!selected || !selected.value) {
+                document.getElementById('vat_amount').value = '';
+                document.getElementById('vat_method_type').value = '';
+                document.getElementById('vat_method_name').value = '';
+                document.getElementById('vat_amount_display').innerText = '0.00';
+                return;
+            }
+            var type = selected.getAttribute('data-type');
+            var name = selected.getAttribute('data-name');
+            var amount = parseFloat(selected.getAttribute('data-amount'));
+            var vat = 0;
+            if (type === 'Percentage') {
+                vat = price * amount / 100;
+            } else {
+                vat = amount;
+            }
+            document.getElementById('vat_amount').value = vat.toFixed(2);
+            document.getElementById('vat_method_type').value = type;
+            document.getElementById('vat_method_name').value = name;
+            document.getElementById('vat_amount_display').innerText = vat.toFixed(2) + (type === 'Percentage' ? '%' : ' ' +
+                currencySymbol);
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('vat_method_id').addEventListener('change', updateVatAmount);
+            document.getElementById('ecommerce-product-price').addEventListener('input', updateVatAmount);
+            // Pre-fill on load if product already has VAT
+            let preType = "{{ $product->vat_method_type ?? '' }}";
+            let preName = "{{ $product->vat_method_name ?? '' }}";
+            let preVat = parseFloat("{{ $product->vat_amount ?? 0 }}");
+            if (preType && preName) {
+                document.getElementById('vat_method_type').value = preType;
+                document.getElementById('vat_method_name').value = preName;
+                document.getElementById('vat_amount').value = preVat;
+                document.getElementById('vat_amount_display').innerText = preVat.toFixed(2) + (preType ===
+                    'Percentage' ? '%' : ' ' + currencySymbol);
+            }
+            // Always trigger update, even for initial blank or browser-prefill situations
+            updateVatAmount();
+        });
+    </script>
 @endpush

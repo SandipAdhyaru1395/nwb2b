@@ -119,7 +119,7 @@
           <th></th>
           <th></th>
           <th>product</th>
-          <th>sku</th>
+          <th>product code</th>
           <th>price</th>
           <th>status</th>
           <th>actions</th>
