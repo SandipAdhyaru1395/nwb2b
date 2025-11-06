@@ -461,4 +461,28 @@ class SettingController extends Controller
 
     return redirect()->back();
   }
+
+  public function deliveryMethodDelete($id)
+  {
+    $method = DeliveryMethod::findOrFail($id);
+    $method->delete();
+    Toastr::success('Delivery method deleted successfully!');
+    return redirect()->back();
+  }
+
+  public function vatMethodDelete($id)
+  {
+    $method = VatMethod::findOrFail($id);
+    $method->delete();
+    Toastr::success('VAT method deleted successfully!');
+    return redirect()->back();
+  }
+
+  public function unitDelete($id)
+  {
+    $unit = Unit::findOrFail($id);
+    $unit->delete();
+    Toastr::success('Unit deleted successfully!');
+    return redirect()->back();
+  }
 }

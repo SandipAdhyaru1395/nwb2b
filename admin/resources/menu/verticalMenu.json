@@ -37,6 +37,12 @@
       "slug": "customer"
     },
     {
+      "url": "supplier",
+      "icon": "menu-icon icon-base ti tabler-building-factory-2",
+      "name": "Suppliers",
+      "slug": "supplier"
+    },
+    {
       "url": "invoice",
       "icon": "menu-icon icon-base ti tabler-file-dollar",
       "name": "Invoices",

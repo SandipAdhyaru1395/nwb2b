@@ -22,8 +22,8 @@ $(function () {
       ajax: baseUrl + 'settings/delivery-method/list/ajax',
       columns: [
         { data: 'id' },
-        { data: 'name' },
-        { data: 'time' },
+        { data: 'name',width: '30%'  },
+        { data: 'time',width: '30%'  },
         { data: 'rate' },
         { data: 'status' },
         { data: null, defaultContent: '' }
@@ -66,8 +66,10 @@ $(function () {
           searchable: false,
           render: function (data, type, full) {
             return (
-              '<button class="btn btn-text-secondary rounded-pill waves-effect" data-bs-toggle="modal" data-bs-target="#ajaxEditDeliveryMethodModal" data-id="' + full.id + '">' +
-              '<i class="ti tabler-edit"></i></button>'
+              '<div class="d-inline-block text-nowrap">' +
+              '<button class="btn btn-text-secondary rounded-pill waves-effect" data-bs-toggle="modal" data-bs-target="#ajaxEditDeliveryMethodModal" data-id="' + full.id + '"><i class="ti tabler-edit icon-base icon-22px"></i></button>' +
+              '<button class="btn rounded-pill waves-effect btn-delete-delivery" data-id="' + full.id + '"><i class="ti tabler-trash icon-base icon-22px"></i></button>' +
+              '</div>'
             );
           }
         }
@@ -94,6 +96,25 @@ $(function () {
           }
         });
       }
+    });
+
+    // Delete handler
+    $(dt_table).on('click', '.btn-delete-delivery', function () {
+      var id = $(this).data('id');
+      if (!id) return;
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        customClass: { confirmButton: 'btn btn-primary me-3', cancelButton: 'btn btn-label-secondary' },
+        buttonsStyling: false
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          window.location.href = baseUrl + 'settings/delivery-method/delete/' + id;
+        }
+      });
     });
 
     // Refresh after submit

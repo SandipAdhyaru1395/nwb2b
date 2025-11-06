@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\apps\EcommerceDashboard;
 use App\Http\Controllers\apps\ProductController;
+use App\Http\Controllers\apps\SupplierController;
 use App\Http\Controllers\apps\BrandController;
 use App\Http\Controllers\apps\CategoryController;
 use App\Http\Controllers\apps\CustomerController;
@@ -105,6 +106,24 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
     });
 
+    // Supplier
+    Route::middleware('permission:supplier.read')->group(function () {
+        Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.list');
+        Route::get('/supplier/list/ajax', [SupplierController::class, 'ajaxList'])->name('supplier.list.ajax');
+        Route::get('/supplier/edit/{id}', [SupplierController::class, 'edit'])->name('supplier.edit');
+        Route::post('/supplier/check-email', [SupplierController::class, 'checkEmail'])->name('supplier.checkEmail');
+        Route::post('/supplier/check-phone', [SupplierController::class, 'checkPhone'])->name('supplier.checkPhone');
+    });
+    
+    Route::middleware('permission:supplier.create')->group(function () {
+        Route::get('/supplier/add', [SupplierController::class, 'add'])->name('supplier.add');
+        Route::post('/supplier/create', [SupplierController::class, 'create'])->name('supplier.create');
+    });
+
+    Route::middleware('permission:supplier.write')->group(function () {
+        Route::post('/supplier/update', [SupplierController::class, 'update'])->name('supplier.update');
+        Route::get('/supplier/delete/{id}', [SupplierController::class, 'delete'])->name('supplier.delete');
+    });
 
     //Order
     Route::middleware('permission:order.read')->group(function () {
@@ -242,11 +261,14 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/settings/theme/update', [SettingController::class, 'updateThemeSettings'])->name('settings.theme.update');
         Route::post('/settings/delivery-method/store', [SettingController::class, 'deliveryMethodStore'])->name('settings.deliveryMethod.store');
         Route::post('/settings/delivery-method/update', [SettingController::class, 'deliveryMethodUpdate'])->name('settings.deliveryMethod.update');
+        Route::get('/settings/delivery-method/delete/{id}', [SettingController::class, 'deliveryMethodDelete'])->name('settings.deliveryMethod.delete');
         // VAT Methods (write)
         Route::post('/settings/vat-method/store', [SettingController::class, 'vatMethodStore'])->name('settings.vatMethod.store');
         Route::post('/settings/vat-method/update', [SettingController::class, 'vatMethodUpdate'])->name('settings.vatMethod.update');
+        Route::get('/settings/vat-method/delete/{id}', [SettingController::class, 'vatMethodDelete'])->name('settings.vatMethod.delete');
         Route::post('/settings/unit/store', [SettingController::class, 'unitStore'])->name('settings.unit.store');
         Route::post('/settings/unit/update', [SettingController::class, 'unitUpdate'])->name('settings.unit.update');
+        Route::get('/settings/unit/delete/{id}', [SettingController::class, 'unitDelete'])->name('settings.unit.delete');
     });
 });
 

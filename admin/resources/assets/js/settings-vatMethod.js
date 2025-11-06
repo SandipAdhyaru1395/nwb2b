@@ -11,7 +11,7 @@ $(function () {
         dataSrc: 'data'
       },
       columns: [
-        { data: 'name' },
+        { data: 'name',width: '60%'  },
         { data: null }, // VAT formatted
         { data: 'status' },
         { data: null }
@@ -39,8 +39,10 @@ $(function () {
           searchable: false,
           render: function (data, type, row) {
             return (
-              '<button class="btn btn-text-secondary rounded-pill waves-effect btn-edit-vat" data-id="' + row.id + '">' +
-              '<i class="ti tabler-edit"></i></button>'
+              '<div class="d-inline-block text-nowrap">' +
+              '<button class="btn btn-text-secondary rounded-pill waves-effect btn-edit-vat" data-id="' + row.id + '"><i class="ti tabler-edit icon-base icon-22px"></i></button>' +
+              '<button class="btn rounded-pill waves-effect btn-delete-vat" data-id="' + row.id + '"><i class="ti tabler-trash icon-base icon-22px"></i></button>' +
+              '</div>'
             );
           }
         }
@@ -59,6 +61,25 @@ $(function () {
           modal.find('input#vatAmount').val(res.amount);
           modal.find('select#vatStatus').val(res.status);
           modal.modal('show');
+        }
+      });
+    });
+
+    // Delete handler: confirmation and redirect
+    table.on('click', '.btn-delete-vat', function () {
+      const id = $(this).data('id');
+      if (!id) return;
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, delete it!',
+        customClass: { confirmButton: 'btn btn-primary me-3', cancelButton: 'btn btn-label-secondary' },
+        buttonsStyling: false
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          window.location.href = baseUrl + 'settings/vat-method/delete/' + id;
         }
       });
     });

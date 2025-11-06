@@ -63,6 +63,7 @@ class CustomerController extends Controller
       ->leftJoin('orders', 'orders.customer_id', '=', 'customers.id')
       ->groupBy('customers.id', 'customers.email', 'customers.phone', 'customers.credit_balance')
       ->selectRaw('customers.id,customers.email, customers.phone, customers.credit_balance, COUNT(orders.id) as orders_count, COALESCE(SUM(orders.total_amount), 0) as total_spent')
+      ->orderBy('customers.id', 'desc')
       ->get();
 
     $data = $customerStats->map(function ($row) {

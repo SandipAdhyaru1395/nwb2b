@@ -71,9 +71,9 @@
                                 <label class="form-label" for="status">Status <span
                                         class="text-danger">*</span></label>
                                 <select class="form-select select2" id="status" name="status">
-                                    <option value="active" @selected(old('status') == 'active') @selected(old('status') == '')>
+                                    <option value="active" @selected(old('status') == 'active') @selected(old('status') == '') @selected($customer->is_active == '1')>
                                         Active</option>
-                                    <option value="inactive" @selected(old('status') == 'inactive')>Inactive</option>
+                                    <option value="inactive" @selected(old('status') == 'inactive') @selected($customer->is_active == '0')>Inactive</option>
                                 </select>
                                 @error('status', 'editCustomer')
                                     <span class="text-danger">{{ $message }}</span>
@@ -136,7 +136,7 @@
                                 <label class="form-label" for="rep_id">Sales Person</label>
                                 <select id="rep_id" name="rep_id" class="form-control select2">
                                     @if($sales_persons->isNotEmpty())
-                                        <option>Select sales person</option>
+                                        <option value="">Select sales person</option>
                                         @foreach ($sales_persons as $sales_person)
                                             <option value="{{ $sales_person->id }}" 
                                             @selected( $sales_person->id == $customer->rep_id)    
