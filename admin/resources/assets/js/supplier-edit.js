@@ -32,7 +32,7 @@
             remote: {
               message: 'This email already exists',
               method: 'POST',
-              url: '/supplier/check-email',
+              url: baseUrl + 'supplier/check-email',
               data: function() {
                 return {
                   _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -58,7 +58,7 @@
             remote: {
               message: 'This phone already exists',
               method: 'POST',
-              url: '/supplier/check-phone',
+              url: baseUrl + 'supplier/check-phone',
               data: function() {
                 return {
                   _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),

@@ -40,7 +40,7 @@ $(function () {
 
     table.on('click', '.btn-edit-unit', function () {
       const id = $(this).data('id');
-      $.get('/settings/unit/ajax/show', { id }, function (res) {
+      $.get(baseUrl +'settings/unit/ajax/show', { id }, function (res) {
         if (res) {
           const modal = $('#ajaxEditUnitModal');
           modal.find('input#id').val(res.id);
