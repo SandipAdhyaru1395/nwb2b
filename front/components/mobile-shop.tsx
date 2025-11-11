@@ -150,8 +150,27 @@ export function MobileShop({ onNavigate, cart, increment, decrement, totals, sho
             if (!isMounted) return;
             if (Array.isArray(data?.categories)) {
               const filtered = filterNodesWithProducts(data.categories as TreeNode[]);
-              setCategories(filtered);
-              try { sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: filtered })); } catch {}
+              // Remove duplicate products by id within each category tree
+              const dedupeProductsInTree = (nodes: any[]): any[] => {
+                return nodes.map((node: any) => {
+                  let nextProducts = Array.isArray(node?.products) ? node.products : undefined;
+                  if (Array.isArray(nextProducts)) {
+                    const seen = new Set<number>();
+                    nextProducts = nextProducts.filter((p: any) => {
+                      const id = Number(p?.id);
+                      if (!Number.isFinite(id)) return false;
+                      if (seen.has(id)) return false;
+                      seen.add(id);
+                      return true;
+                    });
+                  }
+                  const nextChildren = Array.isArray(node?.subcategories) ? dedupeProductsInTree(node.subcategories) : undefined;
+                  return { ...node, ...(nextProducts ? { products: nextProducts } : {}), ...(nextChildren ? { subcategories: nextChildren } : {}) };
+                });
+              };
+              const deduped = dedupeProductsInTree(filtered);
+              setCategories(deduped);
+              try { sessionStorage.setItem("products_cache", JSON.stringify({ version: productVersion, categories: deduped })); } catch {}
             }
           } catch {}
         })();

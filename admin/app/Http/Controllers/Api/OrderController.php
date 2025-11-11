@@ -15,6 +15,7 @@ use App\Models\Cart;
 use App\Models\CartItem;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\DB;
+use App\Services\WarehouseProductSyncService;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
@@ -330,13 +331,10 @@ class OrderController extends Controller
 
             // Reduce product stock quantities after successful order item creation
             foreach ($pendingOrderItems as $poi) {
-                $p = Product::find($poi['product_id']);
-                if ($p && isset($p->stock_quantity) && $p->stock_quantity !== null) {
-                    $newStock = max(0, (int) $p->stock_quantity - (int) ($poi['quantity'] ?? 0));
-                    if ($newStock !== (int)$p->stock_quantity) {
-                        $p->stock_quantity = $newStock;
-                        $p->save();
-                    }
+                $qty = (float) ($poi['quantity'] ?? 0);
+                $productId = (int) ($poi['product_id'] ?? 0);
+                if ($productId > 0 && $qty > 0) {
+                    WarehouseProductSyncService::adjustQuantity($productId, 'subtraction', $qty);
                 }
             }
 
