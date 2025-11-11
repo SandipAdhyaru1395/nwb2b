@@ -4,9 +4,11 @@ namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
 use App\Models\ProductBrand;
+use App\Services\WarehouseProductSyncService;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Brand;
 use Illuminate\Support\Str;
@@ -80,34 +82,45 @@ class ProductController extends Controller
       $dt = \DateTime::createFromFormat('d/m/Y', $request->expiry_date);
       $expiryDate = $dt ? $dt->format('Y-m-d') : null;
     }
-    $product = Product::create([
-      'name' => $validated['productTitle'],
-      'sku' => $validated['productSku'],
-      'product_unit_sku' => $validated['productUnitSku'],
-      'step_quantity' => $validated['step'],
-      'description' => $request->productDescription ?? null,
-      'price' => $price,
-      'cost_price' => $request->costPrice ?? 0,
-      'wallet_credit' => $request->walletCredit ?? 0,
-      'weight' => $request->weight ?? null,
-      'rrp' => $request->rrp ?? null,
-      'expiry_date' => $expiryDate,
-      'image_url' => $path,
-      'stock_quantity' => $request->quantity ?? 0,
-      'vat_amount' => $vatAmount,
-      'vat_method_name' => $vatMethodName,
-      'vat_method_type' => $vatMethodType,
-      'unit_id' => $request->unit_id,
-      'is_active' => $request->productStatus ?? 0,
-      'brand_id' => $request->brand_id,
-    ]);
+    $quantity = $request->quantity ?? 0;
+    $costPrice = $request->costPrice ?? 0;
 
-    foreach ($request->brands as $brand) {
-      ProductBrand::create([
-        'product_id' => $product->id,
-        'brand_id' => $brand
+    $product = DB::transaction(function () use ($validated, $request, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $path) {
+      $product = Product::create([
+        'name' => $validated['productTitle'],
+        'sku' => $validated['productSku'],
+        'product_unit_sku' => $validated['productUnitSku'],
+        'step_quantity' => $validated['step'],
+        'description' => $request->productDescription ?? null,
+        'price' => $price,
+        'cost_price' => $costPrice,
+        'wallet_credit' => $request->walletCredit ?? 0,
+        'weight' => $request->weight ?? null,
+        'rrp' => $request->rrp ?? null,
+        'expiry_date' => $expiryDate,
+        'image_url' => $path,
+        'stock_quantity' => $quantity,
+        'vat_amount' => $vatAmount,
+        'vat_method_name' => $vatMethodName,
+        'vat_method_type' => $vatMethodType,
+        'unit_id' => $request->unit_id,
+        'is_active' => $request->productStatus ?? 0,
+        'brand_id' => $request->brand_id,
       ]);
-    }
+
+      // Create product brands
+      foreach ($request->brands as $brand) {
+        ProductBrand::create([
+          'product_id' => $product->id,
+          'brand_id' => $brand
+        ]);
+      }
+
+      // Sync warehouse product
+      WarehouseProductSyncService::sync($product->id, $quantity, $costPrice);
+      
+      return $product;
+    });
 
     Toastr::success('Product created successfully!');
     return redirect()->route('product.list');
@@ -167,6 +180,9 @@ class ProductController extends Controller
     ]);
      
 
+    // Ensure $path exists even if no image is uploaded
+    $path = null;
+
     if($request->file('productImage') != null){
 
       $image = Product::find($request->id)->image;  
@@ -190,36 +206,45 @@ class ProductController extends Controller
       $dt = \DateTime::createFromFormat('d/m/Y', $request->expiry_date);
       $expiryDate = $dt ? $dt->format('Y-m-d') : null;
     }
-    Product::find($request->id)->update([
-      'name' => $validated['productTitle'],
-      'sku' => $validated['productSku'],
-      'product_unit_sku' => $validated['productUnitSku'],
-      'step_quantity' => $validated['step'],
-      'description' => $request->productDescription ?? null,
-      'price' => $price,
-      'cost_price' => $request->costPrice ?? 0,
-      'wallet_credit' => $request->walletCredit ?? 0,
-      'weight' => $request->weight ?? null,
-      'rrp' => $request->rrp ?? null,
-      'expiry_date' => $expiryDate,
-      'image_url' => $request->file('productImage') != null ? $path : Product::find($request->id)->image_url,
-      'stock_quantity' => $request->quantity ?? 0,
-      'vat_amount' => $vatAmount,
-      'vat_method_name' => $vatMethodName,
-      'vat_method_type' => $vatMethodType,
-      'unit_id' => $request->unit_id,
-      'is_active' => $request->productStatus ?? 0,
-    ]);
+    $quantity = $request->quantity ?? 0;
+    $costPrice = $request->costPrice ?? 0;
 
-    ProductBrand::where('product_id', $request->id)->delete();
-
-    foreach ($request->brands as $brand) {
-
-      ProductBrand::create([
-        'product_id' => $request->id,
-        'brand_id' => $brand
+    DB::transaction(function () use ($request, $validated, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $path) {
+      $product = Product::findOrFail($request->id);
+      
+      $product->update([
+        'name' => $validated['productTitle'],
+        'sku' => $validated['productSku'],
+        'product_unit_sku' => $validated['productUnitSku'],
+        'step_quantity' => $validated['step'],
+        'description' => $request->productDescription ?? null,
+        'price' => $price,
+        'cost_price' => $costPrice,
+        'wallet_credit' => $request->walletCredit ?? 0,
+        'weight' => $request->weight ?? null,
+        'rrp' => $request->rrp ?? null,
+        'expiry_date' => $expiryDate,
+        'image_url' => $request->file('productImage') != null ? $path : $product->image_url,
+        'stock_quantity' => $quantity,
+        'vat_amount' => $vatAmount,
+        'vat_method_name' => $vatMethodName,
+        'vat_method_type' => $vatMethodType,
+        'unit_id' => $request->unit_id,
+        'is_active' => $request->productStatus ?? 0,
       ]);
-    }
+
+      // Update product brands
+      ProductBrand::where('product_id', $request->id)->delete();
+      foreach ($request->brands as $brand) {
+        ProductBrand::create([
+          'product_id' => $request->id,
+          'brand_id' => $brand
+        ]);
+      }
+
+      // Sync warehouse product
+      WarehouseProductSyncService::sync($request->id, $quantity, $costPrice);
+    });
 
     Toastr::success('Product updated successfully!');
     return redirect()->route('product.list');

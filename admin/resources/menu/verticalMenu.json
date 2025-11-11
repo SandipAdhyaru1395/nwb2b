@@ -43,6 +43,12 @@
       "slug": "supplier"
     },
     {
+      "url": "quantity-adjustment",
+      "icon": "menu-icon icon-base ti tabler-numbers",
+      "name": "Quantity Adjustments",
+      "slug": "quantity-adjustment"
+    },
+    {
       "url": "invoice",
       "icon": "menu-icon icon-base ti tabler-file-dollar",
       "name": "Invoices",

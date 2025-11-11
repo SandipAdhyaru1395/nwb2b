@@ -33,6 +33,7 @@ use App\Http\Controllers\apps\UserViewSecurity;
 use App\Http\Controllers\apps\UserViewNotifications;
 use App\Http\Controllers\apps\UserViewConnections;
 use App\Http\Controllers\apps\RoleController;
+use App\Http\Controllers\apps\QuantityAdjustmentController;
 use App\Http\Controllers\pages\UserProfile;
 use App\Http\Controllers\pages\UserTeams;
 use App\Http\Controllers\pages\UserProjects;
@@ -104,6 +105,25 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     Route::middleware('permission:product.write')->group(function () {
         Route::post('/product/update', [ProductController::class, 'update'])->name('product.update');
         Route::get('/product/delete/{id}', [ProductController::class, 'delete'])->name('product.delete');
+    });
+
+    // Quantity Adjustments
+    Route::middleware('permission:quantity-adjustment.read')->group(function () {
+        Route::get('/quantity-adjustment', [QuantityAdjustmentController::class, 'index'])->name('quantity_adjustment.list');
+        Route::get('/quantity-adjustment/list/ajax', [QuantityAdjustmentController::class, 'ajaxList'])->name('quantity_adjustment.list.ajax');
+        Route::get('/quantity-adjustment/edit/{id}', [QuantityAdjustmentController::class, 'edit'])->name('quantity_adjustment.edit');
+        Route::get('/quantity-adjustment/search/ajax', [QuantityAdjustmentController::class, 'searchAjax'])->name('quantity_adjustment.search.ajax');
+        Route::get('/quantity-adjustment/show/ajax/{id}', [QuantityAdjustmentController::class, 'showAjax'])->name('quantity_adjustment.show.ajax');
+    });
+
+    Route::middleware('permission:quantity-adjustment.create')->group(function () {
+        Route::get('/quantity-adjustment/add', [QuantityAdjustmentController::class, 'add'])->name('quantity_adjustment.add');
+        Route::post('/quantity-adjustment/create', [QuantityAdjustmentController::class, 'create'])->name('quantity_adjustment.create');
+    });
+
+    Route::middleware('permission:quantity-adjustment.write')->group(function () {
+        Route::post('/quantity-adjustment/update', [QuantityAdjustmentController::class, 'update'])->name('quantity_adjustment.update');
+        Route::get('/quantity-adjustment/delete/{id}', [QuantityAdjustmentController::class, 'delete'])->name('quantity_adjustment.delete');
     });
 
     // Supplier
