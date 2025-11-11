@@ -81,7 +81,7 @@
               remote: {
                   message: 'This product code already exists',
                   method: 'POST',
-                  url: baseUrl + '/check-sku',
+                  url: baseUrl + 'check-sku',
                   data: function() {
                       return {
                           _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -100,7 +100,7 @@
               remote: {
                   message: 'This product unit code already exists',
                   method: 'POST',
-                  url: '/check-unit-sku',
+                  url: baseUrl + 'check-unit-sku',
                   data: function() {
                       return {
                           _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
