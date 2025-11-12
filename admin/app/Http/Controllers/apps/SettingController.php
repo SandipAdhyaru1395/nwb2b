@@ -450,8 +450,19 @@ class SettingController extends Controller
       DB::statement('SET FOREIGN_KEY_CHECKS=0');
       \App\Models\Category::truncate();
       \App\Models\Brand::truncate();
+      \App\Models\BrandCategory::truncate();
+      \App\Models\BrandTag::truncate();
+      \App\Models\ProductBrand::truncate();
       \App\Models\Product::truncate();
       \App\Models\Order::truncate();
+      \App\Models\OrderItem::truncate();
+      \App\Models\OrderStatusHistory::truncate();
+      \App\Models\WalletTransaction::truncate();
+      \App\Models\FavoriteProduct::truncate();
+      \App\Models\QuantityAdjustment::truncate();
+      \App\Models\QuantityAdjustmentItem::truncate();
+      \App\Models\Supplier::truncate();
+      \App\Models\WarehousesProduct::truncate();
       DB::statement('SET FOREIGN_KEY_CHECKS=1');
       Toastr::success('Data truncated successfully');
     } catch (\Throwable $e) {
