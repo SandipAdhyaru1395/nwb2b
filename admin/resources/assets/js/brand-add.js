@@ -32,7 +32,7 @@
       autoProcessQueue: false,
       parallelUploads: 1,
       maxFilesize: 5,
-      acceptedFiles: '.jpg,.jpeg,.png',
+      acceptedFiles: '.jpg,.jpeg,.png,.webp',
       addRemoveLinks: true,
       maxFiles: 1
     });

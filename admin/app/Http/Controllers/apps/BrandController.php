@@ -74,7 +74,7 @@ class BrandController extends Controller
 
     $validated = $request->validate([
       'brandTitle' => ['required'],
-      'brandImage' => ['required', 'image', 'mimes:jpeg,png,jpg'],
+      'brandImage' => ['required', 'image', 'mimes:jpeg,png,jpg,webp'],
       'categories' => ['required'],
     ], [
       'brandTitle.required' => 'Name is required',
@@ -151,7 +151,7 @@ class BrandController extends Controller
 
     $validated = $request->validate([
       'brandTitle' => ['required'],
-      'brandImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg'],
+      'brandImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
       'categories' => ['required'],
     ], [
       'brandTitle.required' => 'Name is required',
