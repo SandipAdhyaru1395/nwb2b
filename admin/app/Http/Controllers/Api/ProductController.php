@@ -72,8 +72,8 @@ class ProductController extends Controller
 
     protected function formatProduct($product)
     {
-        $image = $product->image_url ?? ($product->image ?? null);
-        $imageUrl = $image ? (str_starts_with($image, 'http') ? $image : asset($image)) : asset('assets/img/icons/misc/search-jpg.png');
+        
+        $imageUrl = ($product->image_url) ?  asset('storage/'.$product->image_url) : null;
 
         $priceNumber = is_numeric($product->price) ? (float) $product->price : 0;
         $discountNumber = isset($product->discount) && is_numeric($product->discount) ? (float) $product->discount : null;
