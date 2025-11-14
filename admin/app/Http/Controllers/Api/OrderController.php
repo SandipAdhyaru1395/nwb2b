@@ -70,13 +70,13 @@ class OrderController extends Controller
 
         $items = $order->items()->with('product')->get()->map(function(OrderItem $item) {
             $image = optional($item->product)->image_url;
-            if ($image && !Str::startsWith($image, ['http://', 'https://', '/'])) {
-                $image = url($image);
-            }
+            // if ($image && !Str::startsWith($image, ['http://', 'https://', '/'])) {
+            //     $image = url($image);
+            // }
             return [
                 'product_id' => (int) $item->product_id,
                 'product_name' => optional($item->product)->name,
-                'product_image' => $image,
+                'product_image' => ($image) ? asset('storage/'.$image) : null,
                 'quantity' => (int) $item->quantity,
                 'unit_price' => (float) $item->unit_price,
                 'wallet_credit_earned' => (float) ($item->wallet_credit_earned ?? 0),
