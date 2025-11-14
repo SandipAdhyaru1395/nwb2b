@@ -290,8 +290,15 @@
             }
 
             function saveFormStateDebounced() {
-                clearTimeout(saveTimeoutId);
+                clearPendingSave();
                 saveTimeoutId = setTimeout(saveFormState, 200);
+            }
+
+            function clearPendingSave() {
+                if (saveTimeoutId) {
+                    clearTimeout(saveTimeoutId);
+                    saveTimeoutId = null;
+                }
             }
 
             function buildProductRowHtml(productId, productText, type, quantity) {
@@ -307,7 +314,7 @@
                             '</select>' +
                             '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '">' +
                         '</td>' +
-                        '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + safeQty + '" required></td>' +
+                        '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + safeQty + '" autocomplete="off"></td>' +
                         '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
                     '</tr>';
             }
@@ -373,14 +380,17 @@
 
             // Clear storage on successful submit
             $('#addAdjustmentForm').on('submit', function() {
+                clearPendingSave();
                 try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
             });
 
             // Clear storage on logout (handles both link-triggered and form POST logouts)
             $(document).on('click', 'a[href*="logout"]', function() {
+                clearPendingSave();
                 try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
             });
             $(document).on('submit', 'form[action*="logout"]', function() {
+                clearPendingSave();
                 try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
             });
 
@@ -464,6 +474,8 @@
 
                 // Submit form after successful validation
                 fv.on('core.form.valid', function () {
+                    clearPendingSave();
+                    try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
                     addAdjustmentForm.submit();
                 });
             }

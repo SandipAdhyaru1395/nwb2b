@@ -8,30 +8,10 @@ use App\Http\Controllers\apps\BrandController;
 use App\Http\Controllers\apps\CategoryController;
 use App\Http\Controllers\apps\CustomerController;
 use App\Http\Controllers\apps\OrderController;
-use App\Http\Controllers\apps\EcommerceCustomerAll;
-use App\Http\Controllers\apps\EcommerceCustomerDetailsOverview;
-use App\Http\Controllers\apps\EcommerceCustomerDetailsSecurity;
-use App\Http\Controllers\apps\EcommerceCustomerDetailsBilling;
-use App\Http\Controllers\apps\EcommerceCustomerDetailsNotifications;
-use App\Http\Controllers\apps\EcommerceManageReviews;
 use App\Http\Controllers\apps\BranchController;
-use App\Http\Controllers\apps\EcommerceReferrals;
-use App\Http\Controllers\apps\EcommerceSettingsDetails;
-use App\Http\Controllers\apps\EcommerceSettingsPayments;
-use App\Http\Controllers\apps\EcommerceSettingsCheckout;
-use App\Http\Controllers\apps\EcommerceSettingsShipping;
-use App\Http\Controllers\apps\EcommerceSettingsLocations;
-use App\Http\Controllers\apps\EcommerceSettingsNotifications;
-use App\Http\Controllers\apps\InvoiceList;
-use App\Http\Controllers\apps\InvoicePreview;
-use App\Http\Controllers\apps\InvoicePrint;
-use App\Http\Controllers\apps\InvoiceEdit;
-use App\Http\Controllers\apps\InvoiceAdd;
+use App\Http\Controllers\apps\PurchaseController;
 use App\Http\Controllers\apps\UserController;
 use App\Http\Controllers\apps\SettingController;
-use App\Http\Controllers\apps\UserViewSecurity;
-use App\Http\Controllers\apps\UserViewNotifications;
-use App\Http\Controllers\apps\UserViewConnections;
 use App\Http\Controllers\apps\RoleController;
 use App\Http\Controllers\apps\QuantityAdjustmentController;
 use App\Http\Controllers\pages\UserProfile;
@@ -192,22 +172,43 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/customer/branch/store', [BranchController::class, 'store'])->name('customer.branch.store');
     });
 
+    // Purchase
+    Route::middleware('permission:purchase.read')->group(function () {
+        Route::get('/purchase', [PurchaseController::class, 'index'])->name('purchase.list');
+        Route::get('/purchase/list/ajax', [PurchaseController::class, 'ajaxList'])->name('purchase.list.ajax');
+        Route::get('/purchase/edit/{id}', [PurchaseController::class, 'edit'])->name('purchase.edit');
+        Route::get('/purchase/search/ajax', [PurchaseController::class, 'searchAjax'])->name('purchase.search.ajax');
+        Route::get('/purchase/show/ajax/{id}', [PurchaseController::class, 'showAjax'])->name('purchase.show.ajax');
+    });
+    
+    Route::middleware('permission:purchase.create')->group(function () {
+        Route::get('/purchase/add', [PurchaseController::class, 'add'])->name('purchase.add');
+        Route::post('/purchase/create', [PurchaseController::class, 'create'])->name('purchase.create');
+    });
+    
+    Route::middleware('permission:purchase.write')->group(function () {
+        Route::post('/purchase/update', [PurchaseController::class, 'update'])->name('purchase.update');
+        Route::get('/purchase/delete/{id}', [PurchaseController::class, 'delete'])->name('purchase.delete');
+    });
+
+
+    
     // Invoice
-    Route::middleware('permission:invoice.read')->group(function () {
-        Route::get('/invoice', [InvoiceList::class, 'index'])->name('invoice-list.read');
-        Route::get('/invoice/preview', [InvoicePreview::class, 'index'])->name('invoice-preview.read');
-        Route::get('/invoice/print', [InvoicePrint::class, 'index'])->name('invoice-print.read');
-        Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
-        Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
-    });
+    // Route::middleware('permission:invoice.read')->group(function () {
+    //     Route::get('/invoice', [InvoiceList::class, 'index'])->name('invoice-list.read');
+    //     Route::get('/invoice/preview', [InvoicePreview::class, 'index'])->name('invoice-preview.read');
+    //     Route::get('/invoice/print', [InvoicePrint::class, 'index'])->name('invoice-print.read');
+    //     Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
+    //     Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
+    // });
 
-    Route::middleware('permission:invoice.create')->group(function () {
-        Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
-    });
+    // Route::middleware('permission:invoice.create')->group(function () {
+    //     Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
+    // });
 
-    Route::middleware('permission:invoice.write')->group(function () {
-        Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
-    });
+    // Route::middleware('permission:invoice.write')->group(function () {
+    //     Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
+    // });
 
 
     // Users

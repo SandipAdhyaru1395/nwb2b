@@ -49,10 +49,10 @@
       "slug": "quantity-adjustment"
     },
     {
-      "url": "invoice",
-      "icon": "menu-icon icon-base ti tabler-file-dollar",
-      "name": "Invoices",
-      "slug": "invoice"
+      "url": "purchase",
+      "icon": "menu-icon icon-base ti tabler-file-invoice",
+      "name": "Purchases",
+      "slug": "purchase"
     },
     {
       "url": "user",

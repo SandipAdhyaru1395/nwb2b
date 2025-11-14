@@ -214,7 +214,7 @@
                         '</select>' +
                         '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '">' +
                     '</td>' +
-                    '<td><input type="number" step="0.01" min="0.01" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + quantity + '" required></td>' +
+                    '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + quantity + '" autocomplete="off"></td>' +
                     '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
                     '</tr>';
                 

@@ -10,6 +10,7 @@ class OrderRef extends Model
 
     protected $fillable = [
         'qa',
+        'po',
     ];
    
 }

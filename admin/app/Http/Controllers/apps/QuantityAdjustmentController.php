@@ -37,7 +37,42 @@ class QuantityAdjustmentController extends Controller
     public function create(Request $request)
     {
         $validated = $request->validate([
-            'date' => ['required', 'date'],
+            'date' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) {
+                        return;
+                    }
+                    // Try to parse d/m/Y H:i format (e.g., "12/11/2025 12:06")
+                    if (strpos($value, '/') !== false) {
+                        try {
+                            $parsed = Carbon::createFromFormat('d/m/Y H:i', $value);
+                            if ($parsed === false) {
+                                $fail('Date must be in dd/mm/yyyy hh:mm format');
+                            }
+                        } catch (\Exception $e) {
+                            try {
+                                $parsed = Carbon::createFromFormat('d/m/Y', $value);
+                                if ($parsed === false) {
+                                    $fail('Date must be in dd/mm/yyyy hh:mm or dd/mm/yyyy format');
+                                }
+                            } catch (\Exception $e2) {
+                                $fail('Date must be in dd/mm/yyyy hh:mm or dd/mm/yyyy format');
+                            }
+                        }
+                    } else {
+                        // Try standard date formats
+                        try {
+                            $parsed = Carbon::parse($value);
+                            if ($parsed === false) {
+                                $fail('Date must be a valid date');
+                            }
+                        } catch (\Exception $e) {
+                            $fail('Date must be a valid date');
+                        }
+                    }
+                }
+            ],
             'reference_no' => ['nullable', 'string', 'max:255'],
             'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
             'note' => ['nullable', 'string'],
@@ -47,7 +82,6 @@ class QuantityAdjustmentController extends Controller
             'products.*.quantity' => ['required', 'numeric', 'min:0.01'],
         ], [
             'date.required' => 'Date is required',
-            'date.date' => 'Date must be a valid date',
             'products.required' => 'At least one product is required',
             'products.min' => 'At least one product is required',
             'products.*.product_id.required' => 'Product is required',
@@ -144,7 +178,42 @@ class QuantityAdjustmentController extends Controller
     {
         $validated = $request->validate([
             'id' => ['required', 'exists:quantity_adjustments,id'],
-            'date' => ['required', 'date'],
+            'date' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) {
+                        return;
+                    }
+                    // Try to parse d/m/Y H:i format (e.g., "12/11/2025 12:06")
+                    if (strpos($value, '/') !== false) {
+                        try {
+                            $parsed = Carbon::createFromFormat('d/m/Y H:i', $value);
+                            if ($parsed === false) {
+                                $fail('Date must be in dd/mm/yyyy hh:mm format');
+                            }
+                        } catch (\Exception $e) {
+                            try {
+                                $parsed = Carbon::createFromFormat('d/m/Y', $value);
+                                if ($parsed === false) {
+                                    $fail('Date must be in dd/mm/yyyy hh:mm or dd/mm/yyyy format');
+                                }
+                            } catch (\Exception $e2) {
+                                $fail('Date must be in dd/mm/yyyy hh:mm or dd/mm/yyyy format');
+                            }
+                        }
+                    } else {
+                        // Try standard date formats
+                        try {
+                            $parsed = Carbon::parse($value);
+                            if ($parsed === false) {
+                                $fail('Date must be a valid date');
+                            }
+                        } catch (\Exception $e) {
+                            $fail('Date must be a valid date');
+                        }
+                    }
+                }
+            ],
             'reference_no' => ['nullable', 'string', 'max:255'],
             'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
             'note' => ['nullable', 'string'],
@@ -156,7 +225,6 @@ class QuantityAdjustmentController extends Controller
             'id.required' => 'Adjustment ID is required',
             'id.exists' => 'Adjustment not found',
             'date.required' => 'Date is required',
-            'date.date' => 'Date must be a valid date',
             'products.required' => 'At least one product is required',
             'products.min' => 'At least one product is required',
             'products.*.product_id.required' => 'Product is required',
