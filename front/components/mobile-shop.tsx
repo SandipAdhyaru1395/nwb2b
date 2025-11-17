@@ -567,7 +567,7 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
             })}
 
           {hasProducts && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-8 gap-3 px-3">
+            <div className="product-grid-responsive gap-3 px-3">
               {node.products!.map((product) => {
                 const stock = Number((product as any)?.quantity ?? (product as any)?.stock_quantity ?? 0);
                 const isOut = stock <= 0;

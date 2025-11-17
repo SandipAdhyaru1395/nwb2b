@@ -121,3 +121,39 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Custom product grid breakpoints */
+.product-grid-responsive {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (min-width: 490px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 610px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 730px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 850px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 970px) {
+  .product-grid-responsive {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+}
