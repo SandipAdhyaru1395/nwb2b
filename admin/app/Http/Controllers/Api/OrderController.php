@@ -13,6 +13,7 @@ use App\Models\Address;
 use App\Models\WalletTransaction;
 use App\Models\Cart;
 use App\Models\CartItem;
+use App\Models\OrderRef;
 use App\Helpers\Helpers;
 use Illuminate\Support\Facades\DB;
 use App\Services\WarehouseProductSyncService;
@@ -257,7 +258,36 @@ class OrderController extends Controller
 			$walletCreditUsed = min($subtotal, $availableCredit);
 			$outstandingAmount = $totalAmount - $walletCreditUsed; // total - wallet_used = outstanding
 
-            $orderNumber = 'ORD-' . strtoupper(uniqid());
+            // Get order number from order_ref table (so column)
+            $orderRef = OrderRef::orderBy('id', 'desc')->first();
+            
+            if (!$orderRef) {
+                // Create initial order_ref record if it doesn't exist
+                $orderRef = OrderRef::create([
+                    'so' => 1,
+                    'qa' => 1,
+                    'po' => 1,
+                ]);
+            }
+            
+            $orderNumber = $orderRef->so ?? 1;
+            
+            // Increment so for next order
+            $orderRef->update([
+                'so' => ($orderRef->so ?? 0) + 1,
+            ]);
+            
+            // Calculate paid and unpaid amounts
+            $paidAmount = $walletCreditUsed;
+            $unpaidAmount = $outstandingAmount;
+            
+            // Determine payment status
+            $paymentStatus = 'Due';
+            if ($outstandingAmount <= 0) {
+                $paymentStatus = 'Paid';
+            } elseif ($paidAmount > 0) {
+                $paymentStatus = 'Partial';
+            }
                 
             $order = Order::create([
                 'order_number' => $orderNumber,
@@ -268,14 +298,16 @@ class OrderController extends Controller
 				'total_amount' => $totalAmount,
                 'payment_amount' => max(0, $totalAmount - $walletCreditUsed),
 				'wallet_credit_used' => $walletCreditUsed,
+                'paid_amount' => $paidAmount,
+                'unpaid_amount' => $unpaidAmount,
                 'units_count' => $units,
                 'skus_count' => $skus,
                 'items_count' => count($items),
                 'payment_terms' => 'net_30',
-				'payment_status' => ($outstandingAmount <= 0 ? 'Paid' : 'Unpaid'),
+				'payment_status' => $paymentStatus,
 				'outstanding_amount' => $outstandingAmount,
                 'estimated_delivery_date' => now()->addDays(7),
-                'status' => 'New',
+                'status' => 'Completed',
                 // Persist delivery address snapshot on the order
                 'branch_name' => (string) $branch->name,
                 'country' => (string) $branch->country,

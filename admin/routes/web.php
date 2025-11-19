@@ -131,11 +131,15 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/order/details', [OrderController::class, 'getOrderDetails'])->name('order-details');
         Route::get('/order/edit/{id}', [OrderController::class, 'edit'])->name('order.edit');
         Route::get('/order/list/ajax', [OrderController::class, 'ajaxList'])->name('order.list.ajax');
+        Route::get('/order/statistics', [OrderController::class, 'getStatistics'])->name('order.statistics');
         Route::get('/order/items/ajax', [OrderController::class, 'itemsAjax'])->name('order.items.ajax');
         Route::post('/order/update', [OrderController::class, 'update'])->name('order.update');
+        Route::get('/order/customer/{id}/branches', [OrderController::class, 'getCustomerBranches'])->name('order.customer.branches');
     });
 
     Route::middleware('permission:order.create')->group(function () {
+        Route::get('/order/add', [OrderController::class, 'add'])->name('order.add');
+        Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
         Route::post('/order/item/create', [OrderController::class, 'createItem'])->name('order.item.create');
     });
     
@@ -144,6 +148,9 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::post('/order/item/update', [OrderController::class, 'updateItem'])->name('order.item.update');
         Route::get('/order/delete/{id}', [OrderController::class, 'delete'])->name('order.delete');
         Route::delete('/order/item/delete/{id}', [OrderController::class, 'deleteItem'])->name('order.item.delete');
+        Route::post('/order/payment/add', [OrderController::class, 'addPayment'])->name('order.payment.add');
+        Route::get('/order/payments/{orderId}', [OrderController::class, 'getPayments'])->name('order.payments');
+        Route::delete('/order/payment/delete/{paymentId}', [OrderController::class, 'deletePayment'])->name('order.payment.delete');
     });
 
 

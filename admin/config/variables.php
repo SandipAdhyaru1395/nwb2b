@@ -30,6 +30,6 @@ return [
   "githubUrl" => "",
   "dribbbleUrl" => "",
   "instagramUrl" => "",
-  "payment_status" => ["Paid","Unpaid"],
-  "order_status" => ["New","Processing","Shipped","Delivered","Cancelled"]
+  "payment_status" => ["Due","Paid","Partial"],
+  "order_status" => ["Completed"]
 ];

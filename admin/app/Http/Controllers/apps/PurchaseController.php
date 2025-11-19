@@ -573,7 +573,7 @@ class PurchaseController extends Controller
         $q = trim($request->get('q', ''));
         $limit = (int) $request->get('limit', 10);
 
-        $query = Product::select(['id', 'name', 'sku', 'price','cost_price','image_url'])
+        $query = Product::select(['id', 'name', 'sku', 'price','cost_price','image_url','stock_quantity'])
             ->where('is_active', 1);
 
         if ($q !== '') {
@@ -593,6 +593,7 @@ class PurchaseController extends Controller
                     'price' => $p->price,
                     'unit_cost' => $p->cost_price,
                     'image_url' => $p->image_url,
+                    'stock_quantity' => $p->stock_quantity ?? 0,
                 ];
             })
         ]);

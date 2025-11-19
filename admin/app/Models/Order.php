@@ -20,6 +20,8 @@ class Order extends Model
         'total_amount',
         'payment_amount',
         'wallet_credit_used',
+        'paid_amount',
+        'unpaid_amount',
         'units_count',
         'skus_count',
         'items_count',
@@ -54,5 +56,10 @@ class Order extends Model
     public function statusHistories()
     {
         return $this->hasMany(OrderStatusHistory::class, 'order_id')->orderBy('created_at');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'order_id')->orderBy('date', 'desc');
     }
 }

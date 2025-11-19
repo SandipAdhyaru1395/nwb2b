@@ -97,8 +97,8 @@ class CustomerController extends Controller
         'order' => $order->order_number ?? $order->id,
         'order_number' => $order->order_number ?? '',
         'date' => optional($order->created_at)->toISOString(),
-        'payment_status' => $order->payment_status ?? 'Unpaid',
-        'order_status' => $order->status ?? 'New',
+        'payment_status' => $order->payment_status ?? 'Due',
+        'order_status' => $order->status ?? 'Completed',
         'spent' => number_format((float) ($order->total_amount ?? 0), 2),
       ];
     });

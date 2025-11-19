@@ -7,25 +7,24 @@
 // Datatable (js)
 
 document.addEventListener('DOMContentLoaded', function (e) {
-  let borderColor, bodyBg, headingColor;
+  let borderColor, bodyBg, headingColor, currencySymbol;
 
   borderColor = config.colors.borderColor;
   bodyBg = config.colors.bodyBg;
   headingColor = config.colors.headingColor;
+  currencySymbol = window.currencySymbol || '';
 
   // Variable declaration for table
 
   const dt_order_table = document.querySelector('.datatables-order'),
+    orderAdd = baseUrl + 'order/add',
     statusObj = {
-      'New': { title: 'New', class: 'bg-primary' },
-      'Processing': { title: 'Processing', class: 'bg-warning' },
-      'Shipped': { title: 'Shipped', class: 'bg-secondary' },
-      'Delivered': { title: 'Delivered', class: 'bg-success' },
-      'Cancelled': { title: 'Cancelled', class: 'bg-danger' }
+      'Completed': { title: 'Completed', class: 'bg-success' }
     },
     paymentObj = {
+      'Due': { title: 'Due', class: 'bg-danger' },
       'Paid': { title: 'Paid', class: 'bg-success' },
-      'Unpaid': { title: 'Unpaid', class: 'bg-danger' },
+      'Partial': { title: 'Partial', class: 'bg-warning' },
     };
 
   // E-commerce Products datatable
@@ -40,11 +39,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'order_number' },
         { data: 'order_date' },
+        { data: 'order_number' },
         { data: 'customer_name' },
-        { data: 'payment_status' },
+        { data: 'total_amount' },
+        { data: 'paid_amount' },
+        { data: 'unpaid_amount' },
+        { data: 'vat_amount' },
         { data: 'order_status' },
+        { data: 'payment_status' },
         { data: 'id' }
       ],
       columnDefs: [
@@ -74,35 +77,96 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
-          // Order No
+          // Date
           targets: 2,
+          render: function (data, type, full, meta) {
+            const date = new Date(full.order_date);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            const formattedDate = `${day}/${month}/${year}`;
+            const formattedTime = `${hours}:${minutes}:${seconds}`;
+            return `<div class="d-flex flex-column">
+              <span>${formattedDate}</span>
+              <small class="text-muted">${formattedTime}</small>
+            </div>`;
+          }
+        },
+        {
+          // Reference No
+          targets: 3,
           render: function (data, type, full, meta) {
             return '<span>#' + full['order_number'] + '</span>';
           }
         },
         {
-          targets: 3,
-          render: function (data, type, full, meta) {
-            const date = new Date(full.order_date);
-            const formattedDate = date.toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' });
-            return `<span class="text-nowrap">${formattedDate}</span>`;
-          }
-        },
-        {
+          // Customer
           targets: 4,
           responsivePriority: 1,
           render: function (data, type, full, meta) {
+            const name = full['customer_name'] || '';
             const email = full['customer_email'] || '';
             return `
               <div class="d-flex justify-content-start align-items-center order-name text-nowrap">
                 <div class="d-flex flex-column">
-                  ${email ? `<small>${email}</small>` : ''}
+                  ${name ? `<span class="fw-medium">${name}</span>` : ''}
+                  ${email ? `<small class="text-muted">${email}</small>` : ''}
                 </div>
               </div>`;
           }
         },
         {
+          // Grand Total
           targets: 5,
+          render: function (data, type, full, meta) {
+            const amount = parseFloat(full['total_amount'] || 0);
+            return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
+          }
+        },
+        {
+          // Paid
+          targets: 6,
+          render: function (data, type, full, meta) {
+            const amount = parseFloat(full['paid_amount'] || 0);
+            return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
+          }
+        },
+        {
+          // Balance
+          targets: 7,
+          render: function (data, type, full, meta) {
+            const amount = parseFloat(full['unpaid_amount'] || 0);
+            return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
+          }
+        },
+        {
+          // Total VAT
+          targets: 8,
+          render: function (data, type, full, meta) {
+            const amount = parseFloat(full['vat_amount'] || 0);
+            return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
+          }
+        },
+        {
+          // Sale Status
+          targets: 9,
+          width: '80px',
+          render: function (data, type, full, meta) {
+            const status = full['order_status'];
+            const statusInfo = statusObj[status] || { title: '', class: 'bg-label-secondary' };
+            return `
+              <span class="badge px-2 ${statusInfo.class} text-capitalized">
+                ${statusInfo.title}
+              </span>`;
+          }
+        },
+        {
+          // Payment Status
+          targets: 10,
+          width: '90px',
           render: function (data, type, full, meta) {
             const payment = full['payment_status'];
             const paymentStatus = paymentObj[payment];
@@ -110,18 +174,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
             <span class="badge px-2 ${paymentStatus.class} text-capitalized">
               ${paymentStatus.title}
             </span>`;
-          }
-        },
-        {
-          targets: 6,
-          render: function (data, type, full, meta) {
-            const status = full['order_status'];
-
-            const statusInfo = statusObj[status] || { title: '', class: 'bg-label-secondary' };
-            return `
-              <span class="badge px-2 ${statusInfo.class} text-capitalized">
-                ${statusInfo.title}
-              </span>`;
           }
         },
         {
@@ -137,6 +189,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
                   <a href="${baseUrl}order/edit/${full['id']}" class="dropdown-item">Edit</a>
+                  ${parseFloat(full['unpaid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item add-payment-btn" data-id="${full['id']}" data-order-number="${full['order_number']}" data-unpaid="${full['unpaid_amount'] || 0}">Add Payment</a>` : ''}
+                  ${parseFloat(full['paid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item view-payments-btn" data-id="${full['id']}" data-order-number="${full['order_number']}">View Payments</a>` : ''}
                   <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Delete</a>
                 </div>
               </div>`;
@@ -147,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         style: 'multi',
         selector: 'td:nth-child(2)'
       },
-      order: [0, 'desc'],
+      order: [2, 'desc'],
       layout: {
         topStart: {
           search: {
@@ -168,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               buttons: [
                 {
                   extend: 'collection',
-                  className: 'btn btn-label-primary dropdown-toggle',
+                  className: 'btn btn-label-primary dropdown-toggle me-4',
                   text: '<span class="d-flex align-items-center gap-1"><i class="icon-base ti tabler-upload icon-xs"></i> <span class="d-none d-sm-inline-block">Export</span></span>',
                   buttons: [
                     {
@@ -176,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-1"></i>Print</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -209,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-1"></i>Csv</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -232,7 +286,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-upload me-1"></i>Excel</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -255,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-1"></i>Pdf</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -278,7 +332,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<i class="icon-base ti tabler-copy me-1"></i>Copy`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -297,6 +351,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       }
                     }
                   ]
+                },
+                {
+                  text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Order</span>',
+                  className: 'add-new btn btn-primary',
+                  action: function () {
+                    window.location.href = orderAdd;
+                  }
                 }
               ]
             }
@@ -322,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of ' + data['customer'];
+              return 'Details of Order #' + (data['order_number'] || '');
             }
           }),
           type: 'column',
@@ -354,6 +415,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       }
     });
+
+    // Set datatable instance for payment modal to reload after payment is added
+    if (typeof window.setPaymentDatatableInstance === 'function') {
+      window.setPaymentDatatableInstance(dt_products);
+    }
 
     // Delete order with confirmation (same flow as details page)
     document.addEventListener('click', function (e) {
@@ -400,13 +466,91 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       });
     });
+
+    // Set datatable instance for payment view modal to reload after payment is deleted
+    if (typeof window.setPaymentViewDatatableInstance === 'function') {
+      window.setPaymentViewDatatableInstance(dt_products);
+    }
+
+    // Load order statistics
+    loadOrderStatistics(currencySymbol);
+  }
+
+  // Function to load and display order statistics
+  function loadOrderStatistics(currencySymbol) {
+    fetch(baseUrl + 'order/statistics', {
+      method: 'GET',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success && data.statistics) {
+        const stats = data.statistics;
+        
+        // Update Grand Total
+        const grandTotalEl = document.getElementById('widget-grand-total');
+        if (grandTotalEl) {
+          grandTotalEl.textContent = currencySymbol + parseFloat(stats.grand_total || 0).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        }
+        
+        // Update Paid
+        const paidEl = document.getElementById('widget-paid');
+        if (paidEl) {
+          paidEl.textContent = currencySymbol + parseFloat(stats.paid || 0).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        }
+        
+        // Update Balance
+        const balanceEl = document.getElementById('widget-balance');
+        if (balanceEl) {
+          balanceEl.textContent = currencySymbol + parseFloat(stats.balance || 0).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          });
+        }
+        
+        // Update Payment Status Counts
+        const dueCountEl = document.getElementById('widget-due-count');
+        if (dueCountEl) {
+          dueCountEl.textContent = stats.due_count || 0;
+        }
+        
+        const partialCountEl = document.getElementById('widget-partial-count');
+        if (partialCountEl) {
+          partialCountEl.textContent = stats.partial_count || 0;
+        }
+        
+        const paidCountEl = document.getElementById('widget-paid-count');
+        if (paidCountEl) {
+          paidCountEl.textContent = stats.paid_count || 0;
+        }
+        
+        // Update total count
+        const totalCount = (stats.due_count || 0) + (stats.partial_count || 0) + (stats.paid_count || 0);
+        const totalCountEl = document.getElementById('widget-payment-status-count');
+        if (totalCountEl) {
+          totalCountEl.textContent = totalCount;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error loading order statistics:', error);
+    });
   }
 
   // Filter form control to default size
   // ? setTimeout used for order-list table initialization
   setTimeout(() => {
     const elementsToModify = [
-      { selector: '.dt-buttons .btn', classToRemove: 'btn-secondary', classToAdd: 'btn-label-secondary' },
+      { selector: '.dt-buttons .btn:not(.btn-primary)', classToRemove: 'btn-secondary', classToAdd: 'btn-label-secondary' },
       { selector: '.dt-search .form-control', classToRemove: 'form-control-sm', classToAdd: 'ms-0' },
       { selector: '.dt-length .form-select', classToRemove: 'form-select-sm' },
       { selector: '.dt-layout-table', classToRemove: 'row mt-2' },

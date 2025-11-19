@@ -1,21 +1,133 @@
 /**
- * Order Details Script
- * Used for order/edit.blade.php (edit form)
+ * Order Add Script
+ * Used for order/add.blade.php (add form)
  */
 
 'use strict';
 
-// Order Edit Form Functionality (for order/edit.blade.php)
+// Order Add Form Functionality (for order/add.blade.php)
 document.addEventListener('DOMContentLoaded', function() {
-  if (typeof window.$ !== 'undefined' && $('#editOrderForm').length) {
+  if (typeof window.$ !== 'undefined' && $('#addOrderForm').length) {
     const currencySymbol = window.currencySymbol || '';
+    
+    // ---------- Local Storage Persistence (define early) ----------
+    const STORAGE_KEY = 'order_add_form_v1';
+    let saveTimeoutId = null;
+    let pendingAddressId = null; // Store address_id to restore after branches load
+
+    function collectFormState() {
+      const products = [];
+      $('#products-table tbody tr:not(.total-row)').each(function() {
+        const $row = $(this);
+        const productId = $row.data('product-id');
+        const productText = ($row.find('td').eq(0).text() || '').trim();
+        const unit_cost = $row.find('.cost-input').val();
+        const quantity = $row.find('.quantity-input').val();
+        products.push({ productId, productText, unit_cost, quantity });
+      });
+      return {
+        date: ($('#date').val() || '').trim(),
+        customer_id: ($('#customer_id').val() || '').trim(),
+        address_id: ($('#address_id').val() || '').trim(),
+        shipping_charge: ($('#shipping_charge').val() || '').trim(),
+        delivery_note: ($('#note').val() || '').trim(),
+        products
+      };
+    }
+
+    function saveFormState() {
+      try {
+        const state = collectFormState();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // ignore quota or JSON errors silently
+      }
+    }
+
+    function saveFormStateDebounced() {
+      clearPendingSave();
+      saveTimeoutId = setTimeout(saveFormState, 200);
+    }
+
+    function clearPendingSave() {
+      if (saveTimeoutId) {
+        clearTimeout(saveTimeoutId);
+        saveTimeoutId = null;
+      }
+    }
     
     // Initialize flatpickr for date & time
     $('.flatpickr').flatpickr({
       enableTime: true,
       dateFormat: 'd/m/Y H:i',
       time_24hr: true,
-      allowInput: true
+      allowInput: true,
+      defaultDate: new Date(),
+      onChange: function(selectedDates, dateStr, instance) {
+        saveFormStateDebounced();
+      }
+    });
+
+    // Initialize select2 for customer dropdown
+    const $customerSelect = $('#customer_id');
+    if ($customerSelect.length) {
+      $customerSelect.select2({
+        placeholder: 'Select Customer',
+        allowClear: false,
+        width: '100%',
+        dropdownParent: $('#addOrderForm')
+      });
+    }
+
+    // Initialize select2 for address dropdown
+    const $addressSelect = $('#address_id');
+    if ($addressSelect.length) {
+      $addressSelect.select2({
+        placeholder: 'Select Customer First',
+        allowClear: true,
+        width: '100%',
+        dropdownParent: $('#addOrderForm')
+      });
+    }
+
+    // Load branches when customer changes
+    $customerSelect.on('change', function() {
+      const customerId = $(this).val();
+      $addressSelect.empty().append('<option value="">Loading...</option>').prop('disabled', true);
+      saveFormStateDebounced();
+      
+      if (customerId) {
+        $.ajax({
+          url: baseUrl + 'order/customer/' + customerId + '/branches',
+          dataType: 'json',
+          success: function(branches) {
+            $addressSelect.empty();
+            if (branches && branches.length > 0) {
+              $addressSelect.append('<option value="">Select Address</option>');
+              branches.forEach(function(branch) {
+                $addressSelect.append('<option value="' + branch.id + '">' + branch.text + '</option>');
+              });
+            } else {
+              $addressSelect.append('<option value="">No addresses available</option>');
+            }
+            $addressSelect.prop('disabled', false);
+            
+            // Restore address_id if it was pending
+            if (pendingAddressId && $addressSelect.find('option[value="' + pendingAddressId + '"]').length > 0) {
+              $addressSelect.val(pendingAddressId).trigger('change.select2');
+              pendingAddressId = null;
+            }
+            saveFormStateDebounced();
+          },
+          error: function() {
+            $addressSelect.empty().append('<option value="">Error loading addresses</option>').prop('disabled', false);
+            pendingAddressId = null;
+          }
+        });
+      } else {
+        $addressSelect.empty().append('<option value="">Select Customer First</option>').prop('disabled', true);
+        pendingAddressId = null;
+      }
     });
 
     // Initialize Quill editor for delivery_note
@@ -30,12 +142,6 @@ document.addEventListener('DOMContentLoaded', function() {
         theme: 'snow'
       });
 
-      // Set initial content from delivery_note
-      const initialNote = document.getElementById('note')?.value || '';
-      if (initialNote) {
-        quill.root.innerHTML = initialNote;
-      }
-
       // Update hidden input on editor change
       quill.on('text-change', function() {
         let content = quill.root.innerHTML;
@@ -43,6 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
           content = ''; // Treat as empty
         }
         $('#note').val(content);
+        saveFormStateDebounced();
       });
     }
 
@@ -327,21 +434,142 @@ document.addEventListener('DOMContentLoaded', function() {
     $(document).on('click', '.remove-product', function() {
       $(this).closest('tr').remove();
       calculateTotal();
+      saveFormStateDebounced();
     });
 
     // Update totals on input change
-    $(document).on('input', '.quantity-input, .cost-input', calculateTotal);
+    $(document).on('input', '.quantity-input, .cost-input', function() {
+      calculateTotal();
+      saveFormStateDebounced();
+    });
 
     // Calculate totals on initial load to format with currency symbol
     setTimeout(function() {
       calculateTotal();
     }, 300);
 
-    // FormValidation for order edit form
-    const editOrderForm = document.getElementById('editOrderForm');
-    if (editOrderForm) {
-      const fv = FormValidation.formValidation(editOrderForm, {
+    function buildProductRowHtml(productId, productText, quantity, unit_price) {
+      const safeQty = (quantity == null || quantity === '') ? '1' : String(quantity);
+      const safePrice = (unit_price == null || unit_price === '') ? '0.00' : String(unit_price);
+      return '' +
+        '<tr data-product-id="' + productId + '">' +
+          '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
+          '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + safePrice + '" autocomplete="off"></td>' +
+          '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + safeQty + '" autocomplete="off"></td>' +
+          '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
+          '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
+        '</tr>';
+    }
+
+    function restoreFormState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const state = JSON.parse(raw);
+        
+        // Restore date
+        if (state.date) {
+          $('#date').val(state.date);
+          // Update flatpickr if it exists
+          const flatpickrInstance = $('#date').data('flatpickr');
+          if (flatpickrInstance) {
+            flatpickrInstance.setDate(state.date, false);
+          }
+        }
+        
+        // Restore customer_id first
+        if (state.customer_id && $('#customer_id option[value="' + state.customer_id + '"]').length) {
+          $('#customer_id').val(state.customer_id).trigger('change.select2');
+          
+          // Restore address_id after customer branches are loaded
+          if (state.address_id) {
+            pendingAddressId = state.address_id;
+            // Trigger customer change to load branches
+            $customerSelect.trigger('change');
+          }
+        }
+        
+        // Restore shipping_charge
+        if (state.shipping_charge !== undefined && state.shipping_charge !== null && state.shipping_charge !== '') {
+          $('#shipping_charge').val(state.shipping_charge);
+        }
+
+        // Restore delivery_note (both hidden input and quill if available)
+        if (typeof state.delivery_note === 'string') {
+          $('#note').val(state.delivery_note);
+          if (typeof quill !== 'undefined' && quill) {
+            quill.root.innerHTML = state.delivery_note || '';
+          }
+        }
+
+        // Restore products
+        if (Array.isArray(state.products)) {
+          // Remove any existing non-total rows first
+          $('#products-table tbody tr:not(.total-row)').remove();
+          const $totalRow = $('#products-table tbody tr.total-row');
+          state.products.forEach(function(p) {
+            if (!p || !p.productId || !p.productText) return;
+            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost);
+            // Insert before the total row so total stays at bottom
+            if ($totalRow.length > 0) {
+              $totalRow.before(rowHtml);
+            } else {
+              $('#products-table tbody').prepend(rowHtml);
+            }
+          });
+          calculateTotal();
+        }
+      } catch (e) {
+        // ignore malformed JSON
+      }
+    }
+
+    // Save on basic input changes
+    $('#date, #shipping_charge').on('input change', saveFormStateDebounced);
+    $('#customer_id, #address_id').on('change', saveFormStateDebounced);
+
+    // Enhance existing handlers to save state as well
+    const originalAddProductToTable = window.addProductToTable;
+    window.addProductToTable = function(productId, productText, quantity, unit_price) {
+      originalAddProductToTable(productId, productText, quantity, unit_price);
+      saveFormStateDebounced();
+    };
+
+    // On initial load, restore any saved state after a short delay to ensure Select2 is ready
+    setTimeout(function() {
+      restoreFormState();
+      // Calculate totals on initial load to format with currency symbol
+      calculateTotal();
+    }, 100);
+
+    // Clear storage on successful submit
+    $('#addOrderForm').on('submit', function() {
+      clearPendingSave();
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    });
+
+    // Clear storage on logout
+    $(document).on('click', 'a[href*="logout"]', function() {
+      clearPendingSave();
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    });
+    $(document).on('submit', 'form[action*="logout"]', function() {
+      clearPendingSave();
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+    });
+
+    // FormValidation for order add form
+    const addOrderForm = document.getElementById('addOrderForm');
+    if (addOrderForm) {
+      const fv = FormValidation.formValidation(addOrderForm, {
         fields: {
+          customer_id: {
+            validators: {
+              notEmpty: {
+                message: 'Customer is required'
+              }
+            }
+          },
           date: {
             validators: {
               notEmpty: {
@@ -361,6 +589,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                   }
                 }
+              }
+            }
+          },
+          address_id: {
+            validators: {
+              notEmpty: {
+                message: 'Address is required'
               }
             }
           },
@@ -518,8 +753,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Submit form after successful validation
       fv.on('core.form.valid', function () {
-        editOrderForm.submit();
+        clearPendingSave();
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        addOrderForm.submit();
       });
     }
   }
 });
+
