@@ -194,7 +194,7 @@ class OrderController extends Controller
             $adjustments = [];
             $adjusted = false;
             foreach ($cartItems as $ci) {
-                $product = Product::find($ci->product_id);
+                $product = Product::with('unit')->find($ci->product_id);
                 if (!$product) { continue; }
                 $qty = (int) $ci->quantity;
                 // Stock availability check at checkout time - reconcile cart quantities
@@ -222,12 +222,30 @@ class OrderController extends Controller
 
                 $price = (float) $product->price;
                 $lineTotal = $price * $qty;
+                // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+                $unitVat = round((float)($product->vat_amount ?? 0), 2);
+                $totalVat = round($unitVat * $qty, 2);
+                // Calculate wallet credit: unit_wallet_credit = product wallet_credit, wallet_credit_earned = unit_wallet_credit * quantity
+                $unitWalletCredit = round((float)($product->wallet_credit ?? 0), 2);
+                $walletCreditEarned = round($unitWalletCredit * $qty, 2);
+                // Get product unit name
+                $productUnit = $product->unit ? $product->unit->name : null;
+                
+                $totalPrice = ($product->discounted_price != 0) ? $product->discounted_price * $qty : $lineTotal;
+                $total = round($totalPrice + $totalVat, 2);
+                
                 $pendingOrderItems[] = [
+                    'type' => 'SO',
                     'product_id' => $product->id,
+                    'product_unit' => $productUnit,
                     'quantity' => $qty,
                     'unit_price' => $price,
-                    'wallet_credit_earned' => (float)($product->wallet_credit ?? 0) * $qty,
-                    'total_price' => ($product->discounted_price != 0) ? $product->discounted_price * $qty : $lineTotal,
+                    'unit_vat' => $unitVat,
+                    'unit_wallet_credit' => $unitWalletCredit,
+                    'wallet_credit_earned' => $walletCreditEarned,
+                    'total_price' => $totalPrice,
+                    'total_vat' => $totalVat,
+                    'total' => $total,
                 ];
 
                 $total += $lineTotal;
@@ -278,12 +296,16 @@ class OrderController extends Controller
             ]);
             
             // Calculate paid and unpaid amounts
-            $paidAmount = $walletCreditUsed;
-            $unpaidAmount = $outstandingAmount;
+            // outstanding_amount = total_amount - wallet_credit_used (always)
+            // payment_amount = outstanding_amount (always)
+            // payment_amount = paid_amount + unpaid_amount
+            $paidAmount = $walletCreditUsed; // At order creation, only wallet credit is used (no payments yet)
+            $paymentAmount = $outstandingAmount; // payment_amount always equals outstanding_amount
+            $unpaidAmount = $outstandingAmount - $paidAmount; // unpaid_amount = outstanding_amount - paid_amount
             
             // Determine payment status
             $paymentStatus = 'Due';
-            if ($outstandingAmount <= 0) {
+            if ($unpaidAmount <= 0) {
                 $paymentStatus = 'Paid';
             } elseif ($paidAmount > 0) {
                 $paymentStatus = 'Partial';
@@ -291,12 +313,13 @@ class OrderController extends Controller
                 
             $order = Order::create([
                 'order_number' => $orderNumber,
+                'type' => 'SO',
                 'order_date' => now(),
 				'customer_id' => optional($customer)->id ?? null,
 				'subtotal' => $subtotal,
 				'vat_amount' => $vatAmount,
 				'total_amount' => $totalAmount,
-                'payment_amount' => max(0, $totalAmount - $walletCreditUsed),
+                'payment_amount' => $paymentAmount,
 				'wallet_credit_used' => $walletCreditUsed,
                 'paid_amount' => $paidAmount,
                 'unpaid_amount' => $unpaidAmount,

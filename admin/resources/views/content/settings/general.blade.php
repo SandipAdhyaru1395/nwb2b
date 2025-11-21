@@ -79,17 +79,7 @@
                     @enderror
                 </div>
 
-                <div class="col-12 col-md-4 form-control-validation">
-                  <label class="form-label mb-1" for="default-vat-rate">Default VAT Rate (%)</label>
-                  <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="default-vat-rate" placeholder="20"
-                    name="defaultVatRate" value="{{ $setting['default_vat_rate'] ?? '' }}"/>
-                  @error('defaultVatRate')
-                    <span class="text-danger text-center mb-5" role="alert">
-                        <strong>{{ $message }}</strong>
-                    </span>
-                  @enderror
-                </div>
-                <div class="col-12 col-md-4 form-control-validation">
+                <div class="col-12 col-md-6 form-control-validation">
                   <label class="form-label mb-1" for="session-timeout">Session Timeout (minutes)</label>
                   <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="session-timeout" placeholder="60"
                     name="sessionTimeout" value="{{ $setting['session_timeout'] ?? '' }}"/>
@@ -99,32 +89,55 @@
                     </span>
                   @enderror
                 </div>
-                <div class="col-12 col-md-4 form-control-validation">
-                  <label class="form-label mb-1" for="min-order-amount">Min. Order Amount</label>
-                  <input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control" id="min-order-amount" placeholder="50"
-                    name="minOrderAmount" value="{{ $setting['min_order_amount'] ?? '' }}"/>
-                  @error('minOrderAmount')
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="currency-symbol">Currency Symbol</label>
+                  <input type="text" class="form-control" id="currency-symbol" placeholder="£"
+                    name="currencySymbol" value="{{ $setting['currency_symbol'] ?? '' }}"/>
+                  @error('currencySymbol')
                   <span class="text-danger text-center mb-5" role="alert">
                       <strong>{{ $message }}</strong>
                   </span>
                   @enderror
                 </div>
 
+                <div class="col-12">
+                  <h5 class="mb-3 mt-4">Bank Account Details</h5>
+                </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label mb-1" for="currency">Currency</label>
-                  <input type="text" class="form-control" id="currency" placeholder="GBP"
-                    name="currency" value="{{ $setting['currency'] ?? '' }}"/>
-                  @error('currency')
+                  <label class="form-label mb-1" for="account-name">Account Name</label>
+                  <input type="text" class="form-control" id="account-name" placeholder="Account Name"
+                    name="accountName" value="{{ $setting['account_name'] ?? '' }}"/>
+                  @error('accountName')
                   <span class="text-danger text-center mb-5" role="alert">
                       <strong>{{ $message }}</strong>
                   </span>
                   @enderror
                 </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label mb-1" for="currency-symbol">Currency Symbol</label>
-                  <input type="text" class="form-control" id="currency-symbol" placeholder="£"
-                    name="currencySymbol" value="{{ $setting['currency_symbol'] ?? '' }}"/>
-                  @error('currencySymbol')
+                  <label class="form-label mb-1" for="bank">Bank</label>
+                  <input type="text" class="form-control" id="bank" placeholder="Bank Name"
+                    name="bank" value="{{ $setting['bank'] ?? '' }}"/>
+                  @error('bank')
+                  <span class="text-danger text-center mb-5" role="alert">
+                      <strong>{{ $message }}</strong>
+                  </span>
+                  @enderror
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="sort-code">Sort Code</label>
+                  <input type="text" class="form-control" id="sort-code" placeholder="00-00-00"
+                    name="sortCode" value="{{ $setting['sort_code'] ?? '' }}"/>
+                  @error('sortCode')
+                  <span class="text-danger text-center mb-5" role="alert">
+                      <strong>{{ $message }}</strong>
+                  </span>
+                  @enderror
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="account-no">Account No</label>
+                  <input type="text" class="form-control" id="account-no" placeholder="Account Number"
+                    name="accountNo" value="{{ $setting['account_no'] ?? '' }}"/>
+                  @error('accountNo')
                   <span class="text-danger text-center mb-5" role="alert">
                       <strong>{{ $message }}</strong>
                   </span>

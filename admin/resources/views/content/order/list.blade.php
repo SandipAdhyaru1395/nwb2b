@@ -87,6 +87,14 @@
   .datatables-order tbody td:nth-child(11) {
     width: 90px;
   }
+  .datatables-order tbody tr {
+    cursor: pointer;
+  }
+  .datatables-order tbody tr td:first-child,
+  .datatables-order tbody tr td:nth-child(2),
+  .datatables-order tbody tr td:last-child {
+    cursor: default;
+  }
 </style>
 @endsection
 
@@ -140,7 +148,10 @@
           <div class="d-flex justify-content-between align-items-start">
             <div>
               <h4 class="mb-0" id="widget-payment-status-count">0</h4>
-              <p class="mb-0">Due: <span id="widget-due-count">0</span> | Partial: <span id="widget-partial-count">0</span> | Paid: <span id="widget-paid-count">0</span></p>
+              <p class="mb-0">
+                <strong>SO:</strong> Due: <span id="widget-due-count-so">0</span> | Partial: <span id="widget-partial-count-so">0</span> | Paid: <span id="widget-paid-count-so">0</span><br>
+                <strong>CN:</strong> Due: <span id="widget-due-count-cn">0</span> | Partial: <span id="widget-partial-count-cn">0</span> | Paid: <span id="widget-paid-count-cn">0</span>
+              </p>
             </div>
             <span class="avatar p-2">
               <span class="avatar-initial bg-label-secondary rounded"><i
@@ -179,5 +190,14 @@
 
 @include('_partials._modals.modal-add-payment')
 @include('_partials._modals.modal-view-payments')
+
+<!-- View Modal -->
+<div class="modal fade" id="order-view-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-simple">
+    <div class="modal-content" id="order-view-modal-content">
+      <!-- AJAX content will be injected here -->
+    </div>
+  </div>
+</div>
 
 @endsection

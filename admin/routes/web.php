@@ -131,6 +131,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/order/details', [OrderController::class, 'getOrderDetails'])->name('order-details');
         Route::get('/order/edit/{id}', [OrderController::class, 'edit'])->name('order.edit');
         Route::get('/order/list/ajax', [OrderController::class, 'ajaxList'])->name('order.list.ajax');
+        Route::get('/order/show/ajax/{id}', [OrderController::class, 'showAjax'])->name('order.show.ajax');
+        Route::get('/order/invoice/{id}', [OrderController::class, 'showInvoice'])->name('order.invoice');
         Route::get('/order/statistics', [OrderController::class, 'getStatistics'])->name('order.statistics');
         Route::get('/order/items/ajax', [OrderController::class, 'itemsAjax'])->name('order.items.ajax');
         Route::post('/order/update', [OrderController::class, 'update'])->name('order.update');
@@ -141,6 +143,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/order/add', [OrderController::class, 'add'])->name('order.add');
         Route::post('/order/create', [OrderController::class, 'create'])->name('order.create');
         Route::post('/order/item/create', [OrderController::class, 'createItem'])->name('order.item.create');
+        Route::get('/order/credit-note/add/{id}', [OrderController::class, 'creditNoteAdd'])->name('credit-note.add');
+        Route::post('/order/credit-note/store', [OrderController::class, 'creditNoteStore'])->name('credit-note.store');
     });
     
     // Order Items CRUD

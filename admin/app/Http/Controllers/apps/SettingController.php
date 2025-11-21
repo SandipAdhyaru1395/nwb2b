@@ -295,11 +295,12 @@ class SettingController extends Controller
       'companyAddress' => 'nullable|string|max:500',
       'companyEmail' => 'nullable|email|max:255',
       'companyPhone' => 'nullable|string|max:50',
-      'defaultVatRate' => 'nullable|numeric|min:0|max:100',
       'sessionTimeout' => 'nullable|integer|min:1',
-      'minOrderAmount' => 'nullable|numeric|min:0',
-      'currency' => 'nullable|string|max:10',
-      'currencySymbol' => 'nullable|string|max:10'
+      'currencySymbol' => 'nullable|string|max:10',
+      'accountName' => 'nullable|string|max:255',
+      'bank' => 'nullable|string|max:255',
+      'sortCode' => 'nullable|string|max:20',
+      'accountNo' => 'nullable|string|max:50'
     ]);
 
     $map = [
@@ -308,11 +309,12 @@ class SettingController extends Controller
       'company_address' => $validated['companyAddress'] ?? '',
       'company_email' => $validated['companyEmail'] ?? '',
       'company_phone' => $validated['companyPhone'] ?? '',
-      'default_vat_rate' => $validated['defaultVatRate'] ?? '',
       'session_timeout' => $validated['sessionTimeout'] ?? '',
-      'min_order_amount' => $validated['minOrderAmount'] ?? '',
-      'currency' => $validated['currency'] ?? '',
-      'currency_symbol' => $validated['currencySymbol'] ?? ''
+      'currency_symbol' => $validated['currencySymbol'] ?? '',
+      'account_name' => $validated['accountName'] ?? '',
+      'bank' => $validated['bank'] ?? '',
+      'sort_code' => $validated['sortCode'] ?? '',
+      'account_no' => $validated['accountNo'] ?? ''
     ];
 
     foreach ($map as $key => $value) {
@@ -463,6 +465,8 @@ class SettingController extends Controller
       \App\Models\QuantityAdjustmentItem::truncate();
       \App\Models\Supplier::truncate();
       \App\Models\WarehousesProduct::truncate();
+      \App\Models\Purchase::truncate();
+      \App\Models\PurchaseItem::truncate();
       DB::statement('SET FOREIGN_KEY_CHECKS=1');
       Toastr::success('Data truncated successfully');
     } catch (\Throwable $e) {

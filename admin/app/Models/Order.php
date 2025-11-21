@@ -3,18 +3,18 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Concerns\RecordsSyncUpdate;
 
 class Order extends Model
 {
-    use SoftDeletes;
     use RecordsSyncUpdate;
     
     protected $fillable = [
         'order_number',
+        'type',
         'order_date',
         'customer_id',
+        'parent_order_id',
         'subtotal',
         'vat_amount',
         'total_amount',
@@ -61,5 +61,21 @@ class Order extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class, 'order_id')->orderBy('date', 'desc');
+    }
+
+    /**
+     * Get the parent order (for credit notes, this is the original SO order)
+     */
+    public function parentOrder()
+    {
+        return $this->belongsTo(Order::class, 'parent_order_id');
+    }
+
+    /**
+     * Get credit notes for this order (if this is an SO order)
+     */
+    public function creditNotes()
+    {
+        return $this->hasMany(Order::class, 'parent_order_id')->where('type', 'CN');
     }
 }

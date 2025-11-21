@@ -38,4 +38,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Brand::class, 'product_brand', 'product_id', 'brand_id');
     }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
+    }
 }

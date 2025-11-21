@@ -198,6 +198,7 @@ class OrderController extends Controller
         'customer_id' => $validated['customer_id'],
         'order_date' => $date,
         'order_number' => $orderNumber,
+        'type' => 'SO',
         'delivery_charge' => $validated['shipping_charge'] ?? 0,
         'delivery_note' => $validated['delivery_note'] ?? null,
         'status' => 'Completed',
@@ -228,23 +229,40 @@ class OrderController extends Controller
         $unitPrice = (float) ($productData['unit_cost'] ?? 0);
         
         // Get fresh product data to ensure we have the latest wallet_credit value
-        $product = Product::findOrFail($productData['product_id']);
+        $product = Product::with('unit')->findOrFail($productData['product_id']);
         
-        // Calculate wallet credit earned per item: product wallet_credit * quantity
-        $walletCreditEarnedPerItem = round((float)($product->wallet_credit ?? 0) * $quantity, 2);
+        // Get product unit name
+        $productUnit = $product->unit ? $product->unit->name : null;
+        
+        // Calculate wallet credit: unit_wallet_credit = product wallet_credit, wallet_credit_earned = unit_wallet_credit * quantity
+        $unitWalletCredit = round((float)($product->wallet_credit ?? 0), 2);
+        $walletCreditEarnedPerItem = round($unitWalletCredit * $quantity, 2);
         $walletCreditEarned += $walletCreditEarnedPerItem;
         
         // Calculate total price
         $totalPrice = round($unitPrice * $quantity, 2);
+        
+        // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        $totalVat = round($unitVat * $quantity, 2);
+        
+        // Calculate total: total_price + total_vat
+        $total = round($totalPrice + $totalVat, 2);
 
         // Create order item
         OrderItem::create([
           'order_id' => $order->id,
+          'type' => 'SO',
           'product_id' => $productData['product_id'],
+          'product_unit' => $productUnit,
           'quantity' => $quantity,
           'unit_price' => $unitPrice,
+          'unit_vat' => $unitVat,
+          'unit_wallet_credit' => $unitWalletCredit,
           'wallet_credit_earned' => $walletCreditEarnedPerItem,
           'total_price' => $totalPrice,
+          'total_vat' => $totalVat,
+          'total' => $total,
         ]);
       }
 
@@ -319,7 +337,14 @@ class OrderController extends Controller
 
   public function edit($id)
   {
-    $order = Order::with(['customer.branches', 'items.product', 'statusHistories'])->findOrFail($id);
+    $order = Order::with(['customer.branches', 'items.product', 'statusHistories', 'creditNotes'])->findOrFail($id);
+    
+    // Check if order has credit notes - if so, prevent edit access
+    if ($order->type === 'SO' && $order->creditNotes()->exists()) {
+      Toastr::error('This order cannot be edited because a credit note has been generated for it.');
+      return redirect()->route('order.list');
+    }
+    
     $products = Product::where('is_active', 1)->select('id', 'name', 'sku', 'price', 'wallet_credit', 'image_url')->get();
 
     return view('content.order.edit', [
@@ -334,8 +359,6 @@ class OrderController extends Controller
     $query = Order::where('orders.id', $orderId)
       ->join('order_items', 'order_items.order_id', '=', 'orders.id')
       ->join('products', 'products.id', '=', 'order_items.product_id')
-      ->whereNull('orders.deleted_at')
-      ->whereNull('order_items.deleted_at')
       ->whereNull('products.deleted_at')
       ->select([
         'order_items.id',
@@ -353,7 +376,15 @@ class OrderController extends Controller
 
   public function update(Request $request)
   {
-
+    // Check if order has credit notes - if so, prevent update
+    $orderId = $request->input('id');
+    if ($orderId) {
+      $order = Order::with('creditNotes')->find($orderId);
+      if ($order && $order->type === 'SO' && $order->creditNotes()->exists()) {
+        Toastr::error('This order cannot be updated because a credit note has been generated for it.');
+        return redirect()->back()->withInput();
+      }
+    }
 
     // Main form update (from details page)
     $validated = $request->validate([
@@ -531,25 +562,42 @@ class OrderController extends Controller
         $unitPrice = (float) ($productData['unit_cost'] ?? 0); // Note: form uses unit_cost but it's actually unit_price for orders
         
         // Get fresh product data to ensure we have the latest wallet_credit value
-        $product = Product::findOrFail($productData['product_id']);
+        $product = Product::with('unit')->findOrFail($productData['product_id']);
         
-        // Calculate wallet credit earned per item: product wallet_credit * quantity
+        // Get product unit name
+        $productUnit = $product->unit ? $product->unit->name : null;
+        
+        // Calculate wallet credit: unit_wallet_credit = product wallet_credit, wallet_credit_earned = unit_wallet_credit * quantity
         // This automatically recalculates when quantity changes
-        $walletCreditEarned = round((float)($product->wallet_credit ?? 0) * $quantity, 2);
+        $unitWalletCredit = round((float)($product->wallet_credit ?? 0), 2);
+        $walletCreditEarned = round($unitWalletCredit * $quantity, 2);
         $newWalletCreditEarned += $walletCreditEarned;
         
         // Calculate total price
         $totalPrice = round($unitPrice * $quantity, 2);
+        
+        // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        $totalVat = round($unitVat * $quantity, 2);
+        
+        // Calculate total: total_price + total_vat
+        $total = round($totalPrice + $totalVat, 2);
 
         // Create order item with recalculated wallet_credit_earned
         // This ensures order_items.wallet_credit_earned is always correct for the current quantity
         OrderItem::create([
           'order_id' => $order->id,
+          'type' => 'SO',
           'product_id' => $productData['product_id'],
+          'product_unit' => $productUnit,
           'quantity' => $quantity,
           'unit_price' => $unitPrice,
+          'unit_vat' => $unitVat,
+          'unit_wallet_credit' => $unitWalletCredit,
           'wallet_credit_earned' => $walletCreditEarned, // Recalculated based on current quantity
           'total_price' => $totalPrice,
+          'total_vat' => $totalVat,
+          'total' => $total,
         ]);
       }
 
@@ -715,6 +763,8 @@ class OrderController extends Controller
     $query = Order::select([
       'orders.id',
       'orders.order_number',
+      'orders.type',
+      'orders.parent_order_id',
       'orders.order_date',
       'orders.total_amount',
       'orders.paid_amount',
@@ -723,12 +773,39 @@ class OrderController extends Controller
       'orders.payment_status',
       'orders.status as order_status',
       'customers.email as customer_email',
-      'customers.company_name as customer_name'
+      'customers.company_name as customer_name',
+      'parent_orders.type as parent_order_type',
+      'parent_orders.order_number as parent_order_number',
+      'credit_notes.type as credit_note_type',
+      'credit_notes.order_number as credit_note_number'
     ])->leftJoin('customers', 'customers.id', '=', 'orders.customer_id')
-      ->whereNull('orders.deleted_at')
+      ->leftJoin('orders as parent_orders', 'parent_orders.id', '=', 'orders.parent_order_id')
+      ->leftJoin('orders as credit_notes', function($join) {
+        $join->on('credit_notes.parent_order_id', '=', 'orders.id')
+             ->where('credit_notes.type', '=', 'CN');
+      })
+      ->withCount(['creditNotes as has_credit_note_count'])
       ->orderBy('orders.id', 'desc');
 
     return DataTables::eloquent($query)
+      ->addColumn('has_credit_note', function ($order) {
+        if ($order->type === 'SO') {
+          return ($order->has_credit_note_count ?? 0) > 0 ? 1 : 0;
+        }
+        return 0;
+      })
+      ->addColumn('parent_order_display', function ($order) {
+        if ($order->type === 'CN' && $order->parent_order_type && $order->parent_order_number) {
+          return $order->parent_order_type . $order->parent_order_number;
+        }
+        return null;
+      })
+      ->addColumn('credit_note_display', function ($order) {
+        if ($order->type === 'SO' && $order->credit_note_type && $order->credit_note_number) {
+          return $order->credit_note_type . $order->credit_note_number;
+        }
+        return null;
+      })
       ->filterColumn('order_number', function ($query, $keyword) {
         $query->where('orders.order_number', 'like', "%{$keyword}%");
       })
@@ -786,11 +863,167 @@ class OrderController extends Controller
       ->toJson();
   }
 
+  public function showAjax($id)
+  {
+    $order = Order::with(['items.product', 'customer', 'parentOrder', 'creditNotes.items.product', 'payments'])->findOrFail($id);
+    
+    // Get settings for store information
+    $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+    
+    // Get currency symbol
+    $currencySymbol = $settings['currency_symbol'] ?? '£';
+    
+    $html = view('_partials._modals.modal-order-show', compact('order', 'settings', 'currencySymbol'))->render();
+    return response()->json(['html' => $html]);
+  }
+
+  public function showInvoice($id)
+  {
+    $order = Order::with(['items.product', 'customer', 'parentOrder', 'creditNotes.items.product', 'payments'])->findOrFail($id);
+    
+    // Get settings for store information
+    $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+    
+    // Get currency symbol
+    $currencySymbol = $settings['currency_symbol'] ?? '£';
+    
+    return view('content.order.invoice', compact('order', 'settings', 'currencySymbol'));
+  }
+
   public function delete($id)
   {
-    $order = Order::with('items')->findOrFail($id);
-    // Optionally cascade delete items
+    $order = Order::with(['items', 'creditNotes', 'payments', 'customer'])->findOrFail($id);
+    
     DB::transaction(function () use ($order) {
+      // Handle credit note deletion separately
+      if ($order->type === 'CN') {
+        // Get customer for credit balance adjustment
+        $customer = $order->customer;
+        
+        // Calculate wallet credit that was added when credit note was created
+        // This needs to be reversed (subtracted) when credit note is deleted
+        $walletCreditToReverse = 0;
+        
+        if ($order->parent_order_id) {
+          $parentOrder = Order::with('items')->find($order->parent_order_id);
+          if ($parentOrder) {
+            // Calculate wallet credit for returned items in credit note
+            foreach ($order->items as $creditNoteItem) {
+              $returnedQty = (float)($creditNoteItem->quantity ?? 0);
+              $productId = (int)($creditNoteItem->product_id ?? 0);
+              
+              // Find corresponding item in parent order
+              $parentOrderItem = $parentOrder->items->firstWhere('product_id', $productId);
+              if ($parentOrderItem) {
+                $originalQty = (float)($parentOrderItem->quantity ?? 1);
+                if ($originalQty > 0) {
+                  // Calculate proportional wallet credit earned for returned items
+                  $proportionalWalletCredit = ($parentOrderItem->wallet_credit_earned ?? 0) * ($returnedQty / $originalQty);
+                  $walletCreditToReverse += round($proportionalWalletCredit, 2);
+                }
+              }
+            }
+          }
+        }
+        
+        // Reverse the wallet credit that was added when credit note was created
+        if ($walletCreditToReverse > 0 && $customer) {
+          $customer->refresh();
+          $currentBalance = (float)($customer->credit_balance ?? 0);
+          
+          // Subtract the wallet credit (reverse what was added)
+          $customer->credit_balance = $currentBalance - $walletCreditToReverse;
+          $customer->save();
+          
+          // Create wallet transaction to record the reversal
+          WalletTransaction::create([
+            'customer_id' => $customer->id,
+            'order_id' => $order->id,
+            'amount' => $walletCreditToReverse,
+            'type' => 'debit',
+            'description' => 'Wallet credit reversed due to credit note deletion',
+            'balance_after' => $customer->credit_balance,
+          ]);
+        }
+      }
+      
+      // Delete all credit notes associated with this order (if SO order)
+      if ($order->type === 'SO') {
+        foreach ($order->creditNotes as $creditNote) {
+          // Get customer for credit balance adjustment
+          $customer = $creditNote->customer;
+          
+          // Calculate wallet credit that was added when credit note was created
+          $walletCreditToReverse = 0;
+          
+          if ($creditNote->parent_order_id) {
+            $parentOrder = Order::with('items')->find($creditNote->parent_order_id);
+            if ($parentOrder) {
+              // Calculate wallet credit for returned items in credit note
+              foreach ($creditNote->items as $creditNoteItem) {
+                $returnedQty = (float)($creditNoteItem->quantity ?? 0);
+                $productId = (int)($creditNoteItem->product_id ?? 0);
+                
+                // Find corresponding item in parent order
+                $parentOrderItem = $parentOrder->items->firstWhere('product_id', $productId);
+                if ($parentOrderItem) {
+                  $originalQty = (float)($parentOrderItem->quantity ?? 1);
+                  if ($originalQty > 0) {
+                    // Calculate proportional wallet credit earned for returned items
+                    $proportionalWalletCredit = ($parentOrderItem->wallet_credit_earned ?? 0) * ($returnedQty / $originalQty);
+                    $walletCreditToReverse += round($proportionalWalletCredit, 2);
+                  }
+                }
+              }
+            }
+          }
+          
+          // Reverse the wallet credit that was added when credit note was created
+          if ($walletCreditToReverse > 0 && $customer) {
+            $customer->refresh();
+            $currentBalance = (float)($customer->credit_balance ?? 0);
+            
+            // Subtract the wallet credit (reverse what was added)
+            $customer->credit_balance = $currentBalance - $walletCreditToReverse;
+            $customer->save();
+            
+            // Create wallet transaction to record the reversal
+            WalletTransaction::create([
+              'customer_id' => $customer->id,
+              'order_id' => $creditNote->id,
+              'amount' => $walletCreditToReverse,
+              'type' => 'debit',
+              'description' => 'Wallet credit reversed due to credit note deletion',
+              'balance_after' => $customer->credit_balance,
+            ]);
+          }
+          
+          // Delete credit note items and restore product quantities
+          foreach ($creditNote->items as $item) {
+            $quantity = (float) ($item->quantity ?? 0);
+            $productId = (int) ($item->product_id ?? 0);
+            if ($productId > 0 && $quantity > 0) {
+              try {
+                WarehouseProductSyncService::adjustQuantity($productId, 'addition', $quantity);
+              } catch (\Exception $e) {
+                \Log::error("Failed to restore product quantity for product {$productId}: " . $e->getMessage());
+              }
+            }
+          }
+          // Delete credit note payments
+          $creditNote->payments()->delete();
+          // Delete credit note items
+          $creditNote->items()->delete();
+          // Delete credit note status histories
+          $creditNote->statusHistories()->delete();
+          // Delete credit note
+          $creditNote->delete();
+        }
+      }
+      
+      // Delete all payments for this order
+      $order->payments()->delete();
+      
       // Restore product quantities before deleting items
       foreach ($order->items as $item) {
         $quantity = (float) ($item->quantity ?? 0);
@@ -805,10 +1038,14 @@ class OrderController extends Controller
         }
       }
       
+      // Delete order items
       $order->items()->delete();
+      // Delete status histories
       $order->statusHistories()->delete();
+      // Delete the order
       $order->delete();
     });
+    
     Toastr::success('Order deleted successfully');
     return redirect()->back();
   }
@@ -833,25 +1070,53 @@ class OrderController extends Controller
       }
 
       $validated = $validator->validated();
-
-      $product = Product::findOrFail($validated['product_id']);
       
-      // Calculate wallet credit earned
-      $walletCreditEarned = $product->wallet_credit * $validated['quantity'];
+      // Check if order has credit notes - if so, prevent update
+      $order = Order::with('creditNotes')->find($validated['order_id']);
+      if ($order && $order->type === 'SO' && $order->creditNotes()->exists()) {
+        Toastr::error('This order cannot be updated because a credit note has been generated for it.');
+        return back()->withInput();
+      }
+
+      $product = Product::with('unit')->findOrFail($validated['product_id']);
+      
+      // Get product unit name
+      $productUnit = $product->unit ? $product->unit->name : null;
+      
+      // Calculate wallet credit: unit_wallet_credit = product wallet_credit, wallet_credit_earned = unit_wallet_credit * quantity
+      $unitWalletCredit = round((float)($product->wallet_credit ?? 0), 2);
+      $walletCreditEarned = round($unitWalletCredit * $validated['quantity'], 2);
       
       // Calculate total price
       $totalPrice = $validated['unit_price'] * $validated['quantity'];
+      
+      // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+      $unitVat = round((float)($product->vat_amount ?? 0), 2);
+      $totalVat = round($unitVat * $validated['quantity'], 2);
+      
+      // Calculate total: total_price + total_vat
+      $total = round($totalPrice + $totalVat, 2);
 
       DB::beginTransaction();
 
+      // Get order to determine type
+      $order = Order::findOrFail($validated['order_id']);
+      $itemType = $order->type ?? 'SO';
+      
       // Create the order item
       $orderItem = OrderItem::create([
         'order_id' => $validated['order_id'],
+        'type' => $itemType,
         'product_id' => $validated['product_id'],
+        'product_unit' => $productUnit,
         'quantity' => $validated['quantity'],
         'unit_price' => $validated['unit_price'],
+        'unit_vat' => $unitVat,
+        'unit_wallet_credit' => $unitWalletCredit,
         'wallet_credit_earned' => $walletCreditEarned,
         'total_price' => $totalPrice,
+        'total_vat' => $totalVat,
+        'total' => $total,
       ]);
 
       // Update order totals
@@ -890,13 +1155,32 @@ class OrderController extends Controller
       $validated = $validator->validated();
 
       $orderItem = OrderItem::findOrFail($validated['id']);
+      
+      // Check if order has credit notes - if so, prevent update
+      $order = $orderItem->order;
+      if ($order && $order->type === 'SO' && $order->creditNotes()->exists()) {
+        Toastr::error('This order cannot be updated because a credit note has been generated for it.');
+        return back()->withInput();
+      }
+      
       $product = $orderItem->product;
       
-      // Calculate wallet credit earned
-      $walletCreditEarned = $product->wallet_credit * $validated['quantity'];
+      // Get product unit name
+      $productUnit = $product && $product->unit ? $product->unit->name : ($orderItem->product_unit ?? null);
+      
+      // Calculate wallet credit: unit_wallet_credit = product wallet_credit, wallet_credit_earned = unit_wallet_credit * quantity
+      $unitWalletCredit = round((float)($product->wallet_credit ?? 0), 2);
+      $walletCreditEarned = round($unitWalletCredit * $validated['quantity'], 2);
       
       // Calculate total price
       $totalPrice = $validated['unit_price'] * $validated['quantity'];
+      
+      // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+      $unitVat = round((float)($product->vat_amount ?? 0), 2);
+      $totalVat = round($unitVat * $validated['quantity'], 2);
+      
+      // Calculate total: total_price + total_vat
+      $total = round($totalPrice + $totalVat, 2);
 
       DB::beginTransaction();
 
@@ -904,8 +1188,13 @@ class OrderController extends Controller
       $orderItem->update([
         'quantity' => $validated['quantity'],
         'unit_price' => $validated['unit_price'],
+        'product_unit' => $productUnit,
+        'unit_vat' => $unitVat,
+        'unit_wallet_credit' => $unitWalletCredit,
         'wallet_credit_earned' => $walletCreditEarned,
         'total_price' => $totalPrice,
+        'total_vat' => $totalVat,
+        'total' => $total,
       ]);
 
       // Update order totals
@@ -931,6 +1220,15 @@ class OrderController extends Controller
     try {
       $orderItem = OrderItem::findOrFail($id);
       $orderId = $orderItem->order_id;
+      
+      // Check if order has credit notes - if so, prevent update
+      $order = Order::with('creditNotes')->find($orderId);
+      if ($order && $order->type === 'SO' && $order->creditNotes()->exists()) {
+        return response()->json([
+          'success' => false,
+          'message' => 'This order cannot be updated because a credit note has been generated for it.'
+        ], 403);
+      }
 
       DB::beginTransaction();
 
@@ -958,34 +1256,49 @@ class OrderController extends Controller
   /**
    * Update order totals based on order items
    */
-  private function updateOrderTotals($orderId)
+  private function updateOrderTotals($orderId, $preservePaymentAmounts = false)
   {
     $order = Order::findOrFail($orderId);
-    $items = $order->items;
+    $items = $order->items()->with('product')->get();
 
     // Calculate totals
     $subtotal = $items->sum('total_price');
+    $vatAmount = $items->sum('total_vat'); // Use total_vat from order_items
     $walletCreditEarned = $items->sum('wallet_credit_earned');
     $itemsCount = $items->count();
     $unitsCount = $items->sum('quantity');
     $skusCount = $items->pluck('product_id')->unique()->count();
 
-    // Calculate VAT (assuming 20% VAT rate - you can make this configurable)
-    $vatRate = 0.20; // 20%
-    $vatAmount = $subtotal * $vatRate;
     $totalAmount = $subtotal + $vatAmount;
 
+    // If preserving payment amounts (for credit notes), keep original payment values
+    if ($preservePaymentAmounts) {
+      // Update only non-payment related fields
+      $order->update([
+        'subtotal' => $subtotal,
+        'vat_amount' => $vatAmount,
+        'total_amount' => $totalAmount,
+        'items_count' => $itemsCount,
+        'units_count' => $unitsCount,
+        'skus_count' => $skusCount,
+      ]);
+      return;
+    }
+
     // Calculate paid and unpaid amounts
-    // Paid amount = wallet credit used + sum of all payments
+    // outstanding_amount = total_amount - wallet_credit_used (always)
+    // payment_amount = outstanding_amount (always)
+    // payment_amount = paid_amount + unpaid_amount
     $walletCreditUsed = (float)($order->wallet_credit_used ?? 0);
     $paymentsTotal = (float)($order->payments()->sum('amount') ?? 0);
-    $paidAmount = $walletCreditUsed + $paymentsTotal;
-    $outstandingAmount = $totalAmount - $paidAmount;
-    $unpaidAmount = max(0, $outstandingAmount);
+    $outstandingAmount = $totalAmount - $walletCreditUsed;
+    $paymentAmount = $outstandingAmount; // payment_amount always equals outstanding_amount
+    $paidAmount = $paymentsTotal; // paid_amount only includes actual payments, not wallet_credit_used
+    $unpaidAmount = $outstandingAmount - $paidAmount; // unpaid_amount = outstanding_amount - paid_amount
 
     // Determine payment status
     $paymentStatus = 'Due';
-    if ($outstandingAmount <= 0) {
+    if ($unpaidAmount <= 0) {
       $paymentStatus = 'Paid';
     } elseif ($paidAmount > 0) {
       $paymentStatus = 'Partial';
@@ -996,6 +1309,7 @@ class OrderController extends Controller
       'subtotal' => $subtotal,
       'vat_amount' => $vatAmount,
       'total_amount' => $totalAmount,
+      'payment_amount' => $paymentAmount,
       'paid_amount' => $paidAmount,
       'unpaid_amount' => $unpaidAmount,
       'outstanding_amount' => $outstandingAmount,
@@ -1077,11 +1391,14 @@ class OrderController extends Controller
       $order->refresh();
       
       // Calculate current unpaid amount (before adding this payment)
-      // unpaid_amount = total_amount - (wallet_credit_used + sum of all existing payments)
+      // outstanding_amount = total_amount - wallet_credit_used (always)
+      // payment_amount = outstanding_amount (always)
+      // unpaid_amount = outstanding_amount - paid_amount
       $walletCreditUsed = (float)($order->wallet_credit_used ?? 0);
       $existingPaymentsTotal = (float)($order->payments()->sum('amount') ?? 0);
-      $paidAmount = $walletCreditUsed + $existingPaymentsTotal;
-      $unpaidAmount = max(0, ($order->total_amount ?? 0) - $paidAmount);
+      $outstandingAmount = ($order->total_amount ?? 0) - $walletCreditUsed;
+      $paidAmount = $existingPaymentsTotal; // paid_amount only includes actual payments, not wallet_credit_used
+      $unpaidAmount = $outstandingAmount - $paidAmount;
 
       // Validate that payment amount doesn't exceed unpaid amount
       if ($validated['amount'] > $unpaidAmount) {
@@ -1235,7 +1552,8 @@ class OrderController extends Controller
   public function getStatistics()
   {
     try {
-      $stats = Order::selectRaw('
+      // Calculate statistics for SO orders only (exclude CN from totals)
+      $soStats = Order::selectRaw('
         COALESCE(SUM(total_amount), 0) as grand_total,
         COALESCE(SUM(paid_amount), 0) as paid,
         COALESCE(SUM(unpaid_amount), 0) as balance,
@@ -1243,18 +1561,30 @@ class OrderController extends Controller
         SUM(CASE WHEN payment_status = "Partial" THEN 1 ELSE 0 END) as partial_count,
         SUM(CASE WHEN payment_status = "Paid" THEN 1 ELSE 0 END) as paid_count
       ')
-      ->whereNull('deleted_at')
+      ->where('type', 'SO')
+      ->first();
+
+      // Calculate payment status counts for CN orders separately
+      $cnStats = Order::selectRaw('
+        SUM(CASE WHEN payment_status = "Due" THEN 1 ELSE 0 END) as due_count,
+        SUM(CASE WHEN payment_status = "Partial" THEN 1 ELSE 0 END) as partial_count,
+        SUM(CASE WHEN payment_status = "Paid" THEN 1 ELSE 0 END) as paid_count
+      ')
+      ->where('type', 'CN')
       ->first();
 
       return response()->json([
         'success' => true,
         'statistics' => [
-          'grand_total' => (float) ($stats->grand_total ?? 0),
-          'paid' => (float) ($stats->paid ?? 0),
-          'balance' => (float) ($stats->balance ?? 0),
-          'due_count' => (int) ($stats->due_count ?? 0),
-          'partial_count' => (int) ($stats->partial_count ?? 0),
-          'paid_count' => (int) ($stats->paid_count ?? 0),
+          'grand_total' => (float) ($soStats->grand_total ?? 0),
+          'paid' => (float) ($soStats->paid ?? 0),
+          'balance' => (float) ($soStats->balance ?? 0),
+          'due_count_so' => (int) ($soStats->due_count ?? 0),
+          'partial_count_so' => (int) ($soStats->partial_count ?? 0),
+          'paid_count_so' => (int) ($soStats->paid_count ?? 0),
+          'due_count_cn' => (int) ($cnStats->due_count ?? 0),
+          'partial_count_cn' => (int) ($cnStats->partial_count ?? 0),
+          'paid_count_cn' => (int) ($cnStats->paid_count ?? 0),
         ]
       ]);
     } catch (\Exception $e) {
@@ -1263,5 +1593,300 @@ class OrderController extends Controller
         'message' => 'Error fetching statistics: ' . $e->getMessage()
       ], 500);
     }
+  }
+
+  /**
+   * Show credit note add form
+   */
+  public function creditNoteAdd($id)
+  {
+    $order = Order::with(['customer', 'items.product', 'creditNotes'])->findOrFail($id);
+    
+    // Validate that this is an SO order
+    if ($order->type !== 'SO') {
+      Toastr::error('Credit notes can only be created for Sales Orders (SO).');
+      return redirect()->route('order.list');
+    }
+    
+    // Validate that this SO order doesn't already have a credit note
+    if ($order->creditNotes()->exists()) {
+      Toastr::error('A credit note has already been generated for this order.');
+      return redirect()->route('order.list');
+    }
+    
+    return view('content.order.credit-note-add', [
+      'order' => $order
+    ]);
+  }
+
+  /**
+   * Store credit note
+   */
+  public function creditNoteStore(Request $request)
+  {
+    $validated = $request->validate([
+      'order_id' => ['required', 'integer', 'exists:orders,id'],
+      'products' => ['required', 'array', 'min:1'],
+      'products.*.product_id' => ['required', 'exists:products,id'],
+      'products.*.returned_quantity' => ['required', 'numeric', 'min:0'],
+      'products.*.order_quantity' => ['required', 'numeric', 'min:1'],
+      'products.*.unit_price' => ['required', 'numeric', 'min:0'],
+    ], [
+      'order_id.required' => 'Order ID is required',
+      'order_id.exists' => 'Order not found',
+      'products.required' => 'At least one product is required',
+      'products.min' => 'At least one product is required',
+      'products.*.product_id.required' => 'Product is required',
+      'products.*.product_id.exists' => 'Selected product does not exist',
+      'products.*.returned_quantity.required' => 'Returned quantity is required',
+      'products.*.returned_quantity.numeric' => 'Returned quantity must be a number',
+      'products.*.returned_quantity.min' => 'Returned quantity must be 0 or greater',
+      'products.*.order_quantity.required' => 'Order quantity is required',
+      'products.*.unit_price.required' => 'Unit price is required',
+    ]);
+
+    $order = Order::with(['items', 'creditNotes'])->findOrFail($validated['order_id']);
+
+    // Validate that this is an SO order
+    if ($order->type !== 'SO') {
+      Toastr::error('Credit notes can only be created for Sales Orders (SO).');
+      return redirect()->back()->withInput();
+    }
+    
+    // Validate that this SO order doesn't already have a credit note
+    if ($order->creditNotes()->exists()) {
+      Toastr::error('A credit note has already been generated for this order.');
+      return redirect()->back()->withInput();
+    }
+
+    // Validate that returned quantity doesn't exceed order quantity
+    $validationErrors = [];
+    foreach ($validated['products'] as $index => $productData) {
+      $productId = (int) ($productData['product_id'] ?? 0);
+      $returnedQty = (float) ($productData['returned_quantity'] ?? 0);
+      $orderQty = (float) ($productData['order_quantity'] ?? 0);
+      
+      // Find the original order item
+      $orderItem = $order->items->firstWhere('product_id', $productId);
+      if (!$orderItem) {
+        $validationErrors["products.{$index}.product_id"] = "Product not found in order";
+        continue;
+      }
+      
+      if ($returnedQty > $orderQty) {
+        $product = Product::find($productId);
+        $productName = $product ? $product->name : 'Product #' . $productId;
+        $validationErrors["products.{$index}.returned_quantity"] = "Returned quantity for {$productName} cannot exceed order quantity ({$orderQty})";
+      }
+    }
+    
+    if (!empty($validationErrors)) {
+      return redirect()->back()
+        ->withErrors($validationErrors)
+        ->withInput();
+    }
+
+    // Check if at least one returned quantity is greater than 0
+    $hasReturnedItems = false;
+    foreach ($validated['products'] as $productData) {
+      if ((float)($productData['returned_quantity'] ?? 0) > 0) {
+        $hasReturnedItems = true;
+        break;
+      }
+    }
+    
+    if (!$hasReturnedItems) {
+      return redirect()->back()
+        ->withErrors(['products' => 'At least one returned quantity must be greater than 0'])
+        ->withInput();
+    }
+
+    // Get reference number from order_ref table (cn column)
+    $orderRef = OrderRef::orderBy('id', 'desc')->first();
+    
+    if (!$orderRef) {
+      // Create initial order_ref record if it doesn't exist
+      $orderRef = OrderRef::create([
+        'so' => 1,
+        'qa' => 1,
+        'po' => 1,
+        'pay' => 1,
+        'cn' => 1,
+      ]);
+    }
+    
+    $referenceNo = $orderRef->cn ?? 1;
+    
+    // Increment cn for next credit note
+    $orderRef->update([
+      'cn' => ($orderRef->cn ?? 0) + 1,
+    ]);
+
+    // Get customer for wallet credit adjustments
+    $customer = \App\Models\Customer::findOrFail($order->customer_id);
+
+    // Process credit note creation in transaction
+    DB::transaction(function () use ($validated, $order, $referenceNo, $customer) {
+      // Get original order display number (with type prefix if exists)
+      $originalOrderDisplay = $order->type ? $order->type . $order->order_number : $order->order_number;
+      
+      // Create credit note order (similar structure to regular order)
+      $creditNoteData = [
+        'customer_id' => $order->customer_id,
+        'parent_order_id' => $order->id, // Link to parent SO order
+        'order_date' => now(),
+        'order_number' => $referenceNo, // Store without prefix
+        'type' => 'CN',
+        'delivery_charge' => 0,
+        'delivery_note' => 'Credit Note for Order #' . $originalOrderDisplay,
+        'status' => 'Returned',
+        'payment_status' => 'Due',
+        'subtotal' => 0,
+        'vat_amount' => 0,
+        'total_amount' => 0,
+        'paid_amount' => 0,
+        'unpaid_amount' => 0,
+        'outstanding_amount' => 0,
+        'items_count' => 0,
+        'units_count' => 0,
+        'skus_count' => 0,
+        'wallet_credit_used' => 0,
+        'branch_name' => $order->branch_name,
+        'country' => $order->country,
+        'address_line1' => $order->address_line1,
+        'address_line2' => $order->address_line2,
+        'city' => $order->city,
+        'zip_code' => $order->zip_code,
+      ];
+
+      $creditNote = Order::create($creditNoteData);
+
+      // Calculate total wallet credit to reverse (for returned items)
+      $walletCreditToReverse = 0;
+
+      // Create credit note items (do not modify original SO order or order_items)
+      $subtotal = 0;
+      foreach ($validated['products'] as $productData) {
+        $productId = (int) ($productData['product_id'] ?? 0);
+        $returnedQty = (float) ($productData['returned_quantity'] ?? 0);
+        $unitPrice = (float) ($productData['unit_price'] ?? 0);
+        
+        if ($returnedQty <= 0) {
+          continue; // Skip items with zero returned quantity
+        }
+        
+        // Verify the product exists in the original order (for validation only)
+        $orderItem = $order->items->firstWhere('product_id', $productId);
+        if (!$orderItem) {
+          continue;
+        }
+        
+        // Calculate wallet credit to reverse for returned items
+        // Get the proportion of returned quantity to original quantity
+        $originalQty = (float)($orderItem->quantity ?? 1);
+        $returnedQtyFloat = (float)$returnedQty;
+        if ($originalQty > 0) {
+          // Calculate proportional wallet credit earned for returned items
+          $proportionalWalletCredit = ($orderItem->wallet_credit_earned ?? 0) * ($returnedQtyFloat / $originalQty);
+          $walletCreditToReverse += round($proportionalWalletCredit, 2);
+        }
+        
+        // Calculate total price for returned items
+        $totalPrice = round($unitPrice * $returnedQty, 2);
+        
+        // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
+        $product = Product::with('unit')->find($productId);
+        $unitVat = $product ? round((float)($product->vat_amount ?? 0), 2) : 0;
+        $totalVat = round($unitVat * $returnedQty, 2);
+        
+        // Get product unit name (use from product or from original order item)
+        $productUnit = $product && $product->unit ? $product->unit->name : ($orderItem->product_unit ?? null);
+        
+        // Calculate wallet credit from original order item (proportional to returned quantity)
+        $unitWalletCredit = 0;
+        $walletCreditEarned = 0;
+        
+        if ($originalQty > 0) {
+          // Get unit_wallet_credit from original order item
+          $unitWalletCredit = round((float)($orderItem->unit_wallet_credit ?? 0), 2);
+          
+          // Calculate proportional wallet_credit_earned for returned items
+          $originalWalletCreditEarned = (float)($orderItem->wallet_credit_earned ?? 0);
+          $walletCreditEarned = round($originalWalletCreditEarned * ($returnedQtyFloat / $originalQty), 2);
+        }
+        
+        $subtotal += $totalPrice;
+        
+        // Calculate total: total_price + total_vat
+        $total = round($totalPrice + $totalVat, 2);
+        
+        // Create credit note item (independent of original order)
+        OrderItem::create([
+          'order_id' => $creditNote->id,
+          'type' => 'CN',
+          'product_id' => $productId,
+          'product_unit' => $productUnit,
+          'quantity' => $returnedQty,
+          'unit_price' => $unitPrice,
+          'unit_vat' => $unitVat,
+          'unit_wallet_credit' => $unitWalletCredit,
+          'wallet_credit_earned' => $walletCreditEarned,
+          'total_price' => $totalPrice,
+          'total_vat' => $totalVat,
+          'total' => $total,
+        ]);
+        
+        // Restore product quantity to warehouse (inventory management, not order modification)
+        if ($productId > 0 && $returnedQty > 0) {
+          try {
+            WarehouseProductSyncService::adjustQuantity($productId, 'addition', $returnedQty);
+          } catch (\Exception $e) {
+            \Log::error("Failed to restore product quantity for product {$productId}: " . $e->getMessage());
+          }
+        }
+      }
+
+      // Refresh credit note to get new items
+      $creditNote->refresh();
+      $creditNote->load('items');
+      
+      // Update credit note totals using the same method for consistency
+      // Note: Credit notes have no wallet credit
+      
+      $creditNoteSubtotal = $creditNote->items->sum('total_price');
+      $creditNoteVatAmount = $creditNote->items->sum('total_vat'); // Sum total_vat from order_items
+      $creditNoteTotalAmount = $creditNoteSubtotal + $creditNoteVatAmount;
+      $creditNote->subtotal = $creditNoteSubtotal;
+      $creditNote->vat_amount = $creditNoteVatAmount;
+      $creditNote->total_amount = $creditNoteTotalAmount;
+      // For credit notes: outstanding_amount = total_amount
+      $creditNote->outstanding_amount = $creditNoteTotalAmount;
+      $creditNote->payment_amount = $creditNoteTotalAmount; // payment_amount = outstanding_amount
+      $creditNote->paid_amount = 0; // No payments yet
+      $creditNote->unpaid_amount = $creditNoteTotalAmount; // unpaid_amount = outstanding_amount - paid_amount
+      $creditNote->items_count = $creditNote->items->count();
+      $creditNote->units_count = $creditNote->items->sum('quantity');
+      $creditNote->skus_count = $creditNote->items->pluck('product_id')->unique()->count();
+      $creditNote->save();
+
+      // Do not apply wallet credit earning when credit note is created
+      // Wallet credit information is stored in order_items for reference only
+      // The customer's credit_balance should not be modified when creating a credit note
+      $customer->credit_balance = $customer->credit_balance - ($creditNote?->items?->sum('wallet_credit_earned') ?? 0);
+      $customer->save();
+
+      WalletTransaction::create([
+        'customer_id' => $customer->id,
+        'order_id' => $creditNote->id,
+        'amount' => $creditNote?->items?->sum('wallet_credit_earned') ?? 0,
+        'type' => 'debit',
+        'description' => 'Wallet credit reversed due to credit note creation',
+        'balance_after' => $customer->credit_balance,
+      ]);
+      // Do not modify original SO order or order_items - credit notes are independent records
+    });
+
+    Toastr::success('Credit note created successfully!');
+    return redirect()->route('order.list');
   }
 }

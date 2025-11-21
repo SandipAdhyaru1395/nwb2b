@@ -278,6 +278,12 @@
               } else if (window.dt_products) {
                 window.dt_products.ajax.reload(null, false);
               }
+              
+              // Reload order statistics to update payment status counts
+              if (window.loadOrderStatistics && typeof window.loadOrderStatistics === 'function') {
+                const currencySymbol = window.currencySymbol || '';
+                window.loadOrderStatistics(currencySymbol);
+              }
             });
           } else {
             // Show SweetAlert for general error

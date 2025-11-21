@@ -13,6 +13,7 @@ class OrderRef extends Model
         'po',
         'so',
         'pay',
+        'cn',
     ];
    
 }

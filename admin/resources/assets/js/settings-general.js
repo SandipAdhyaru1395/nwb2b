@@ -88,18 +88,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
             }
           }
         },
-        defaultVatRate: {
-          validators: {
-            numeric: {
-              message: 'Default VAT must be a number'
-            },
-            between: {
-              min: 0,
-              max: 100,
-              message: 'Default VAT must be between 0 and 100'
-            }
-          }
-        },
         sessionTimeout: {
           validators: {
             numeric: {
@@ -109,13 +97,6 @@ document.addEventListener('DOMContentLoaded', function (e) {
               message: 'Must be greater than 0',
               min: 1
             }
-          }
-        },
-        minOrderAmount: {
-          validators: {
-            numeric: {
-              message: 'Minimum order amount must be a number'
-            },
           }
         }
       },

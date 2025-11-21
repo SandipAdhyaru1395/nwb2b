@@ -99,7 +99,7 @@
     // Update modal title
     const modalTitle = document.getElementById('viewPaymentsModalTitle');
     if (modalTitle) {
-      modalTitle.textContent = `VIEW PAYMENTS (SALE REFERENCE: ${orderNumber || 'N/A'})`;
+      modalTitle.textContent = `VIEW PAYMENTS (#${orderNumber || 'N/A'})`;
     }
     
     // Show loading state
@@ -267,6 +267,12 @@
                 window.dt_products.ajax.reload(null, false);
               } else if (window.reloadOrderDatatable && typeof window.reloadOrderDatatable === 'function') {
                 window.reloadOrderDatatable();
+              }
+              
+              // Reload order statistics to update payment status counts
+              if (window.loadOrderStatistics && typeof window.loadOrderStatistics === 'function') {
+                const currencySymbol = window.currencySymbol || '';
+                window.loadOrderStatistics(currencySymbol);
               }
               
               // Ensure backdrop is cleaned up after SweetAlert

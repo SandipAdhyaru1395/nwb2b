@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
   const dt_order_table = document.querySelector('.datatables-order'),
     orderAdd = baseUrl + 'order/add',
     statusObj = {
-      'Completed': { title: 'Completed', class: 'bg-success' }
+      'Completed': { title: 'Completed', class: 'bg-success' },
+      'Returned': { title: 'Returned', class: 'bg-danger' }
     },
     paymentObj = {
       'Due': { title: 'Due', class: 'bg-danger' },
@@ -48,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         { data: 'vat_amount' },
         { data: 'order_status' },
         { data: 'payment_status' },
+        { data: 'has_credit_note' },
         { data: 'id' }
       ],
       columnDefs: [
@@ -99,7 +101,21 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // Reference No
           targets: 3,
           render: function (data, type, full, meta) {
-            return '<span>#' + full['order_number'] + '</span>';
+            const orderType = full['type'] || 'SO';
+            const orderNumber = full['order_number'] || '';
+            let display = '#' + orderType + orderNumber;
+            
+            // If CN type, show parent order number
+            if (orderType === 'CN' && full['parent_order_display']) {
+              display += ' (#' + full['parent_order_display'] + ')';
+            }
+            
+            // If SO type, show credit note number
+            if (orderType === 'SO' && full['credit_note_display']) {
+              display += ' (#' + full['credit_note_display'] + ')';
+            }
+            
+            return '<span>' + display + '</span>';
           }
         },
         {
@@ -177,6 +193,12 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         },
         {
+          // Hide has_credit_note column
+          targets: 11,
+          visible: false,
+          searchable: false
+        },
+        {
           targets: -1,
           title: 'Actions',
           searchable: false,
@@ -188,9 +210,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                   <i class="icon-base ti tabler-dots-vertical"></i>
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
-                  <a href="${baseUrl}order/edit/${full['id']}" class="dropdown-item">Edit</a>
-                  ${parseFloat(full['unpaid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item add-payment-btn" data-id="${full['id']}" data-order-number="${full['order_number']}" data-unpaid="${full['unpaid_amount'] || 0}">Add Payment</a>` : ''}
-                  ${parseFloat(full['paid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item view-payments-btn" data-id="${full['id']}" data-order-number="${full['order_number']}">View Payments</a>` : ''}
+                  <a href="${baseUrl}order/invoice/${full['id']}" target="_blank" class="dropdown-item">View Invoice</a>
+                  ${(!full['has_credit_note'] || full['has_credit_note'] == 0) && (!full['type'] || full['type'] !== 'CN') ? `<a href="${baseUrl}order/edit/${full['id']}" class="dropdown-item">Edit</a>` : ''}
+                  ${parseFloat(full['unpaid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item add-payment-btn" data-id="${full['id']}" data-order-number="${(full['type'] || 'SO') + (full['order_number'] || '')}" data-unpaid="${full['unpaid_amount'] || 0}">Add Payment</a>` : ''}
+                  ${parseFloat(full['paid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item view-payments-btn" data-id="${full['id']}" data-order-number="${(full['type'] || 'SO') + (full['order_number'] || '')}">View Payments</a>` : ''}
+                  ${(!full['has_credit_note'] || full['has_credit_note'] == 0) && (!full['type'] || full['type'] !== 'CN') ? `<a href="${baseUrl}order/credit-note/add/${full['id']}" class="dropdown-item">Credit Note</a>` : ''}
                   <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Delete</a>
                 </div>
               </div>`;
@@ -383,7 +407,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
           display: DataTable.Responsive.display.modal({
             header: function (row) {
               const data = row.data();
-              return 'Details of Order #' + (data['order_number'] || '');
+              const orderType = data['type'] || 'SO';
+              const orderNumber = data['order_number'] || '';
+              return 'Details of Order #' + orderType + orderNumber;
             }
           }),
           type: 'column',
@@ -413,6 +439,46 @@ document.addEventListener('DOMContentLoaded', function (e) {
             return false;
           }
         }
+      },
+      initComplete: function () {
+        const api = this.api();
+
+        // Row click to open details modal (ignore checkbox and actions columns)
+        dt_order_table.querySelector('tbody').addEventListener('click', function (e) {
+          // Don't open modal if clicking on actions dropdown or its menu items
+          if (e.target.closest('.dropdown-toggle') || e.target.closest('.dropdown-menu') || e.target.closest('.dropdown-item')) {
+            return;
+          }
+
+          const cell = e.target.closest('td');
+          if (!cell) return;
+          const cellIndex = cell.cellIndex;
+          // Ignore control (0), checkbox (1), actions (last)
+          const lastIndex = dt_products.columns().count() - 1;
+          if (cellIndex === 0 || cellIndex === 1 || cellIndex === lastIndex) return;
+
+          const rowEl = e.target.closest('tr');
+          if (!rowEl) return;
+          const row = dt_products.row(rowEl);
+          if (!row || !row.data()) return;
+          const id = row.data().id;
+          if (!id) return;
+
+          // Fetch details via AJAX and show modal
+          const url = baseUrl + 'order/show/ajax/' + id;
+          fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function (res) { return res.json(); })
+            .then(function (payload) {
+              if (!payload || !payload.html) return;
+              const modalEl = document.getElementById('order-view-modal');
+              const contentEl = document.getElementById('order-view-modal-content');
+              if (!modalEl || !contentEl) return;
+              contentEl.innerHTML = payload.html;
+              const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+              modal.show();
+            })
+            .catch(function () { /* ignore */ });
+        });
       }
     });
 
@@ -478,6 +544,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
 
   // Function to load and display order statistics
   function loadOrderStatistics(currencySymbol) {
+    if (!currencySymbol) {
+      currencySymbol = window.currencySymbol || '';
+    }
     fetch(baseUrl + 'order/statistics', {
       method: 'GET',
       headers: {
@@ -517,24 +586,42 @@ document.addEventListener('DOMContentLoaded', function (e) {
           });
         }
         
-        // Update Payment Status Counts
-        const dueCountEl = document.getElementById('widget-due-count');
-        if (dueCountEl) {
-          dueCountEl.textContent = stats.due_count || 0;
+        // Update Payment Status Counts for SO (Sales Orders)
+        const dueCountSoEl = document.getElementById('widget-due-count-so');
+        if (dueCountSoEl) {
+          dueCountSoEl.textContent = stats.due_count_so || 0;
         }
         
-        const partialCountEl = document.getElementById('widget-partial-count');
-        if (partialCountEl) {
-          partialCountEl.textContent = stats.partial_count || 0;
+        const partialCountSoEl = document.getElementById('widget-partial-count-so');
+        if (partialCountSoEl) {
+          partialCountSoEl.textContent = stats.partial_count_so || 0;
         }
         
-        const paidCountEl = document.getElementById('widget-paid-count');
-        if (paidCountEl) {
-          paidCountEl.textContent = stats.paid_count || 0;
+        const paidCountSoEl = document.getElementById('widget-paid-count-so');
+        if (paidCountSoEl) {
+          paidCountSoEl.textContent = stats.paid_count_so || 0;
         }
         
-        // Update total count
-        const totalCount = (stats.due_count || 0) + (stats.partial_count || 0) + (stats.paid_count || 0);
+        // Update Payment Status Counts for CN (Credit Notes)
+        const dueCountCnEl = document.getElementById('widget-due-count-cn');
+        if (dueCountCnEl) {
+          dueCountCnEl.textContent = stats.due_count_cn || 0;
+        }
+        
+        const partialCountCnEl = document.getElementById('widget-partial-count-cn');
+        if (partialCountCnEl) {
+          partialCountCnEl.textContent = stats.partial_count_cn || 0;
+        }
+        
+        const paidCountCnEl = document.getElementById('widget-paid-count-cn');
+        if (paidCountCnEl) {
+          paidCountCnEl.textContent = stats.paid_count_cn || 0;
+        }
+        
+        // Update total count (SO + CN)
+        const totalCountSo = (stats.due_count_so || 0) + (stats.partial_count_so || 0) + (stats.paid_count_so || 0);
+        const totalCountCn = (stats.due_count_cn || 0) + (stats.partial_count_cn || 0) + (stats.paid_count_cn || 0);
+        const totalCount = totalCountSo + totalCountCn;
         const totalCountEl = document.getElementById('widget-payment-status-count');
         if (totalCountEl) {
           totalCountEl.textContent = totalCount;
@@ -545,6 +632,9 @@ document.addEventListener('DOMContentLoaded', function (e) {
       console.error('Error loading order statistics:', error);
     });
   }
+
+  // Expose loadOrderStatistics globally so it can be called from other scripts
+  window.loadOrderStatistics = loadOrderStatistics;
 
   // Filter form control to default size
   // ? setTimeout used for order-list table initialization
