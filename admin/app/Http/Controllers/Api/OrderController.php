@@ -32,6 +32,7 @@ class OrderController extends Controller
             latest('created_at')
             ->where('customer_id', $request->user()->id)
             ->take($limit)
+            ->where('type', '!=', 'EST')
             ->get();
         
         $data = $orders->map(function(Order $order)use($setting){
@@ -60,6 +61,8 @@ class OrderController extends Controller
         $setting = Helpers::setting();
         $order = Order::with(['items', 'customer'])
             ->where('order_number', $orderNumber)
+            ->where('customer_id', $request->user()->id)
+            ->where('type', '!=', 'EST')
             ->first();
 
         if (!$order) {

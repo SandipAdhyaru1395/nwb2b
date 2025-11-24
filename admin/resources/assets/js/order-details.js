@@ -102,7 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store price (sale price for orders) in data attribute
         // Use price field if available, otherwise fall back to unit_cost
         const salePrice = item.price !== undefined ? parseFloat(item.price) : (item.unit_cost !== undefined ? parseFloat(item.unit_cost) : 0);
+        const vatAmount = parseFloat(item.vat_amount || 0);
         $button.data('productPrice', salePrice);
+        $button.data('productVat', vatAmount);
         
         // Disable button if quantity <= 0
         if (isDisabled) {
@@ -254,8 +256,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         productPrice = productPrice || 0;
         
+        // Get VAT amount from button data or productDataMap
+        let productVat = $(this).data('productVat');
+        if (productVat === undefined && productDataMap[productId]) {
+          productVat = parseFloat(productDataMap[productId].vat_amount || 0);
+        }
+        productVat = productVat || 0;
+        
         if (typeof window.addProductToTable === 'function') {
-          window.addProductToTable(productId, productText, 1, productPrice);
+          window.addProductToTable(productId, productText, 1, productPrice, productVat);
         }
         $productSearch.val('').trigger('focus');
         resetResults();
@@ -272,25 +281,32 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 0);
     }
 
-    // Calculate totals (quantity and amount)
+    // Calculate totals (quantity, VAT, and amount)
     function calculateTotal() {
       var totalQty = 0;
+      var totalVat = 0;
       var totalAmount = 0;
       $('#products-table tbody tr:not(.total-row)').each(function() {
         var $row = $(this);
         var qty = parseFloat($row.find('.quantity-input').val()) || 0;
         var cost = parseFloat($row.find('.cost-input').val()) || 0;
-        var sub = qty * cost;
+        var unitVat = parseFloat($row.data('unit-vat') || 0);
+        var priceSubtotal = qty * cost;
+        var vat = qty * unitVat;
+        var sub = priceSubtotal + vat; // Subtotal = (sale price * quantity) + (vat * quantity)
+        $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
+        totalVat += vat;
         totalAmount += sub;
       });
       $('.total-quantity').text(totalQty.toFixed(2));
+      $('.total-vat').text(currencySymbol + totalVat.toFixed(2));
       $('.total-amount').text(currencySymbol + totalAmount.toFixed(2));
     }
 
     // Add product row - make it available globally for initialization
-    window.addProductToTable = function(productId, productText, quantity = 1, unit_price = 0) {
+    window.addProductToTable = function(productId, productText, quantity = 1, unit_price = 0, vat_amount = 0) {
       // Check if product already exists in the table
       var existingRow = $('#products-table tbody tr[data-product-id="' + productId + '"]:not(.total-row)');
       
@@ -305,10 +321,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // Product doesn't exist, add new row
-      var row = '<tr data-product-id="' + productId + '">' +
+      var row = '<tr data-product-id="' + productId + '" data-unit-vat="' + vat_amount + '">' +
         '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + unit_price + '" autocomplete="off"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + quantity + '" autocomplete="off"></td>' +
+        '<td class="vat-cell">' + currencySymbol + '0.00</td>' +
         '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
         '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';

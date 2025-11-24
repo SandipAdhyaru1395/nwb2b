@@ -95,6 +95,37 @@
   .datatables-order tbody tr td:last-child {
     cursor: default;
   }
+  /* Override global odd/even row colors - make all rows white by default */
+  .datatables-order tbody tr:nth-child(odd),
+  .datatables-order tbody tr:nth-child(even),
+  table.dataTable.datatables-order tbody tr:nth-child(odd),
+  table.dataTable.datatables-order tbody tr:nth-child(even) {
+    background-color: #ffffff !important;
+  }
+  .datatables-order tbody tr:nth-child(odd) td,
+  .datatables-order tbody tr:nth-child(even) td,
+  table.dataTable.datatables-order tbody tr:nth-child(odd) td,
+  table.dataTable.datatables-order tbody tr:nth-child(even) td {
+    background-color: #ffffff !important;
+  }
+  /* EST order row background colors - override default white */
+  .datatables-order tbody tr.est-order-unpaid,
+  table.dataTable.datatables-order tbody tr.est-order-unpaid {
+    background-color: #ffe6e6 !important;
+  }
+  .datatables-order tbody tr.est-order-paid,
+  table.dataTable.datatables-order tbody tr.est-order-paid {
+    background-color: #e6ffe6 !important;
+  }
+  /* Ensure all cells in EST rows have the background */
+  .datatables-order tbody tr.est-order-unpaid td,
+  table.dataTable.datatables-order tbody tr.est-order-unpaid td {
+    background-color: #ffe6e6 !important;
+  }
+  .datatables-order tbody tr.est-order-paid td,
+  table.dataTable.datatables-order tbody tr.est-order-paid td {
+    background-color: #e6ffe6 !important;
+  }
 </style>
 @endsection
 

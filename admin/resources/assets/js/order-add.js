@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const productText = ($row.find('td').eq(0).text() || '').trim();
         const unit_cost = $row.find('.cost-input').val();
         const quantity = $row.find('.quantity-input').val();
-        products.push({ productId, productText, unit_cost, quantity });
+        const vat_amount = $row.data('unit-vat') || 0;
+        products.push({ productId, productText, unit_cost, quantity, vat_amount });
       });
       return {
         date: ($('#date').val() || '').trim(),
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
         address_id: ($('#address_id').val() || '').trim(),
         shipping_charge: ($('#shipping_charge').val() || '').trim(),
         delivery_note: ($('#note').val() || '').trim(),
+        is_est: $('#is_est').is(':checked'),
         products
       };
     }
@@ -68,6 +70,102 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
+    // Function to update header and VAT based on is_est checkbox state
+    function updateIsEstState() {
+      const isEst = $('#is_est').is(':checked');
+      const $salePriceHeader = $('#sale-price-header');
+      
+      if (isEst) {
+        // Update header to show "Sale Price (Incl. VAT)"
+        // Add VAT to sale price and set VAT to 0 for all existing products
+        $('#products-table tbody tr:not(.total-row)').each(function() {
+          const $row = $(this);
+          const $costInput = $row.find('.cost-input');
+          
+          // Get current values
+          const currentPrice = parseFloat($costInput.val() || 0);
+          const currentVat = parseFloat($row.data('unit-vat') || 0);
+          
+          // Store original values if not already stored
+          // Only store if we don't have them yet (to preserve original values across toggles)
+          if ($row.data('original-vat') === undefined || $row.data('original-vat') === null) {
+            $row.data('original-vat', currentVat);
+          }
+          if ($row.data('original-price') === undefined || $row.data('original-price') === null) {
+            // If current VAT is 0, price might already include VAT
+            const storedOriginalVat = parseFloat($row.data('original-vat') || 0);
+            if (currentVat === 0 && storedOriginalVat > 0) {
+              // Price already includes VAT, subtract to get base price
+              $row.data('original-price', currentPrice - storedOriginalVat);
+            } else {
+              // Price doesn't include VAT yet, use current price as base
+              $row.data('original-price', currentPrice);
+            }
+          }
+          
+          // Always use stored original values (don't recalculate if already stored)
+          // This ensures consistency when toggling checkbox multiple times
+          
+          // Get original base price (without VAT) and original VAT
+          const originalPrice = parseFloat($row.data('original-price') || 0);
+          const originalVat = parseFloat($row.data('original-vat') || 0);
+          
+          // Add VAT to sale price (price with VAT included)
+          const newPrice = originalPrice + originalVat;
+          $costInput.val(newPrice.toFixed(2));
+          
+          // Set VAT to 0
+          $row.data('unit-vat', 0);
+        });
+      } else {
+        // Restore original header
+        $salePriceHeader.text('Sale Price');
+        // Restore original price and VAT
+        $('#products-table tbody tr:not(.total-row)').each(function() {
+          const $row = $(this);
+          const $costInput = $row.find('.cost-input');
+          const originalPrice = parseFloat($row.data('original-price') || 0);
+          const originalVat = parseFloat($row.data('original-vat') || 0);
+          
+          // Restore original price (base price without VAT)
+          if ($row.data('original-price') !== undefined) {
+            $costInput.val(originalPrice.toFixed(2));
+          }
+          // Restore original VAT
+          if ($row.data('original-vat') !== undefined) {
+            $row.data('unit-vat', originalVat);
+          }
+        });
+      }
+      
+      // Recalculate totals
+      calculateTotal();
+      
+      // Force update VAT cells display to ensure they reflect current state
+      setTimeout(function() {
+        $('#products-table tbody tr:not(.total-row)').each(function() {
+          const $row = $(this);
+          const qty = parseFloat($row.find('.quantity-input').val()) || 0;
+          const unitVat = parseFloat($row.data('unit-vat') || 0);
+          const vat = qty * unitVat;
+          $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
+        });
+        // Recalculate one more time to ensure totals are correct
+        calculateTotal();
+      }, 50);
+    }
+
+    // Handle is_est checkbox change
+    $('#is_est').on('change', function() {
+      updateIsEstState();
+      saveFormStateDebounced();
+    });
+
+    // Initialize header text on page load if checkbox is already checked
+    if ($('#is_est').is(':checked')) {
+      updateIsEstState();
+    }
+
     // Initialize select2 for customer dropdown
     const $customerSelect = $('#customer_id');
     if ($customerSelect.length) {
@@ -88,6 +186,23 @@ document.addEventListener('DOMContentLoaded', function() {
         width: '100%',
         dropdownParent: $('#addOrderForm')
       });
+    }
+
+    // Check if customer_id and address_id are set from old() values (validation errors)
+    // This handles the case when form validation fails and page reloads
+    const oldCustomerId = $('#customer_id').val();
+    const oldAddressId = typeof window.oldAddressId !== 'undefined' ? window.oldAddressId : null;
+    
+    // If customer is already selected (from validation errors), load addresses
+    if (oldCustomerId) {
+      // Store address_id to restore after branches load
+      if (oldAddressId) {
+        pendingAddressId = oldAddressId;
+      }
+      // Trigger customer change to load addresses after a short delay to ensure Select2 is initialized
+      setTimeout(function() {
+        $customerSelect.trigger('change');
+      }, 100);
     }
 
     // Load branches when customer changes
@@ -209,7 +324,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Store price (sale price for orders) in data attribute
         // Use price field if available, otherwise fall back to unit_cost
         const salePrice = item.price !== undefined ? parseFloat(item.price) : (item.unit_cost !== undefined ? parseFloat(item.unit_cost) : 0);
+        const vatAmount = parseFloat(item.vat_amount || 0);
         $button.data('productPrice', salePrice);
+        $button.data('productVat', vatAmount);
         
         // Disable button if quantity <= 0
         if (isDisabled) {
@@ -361,8 +478,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         productPrice = productPrice || 0;
         
+        // Get VAT amount from button data or productDataMap
+        let productVat = $(this).data('productVat');
+        if (productVat === undefined && productDataMap[productId]) {
+          productVat = parseFloat(productDataMap[productId].vat_amount || 0);
+        }
+        productVat = productVat || 0;
+        
         if (typeof window.addProductToTable === 'function') {
-          window.addProductToTable(productId, productText, 1, productPrice);
+          window.addProductToTable(productId, productText, 1, productPrice, productVat);
         }
         $productSearch.val('').trigger('focus');
         resetResults();
@@ -379,25 +503,43 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 0);
     }
 
-    // Calculate totals (quantity and amount)
+    // Calculate totals (quantity, VAT, and amount)
     function calculateTotal() {
       var totalQty = 0;
+      var totalVat = 0;
       var totalAmount = 0;
+      const isEst = $('#is_est').is(':checked');
+      
       $('#products-table tbody tr:not(.total-row)').each(function() {
         var $row = $(this);
         var qty = parseFloat($row.find('.quantity-input').val()) || 0;
         var cost = parseFloat($row.find('.cost-input').val()) || 0;
-        var sub = qty * cost;
+        var unitVat = 0;
+        
+        if (isEst) {
+          // When is_est is checked, VAT is 0 (already included in price)
+          unitVat = 0;
+        } else {
+          // Normal calculation: get VAT from data attribute
+          unitVat = parseFloat($row.data('unit-vat') || $row.find('.vat-amount-input').val() || 0);
+        }
+        
+        var priceSubtotal = qty * cost;
+        var vat = qty * unitVat;
+        var sub = priceSubtotal + vat; // Subtotal = (sale price * quantity) + (vat * quantity)
+        $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
+        totalVat += vat;
         totalAmount += sub;
       });
       $('.total-quantity').text(totalQty.toFixed(2));
+      $('.total-vat').text(currencySymbol + totalVat.toFixed(2));
       $('.total-amount').text(currencySymbol + totalAmount.toFixed(2));
     }
 
     // Add product row - make it available globally for initialization
-    window.addProductToTable = function(productId, productText, quantity = 1, unit_price = 0) {
+    window.addProductToTable = function(productId, productText, quantity = 1, unit_price = 0, vat_amount = 0) {
       // Check if product already exists in the table
       var existingRow = $('#products-table tbody tr[data-product-id="' + productId + '"]:not(.total-row)');
       
@@ -411,11 +553,29 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
+      // Store original values (base price without VAT, and original VAT)
+      // These will be used when toggling is_est checkbox
+      const originalPrice = unit_price; // Base price without VAT
+      const originalVat = vat_amount;   // Original VAT amount
+      
+      // If is_est is checked, add VAT to price and set VAT to 0 (VAT is included in price)
+      const isEst = $('#is_est').is(':checked');
+      let finalPrice = unit_price;
+      let finalVatAmount = vat_amount;
+      
+      if (isEst) {
+        // Add VAT to the sale price (display price includes VAT)
+        finalPrice = unit_price + vat_amount;
+        finalVatAmount = 0;
+      }
+      
       // Product doesn't exist, add new row
-      var row = '<tr data-product-id="' + productId + '">' +
+      // Always store original base price and VAT for restoration
+      var row = '<tr data-product-id="' + productId + '" data-unit-vat="' + finalVatAmount + '" data-original-vat="' + originalVat + '" data-original-price="' + originalPrice + '">' +
         '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
-        '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + unit_price + '" autocomplete="off"></td>' +
+        '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + finalPrice.toFixed(2) + '" autocomplete="off"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + quantity + '" autocomplete="off"></td>' +
+        '<td class="vat-cell">' + currencySymbol + '0.00</td>' +
         '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
         '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';
@@ -428,6 +588,13 @@ document.addEventListener('DOMContentLoaded', function() {
         $('#products-table tbody').prepend(row);
       }
       calculateTotal();
+      
+      // Trigger validation update after DOM is updated
+      setTimeout(function() {
+        if (typeof $('#addOrderForm').data('formValidation') !== 'undefined') {
+          $('#addOrderForm').formValidation('revalidateField', 'products');
+        }
+      }, 100);
     };
 
     // Remove product row
@@ -448,14 +615,27 @@ document.addEventListener('DOMContentLoaded', function() {
       calculateTotal();
     }, 300);
 
-    function buildProductRowHtml(productId, productText, quantity, unit_price) {
+    function buildProductRowHtml(productId, productText, quantity, unit_price, vat_amount = 0) {
       const safeQty = (quantity == null || quantity === '') ? '1' : String(quantity);
-      const safePrice = (unit_price == null || unit_price === '') ? '0.00' : String(unit_price);
+      // If is_est is checked, add VAT to price and set VAT to 0
+      const isEst = $('#is_est').is(':checked');
+      let finalPrice = parseFloat(unit_price || 0);
+      let finalVat = parseFloat(vat_amount || 0);
+      
+      if (isEst) {
+        // Add VAT to the sale price
+        finalPrice = finalPrice + finalVat;
+        finalVat = 0;
+      }
+      
+      const safePrice = finalPrice.toFixed(2);
+      const safeVat = finalVat.toFixed(2);
       return '' +
-        '<tr data-product-id="' + productId + '">' +
+        '<tr data-product-id="' + productId + '" data-unit-vat="' + safeVat + '" data-original-vat="' + (vat_amount || 0) + '" data-original-price="' + (unit_price || 0) + '">' +
           '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
           '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + safePrice + '" autocomplete="off"></td>' +
           '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + safeQty + '" autocomplete="off"></td>' +
+          '<td class="vat-cell">' + currencySymbol + '0.00</td>' +
           '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
           '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';
@@ -502,6 +682,17 @@ document.addEventListener('DOMContentLoaded', function() {
           }
         }
 
+        // Restore is_est checkbox state and update header
+        if (state.is_est !== undefined) {
+          $('#is_est').prop('checked', state.is_est);
+          // Update header and VAT state after a short delay to ensure products are loaded
+          setTimeout(function() {
+            if (typeof updateIsEstState === 'function') {
+              updateIsEstState();
+            }
+          }, 100);
+        }
+
         // Restore products
         if (Array.isArray(state.products)) {
           // Remove any existing non-total rows first
@@ -509,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function() {
           const $totalRow = $('#products-table tbody tr.total-row');
           state.products.forEach(function(p) {
             if (!p || !p.productId || !p.productText) return;
-            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost);
+            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost, p.vat_amount || 0);
             // Insert before the total row so total stays at bottom
             if ($totalRow.length > 0) {
               $totalRow.before(rowHtml);
@@ -517,7 +708,12 @@ document.addEventListener('DOMContentLoaded', function() {
               $('#products-table tbody').prepend(rowHtml);
             }
           });
-          calculateTotal();
+          // Update is_est state after products are loaded to ensure VAT is set correctly
+          if (typeof updateIsEstState === 'function') {
+            updateIsEstState();
+          } else {
+            calculateTotal();
+          }
         }
       } catch (e) {
         // ignore malformed JSON
@@ -530,8 +726,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Enhance existing handlers to save state as well
     const originalAddProductToTable = window.addProductToTable;
-    window.addProductToTable = function(productId, productText, quantity, unit_price) {
-      originalAddProductToTable(productId, productText, quantity, unit_price);
+    window.addProductToTable = function(productId, productText, quantity, unit_price, vat_amount) {
+      originalAddProductToTable(productId, productText, quantity, unit_price, vat_amount);
       saveFormStateDebounced();
     };
 

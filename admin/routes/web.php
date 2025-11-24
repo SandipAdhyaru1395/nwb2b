@@ -133,6 +133,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/order/list/ajax', [OrderController::class, 'ajaxList'])->name('order.list.ajax');
         Route::get('/order/show/ajax/{id}', [OrderController::class, 'showAjax'])->name('order.show.ajax');
         Route::get('/order/invoice/{id}', [OrderController::class, 'showInvoice'])->name('order.invoice');
+        Route::get('/order/invoice/{id}/pdf', [OrderController::class, 'generateInvoicePdf'])->name('order.invoice.pdf');
+        Route::post('/order/invoice/{id}/email', [OrderController::class, 'sendInvoiceEmail'])->name('order.invoice.email');
         Route::get('/order/statistics', [OrderController::class, 'getStatistics'])->name('order.statistics');
         Route::get('/order/items/ajax', [OrderController::class, 'itemsAjax'])->name('order.items.ajax');
         Route::post('/order/update', [OrderController::class, 'update'])->name('order.update');

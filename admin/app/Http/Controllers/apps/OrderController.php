@@ -15,7 +15,10 @@ use Brian2694\Toastr\Facades\Toastr;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class OrderController extends Controller
 {
@@ -82,6 +85,7 @@ class OrderController extends Controller
       ],
       'shipping_charge' => ['nullable', 'numeric', 'min:0'],
       'delivery_note' => ['nullable', 'string'],
+      'is_est' => ['nullable', 'boolean'],
       'address_id' => ['required', 'integer', 'exists:branches,id'],
       'products' => ['required', 'array', 'min:1'],
       'products.*.product_id' => ['required', 'exists:products,id'],
@@ -170,37 +174,49 @@ class OrderController extends Controller
     // Get customer for wallet credit calculations
     $customer = \App\Models\Customer::findOrFail($validated['customer_id']);
 
-    // Get order number from order_ref table (so column) - always use so
+    // Determine order type based on is_est checkbox
+    $orderType = (isset($validated['is_est']) && $validated['is_est']) ? 'EST' : 'SO';
+
+    // Get order number from order_ref table based on order type
     $orderRef = OrderRef::orderBy('id', 'desc')->first();
     
     if (!$orderRef) {
       // Create initial order_ref record if it doesn't exist
       $orderRef = OrderRef::create([
         'so' => 1,
+        'est' => 1,
         'qa' => 1,
         'po' => 1,
       ]);
     }
     
-    // Always use order_ref.so for order number
-    $orderNumber = $orderRef->so ?? 1;
-    
-    // Increment so for next order
-    $orderRef->update([
-      'so' => ($orderRef->so ?? 0) + 1,
-    ]);
+    // Use order_ref.est for EST orders, order_ref.so for SO orders
+    if ($orderType === 'EST') {
+      $orderNumber = $orderRef->est ?? 1;
+      // Increment est for next EST order
+      $orderRef->update([
+        'est' => ($orderRef->est ?? 0) + 1,
+      ]);
+    } else {
+      $orderNumber = $orderRef->so ?? 1;
+      // Increment so for next SO order
+      $orderRef->update([
+        'so' => ($orderRef->so ?? 0) + 1,
+      ]);
+    }
 
     // Process create in transaction
-    $order = DB::transaction(function () use ($validated, $products, $date, $addressData, $customer, $orderNumber) {
+    $order = DB::transaction(function () use ($validated, $products, $date, $addressData, $customer, $orderNumber, $orderType) {
 
       // Create order
       $orderData = [
         'customer_id' => $validated['customer_id'],
         'order_date' => $date,
         'order_number' => $orderNumber,
-        'type' => 'SO',
+        'type' => $orderType,
         'delivery_charge' => $validated['shipping_charge'] ?? 0,
         'delivery_note' => $validated['delivery_note'] ?? null,
+        'is_est' => isset($validated['is_est']) && $validated['is_est'] ? true : false,
         'status' => 'Completed',
         'payment_status' => 'Due',
         'subtotal' => 0,
@@ -242,8 +258,12 @@ class OrderController extends Controller
         // Calculate total price
         $totalPrice = round($unitPrice * $quantity, 2);
         
-        // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
-        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        // Calculate VAT: if is_est is checked, VAT is 0 (included in price), otherwise use product vat_amount
+        if ($orderType === 'EST') {
+          $unitVat = 0; // VAT is included in the sale price for EST orders
+        } else {
+          $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        }
         $totalVat = round($unitVat * $quantity, 2);
         
         // Calculate total: total_price + total_vat
@@ -252,7 +272,7 @@ class OrderController extends Controller
         // Create order item
         OrderItem::create([
           'order_id' => $order->id,
-          'type' => 'SO',
+          'type' => $order->type,
           'product_id' => $productData['product_id'],
           'product_unit' => $productUnit,
           'quantity' => $quantity,
@@ -274,37 +294,41 @@ class OrderController extends Controller
       $subtotal = $order->items->sum('total_price');
 
       // Calculate wallet_credit_used based on subtotal and available credit
-      $currentBalance = (float)($customer->credit_balance ?? 0);
-      $walletCreditUsed = min($subtotal, $currentBalance);
+      // EST orders do not affect wallet credit or credit balance
+      $walletCreditUsed = 0;
+      if ($orderType !== 'EST') {
+        $currentBalance = (float)($customer->credit_balance ?? 0);
+        $walletCreditUsed = min($subtotal, $currentBalance);
 
-      // Update customer credit balance
-      if ($walletCreditUsed > 0) {
-        $customer->credit_balance = $currentBalance - $walletCreditUsed;
-        $customer->save();
-        
-        WalletTransaction::create([
-          'customer_id' => $customer->id,
-          'order_id' => $order->id,
-          'amount' => $walletCreditUsed,
-          'type' => 'debit',
-          'description' => 'Wallet credit applied to order',
-          'balance_after' => $customer->credit_balance,
-        ]);
-      }
+        // Update customer credit balance
+        if ($walletCreditUsed > 0) {
+          $customer->credit_balance = $currentBalance - $walletCreditUsed;
+          $customer->save();
+          
+          WalletTransaction::create([
+            'customer_id' => $customer->id,
+            'order_id' => $order->id,
+            'amount' => $walletCreditUsed,
+            'type' => 'debit',
+            'description' => 'Wallet credit applied to order',
+            'balance_after' => $customer->credit_balance,
+          ]);
+        }
 
-      // Apply wallet credit earned
-      if ($walletCreditEarned > 0) {
-        $customer->credit_balance = ($customer->credit_balance ?? 0) + $walletCreditEarned;
-        $customer->save();
-        
-        WalletTransaction::create([
-          'customer_id' => $customer->id,
-          'order_id' => $order->id,
-          'amount' => $walletCreditEarned,
-          'type' => 'credit',
-          'description' => 'Wallet credit earned on order',
-          'balance_after' => $customer->credit_balance,
-        ]);
+        // Apply wallet credit earned
+        if ($walletCreditEarned > 0) {
+          $customer->credit_balance = ($customer->credit_balance ?? 0) + $walletCreditEarned;
+          $customer->save();
+          
+          WalletTransaction::create([
+            'customer_id' => $customer->id,
+            'order_id' => $order->id,
+            'amount' => $walletCreditEarned,
+            'type' => 'credit',
+            'description' => 'Wallet credit earned on order',
+            'balance_after' => $customer->credit_balance,
+          ]);
+        }
       }
 
       // Update order with wallet_credit_used
@@ -576,8 +600,12 @@ class OrderController extends Controller
         // Calculate total price
         $totalPrice = round($unitPrice * $quantity, 2);
         
-        // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
-        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        // Calculate VAT: if order type is EST, VAT is 0 (included in price), otherwise use product vat_amount
+        if ($order->type === 'EST') {
+          $unitVat = 0; // VAT is included in the sale price for EST orders
+        } else {
+          $unitVat = round((float)($product->vat_amount ?? 0), 2);
+        }
         $totalVat = round($unitVat * $quantity, 2);
         
         // Calculate total: total_price + total_vat
@@ -587,7 +615,7 @@ class OrderController extends Controller
         // This ensures order_items.wallet_credit_earned is always correct for the current quantity
         OrderItem::create([
           'order_id' => $order->id,
-          'type' => 'SO',
+          'type' => $order->type,
           'product_id' => $productData['product_id'],
           'product_unit' => $productUnit,
           'quantity' => $quantity,
@@ -613,10 +641,11 @@ class OrderController extends Controller
       $order->refresh();
 
       // Recalculate wallet_credit_used based on new subtotal
+      // EST orders do not affect wallet credit or credit balance
       // Note: wallet_credit_earned = credit customer earns (added to balance)
       //       wallet_credit_used = credit customer uses (subtracted from balance)
       $newWalletCreditUsed = 0;
-      if ($customer) {
+      if ($order->type !== 'EST' && $customer) {
         // Reload customer to get fresh balance data
         $customer->refresh();
         $currentBalance = (float)($customer->credit_balance ?? 0);
@@ -887,7 +916,182 @@ class OrderController extends Controller
     // Get currency symbol
     $currencySymbol = $settings['currency_symbol'] ?? '£';
     
+    // Use EST invoice template for EST orders
+    if ($order->type === 'EST') {
+      return view('content.order.est-invoice', compact('order', 'settings', 'currencySymbol'));
+    }
+    
     return view('content.order.invoice', compact('order', 'settings', 'currencySymbol'));
+  }
+
+  /**
+   * Generate PDF for invoice
+   */
+  public function generateInvoicePdf($id)
+  {
+    $order = Order::with(['items.product', 'customer', 'parentOrder', 'creditNotes.items.product', 'payments'])->findOrFail($id);
+    
+    // Get settings for store information
+    $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+    
+    // Get currency symbol
+    $currencySymbol = $settings['currency_symbol'] ?? '£';
+    
+    // Convert logo to base64 if exists
+    $logoBase64 = null;
+    if (isset($settings['company_logo']) && $settings['company_logo']) {
+      $logoPath = storage_path('app/public/' . $settings['company_logo']);
+      if (file_exists($logoPath)) {
+        $logoData = file_get_contents($logoPath);
+        $logoMime = mime_content_type($logoPath);
+        $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode($logoData);
+      }
+    }
+    
+    // Render the PDF view - use EST template for EST orders
+    $viewName = ($order->type === 'EST') ? 'content.order.est-invoice-pdf' : 'content.order.invoice-pdf';
+    $html = view($viewName, compact('order', 'settings', 'currencySymbol', 'logoBase64'))->render();
+    
+    // Configure Dompdf
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('isRemoteEnabled', true);
+    $options->set('defaultFont', 'DejaVu Sans');
+    
+    $dompdf = new Dompdf($options);
+    $dompdf->loadHtml($html);
+    $dompdf->setPaper('A4', 'portrait');
+    $dompdf->render();
+    
+    $filename = ($order->type === 'CN' ? 'CreditNote' : ($order->type === 'EST' ? 'Invoice' : 'Invoice')) . '_' . $order->order_number . '.pdf';
+    
+    return response($dompdf->output(), 200)
+      ->header('Content-Type', 'application/pdf')
+      ->header('Content-Disposition', 'inline; filename="' . $filename . '"');
+  }
+
+  /**
+   * Send invoice email to customer
+   */
+  public function sendInvoiceEmail(Request $request, $id)
+  {
+    try {
+      $order = Order::with(['items.product', 'customer', 'parentOrder', 'creditNotes.items.product', 'payments'])->findOrFail($id);
+      
+      // Get email addresses from request, or use customer email as fallback
+      $emails = $request->input('emails', []);
+      
+      // If emails is a string (from JSON), convert to array
+      if (is_string($emails)) {
+        $emails = json_decode($emails, true) ?? [$emails];
+      }
+      
+      // If no emails provided, try to use customer email
+      if (empty($emails) || !is_array($emails)) {
+        if ($order->customer && $order->customer->email) {
+          $emails = [$order->customer->email];
+        } else {
+          return response()->json([
+            'success' => false,
+            'message' => 'No email addresses provided and customer email is not available.'
+          ], 400);
+        }
+      }
+      
+      // Validate and clean email addresses
+      $validEmails = [];
+      foreach ($emails as $email) {
+        $email = trim($email);
+        if (!empty($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+          $validEmails[] = $email;
+        }
+      }
+      
+      if (empty($validEmails)) {
+        return response()->json([
+          'success' => false,
+          'message' => 'No valid email addresses provided.'
+        ], 400);
+      }
+      
+      // Get settings for store information
+      $settings = \App\Models\Setting::all()->pluck('value', 'key')->toArray();
+      
+      // Get currency symbol
+      $currencySymbol = $settings['currency_symbol'] ?? '£';
+      
+      // Convert logo to base64 if exists
+      $logoBase64 = null;
+      if (isset($settings['company_logo']) && $settings['company_logo']) {
+        $logoPath = storage_path('app/public/' . $settings['company_logo']);
+        if (file_exists($logoPath)) {
+          $logoData = file_get_contents($logoPath);
+          $logoMime = mime_content_type($logoPath);
+          $logoBase64 = 'data:' . $logoMime . ';base64,' . base64_encode($logoData);
+        }
+      }
+      
+      // Generate PDF - use EST template for EST orders
+      $viewName = ($order->type === 'EST') ? 'content.order.est-invoice-pdf' : 'content.order.invoice-pdf';
+      $html = view($viewName, compact('order', 'settings', 'currencySymbol', 'logoBase64'))->render();
+      // return $html;
+      $options = new Options();
+      $options->set('isHtml5ParserEnabled', true);
+      $options->set('isRemoteEnabled', false);
+      $options->set('defaultFont', 'DejaVu Sans');
+      
+      $dompdf = new Dompdf($options);
+      $dompdf->loadHtml($html);
+      $dompdf->setPaper('A4', 'portrait');
+      $dompdf->render();
+      
+      $pdfContent = $dompdf->output();
+      $filename = ($order->type === 'CN' ? 'CreditNote' : ($order->type === 'EST' ? 'Order Details' : 'Invoice')) . '_' . $order->order_number . '.pdf';
+      
+      // Get company email from settings or use default
+      $fromEmail = $settings['company_email'] ?? config('mail.from.address');
+      $fromName = $settings['company_name'] ?? config('mail.from.name');
+      
+      // Prepare email subject
+      $invoiceType = $order->type === 'CN' ? 'Credit Note' : ($order->type === 'EST' ? 'Order Details' : 'Invoice');
+      $invoiceNumber = $order->type === 'CN' ? 'CN' . $order->order_number : ($order->type === 'EST' ? 'EST' . $order->order_number : 'SO' . $order->order_number);
+      $subject = $invoiceType . ' #' . $invoiceNumber;
+      
+      // Prepare email body
+      $invoiceDate = optional($order->order_date)->format('d/m/Y') ?? optional($order->created_at)->format('d/m/Y');
+      $body = "Dear " . ($order->customer->company_name ?? 'Customer') . ",\n\n";
+      if($order->type !== 'EST') {
+        $body .= "Please find attached your " . strtolower($invoiceType) . " #" . $invoiceNumber . " dated " . $invoiceDate . ".\n\n";
+      } else {
+        $body .= "Please find attached your Order Details dated " . $invoiceDate . ".\n\n";
+      }
+      
+      $body .= "Total Amount: " . $currencySymbol . number_format($order->total_amount ?? 0, 2) . "\n\n";
+      $body .= "Thank you for your business!\n\n";
+      $body .= "Best regards,\n" . ($settings['company_name'] ?? '');
+      
+      // Send email to all provided email addresses
+      Mail::raw($body, function ($message) use ($validEmails, $fromEmail, $fromName, $subject, $pdfContent, $filename) {
+        $message->from($fromEmail, $fromName)
+          ->to($validEmails)
+          ->subject($subject)
+          ->attachData($pdfContent, $filename, [
+            'mime' => 'application/pdf',
+          ]);
+      });
+      
+      $emailList = implode(', ', $validEmails);
+      return response()->json([
+        'success' => true,
+        'message' => 'Invoice email sent successfully to: ' . $emailList
+      ]);
+      
+    } catch (\Exception $e) {
+      return response()->json([
+        'success' => false,
+        'message' => 'Error sending email: ' . $e->getMessage()
+      ], 500);
+    }
   }
 
   public function delete($id)
@@ -945,6 +1149,21 @@ class OrderController extends Controller
             'balance_after' => $customer->credit_balance,
           ]);
         }
+        
+        // Delete credit note items and decrease product quantities
+        // When credit note is deleted, we need to reverse the addition that was done when it was created
+        // So we subtract (decrease) the quantity
+        foreach ($order->items as $item) {
+          $quantity = (float) ($item->quantity ?? 0);
+          $productId = (int) ($item->product_id ?? 0);
+          if ($productId > 0 && $quantity > 0) {
+            try {
+              WarehouseProductSyncService::adjustQuantity($productId, 'subtraction', $quantity);
+            } catch (\Exception $e) {
+              \Log::error("Failed to adjust product quantity for product {$productId}: " . $e->getMessage());
+            }
+          }
+        }
       }
       
       // Delete all credit notes associated with this order (if SO order)
@@ -998,15 +1217,17 @@ class OrderController extends Controller
             ]);
           }
           
-          // Delete credit note items and restore product quantities
+          // Delete credit note items and decrease product quantities
+          // When credit note is deleted, we need to reverse the addition that was done when it was created
+          // So we subtract (decrease) the quantity
           foreach ($creditNote->items as $item) {
             $quantity = (float) ($item->quantity ?? 0);
             $productId = (int) ($item->product_id ?? 0);
             if ($productId > 0 && $quantity > 0) {
               try {
-                WarehouseProductSyncService::adjustQuantity($productId, 'addition', $quantity);
+                WarehouseProductSyncService::adjustQuantity($productId, 'subtraction', $quantity);
               } catch (\Exception $e) {
-                \Log::error("Failed to restore product quantity for product {$productId}: " . $e->getMessage());
+                \Log::error("Failed to adjust product quantity for product {$productId}: " . $e->getMessage());
               }
             }
           }
@@ -1024,16 +1245,19 @@ class OrderController extends Controller
       // Delete all payments for this order
       $order->payments()->delete();
       
-      // Restore product quantities before deleting items
-      foreach ($order->items as $item) {
-        $quantity = (float) ($item->quantity ?? 0);
-        $productId = (int) ($item->product_id ?? 0);
-        if ($productId > 0 && $quantity > 0) {
-          try {
-            WarehouseProductSyncService::adjustQuantity($productId, 'addition', $quantity);
-          } catch (\Exception $e) {
-            // Log error but don't fail the transaction
-            \Log::error("Failed to restore product quantity for product {$productId}: " . $e->getMessage());
+      // Restore product quantities before deleting items (skip CN and EST orders)
+      // CN orders are handled above, EST orders should not affect quantities
+      if ($order->type !== 'CN' && $order->type !== 'EST') {
+        foreach ($order->items as $item) {
+          $quantity = (float) ($item->quantity ?? 0);
+          $productId = (int) ($item->product_id ?? 0);
+          if ($productId > 0 && $quantity > 0) {
+            try {
+              WarehouseProductSyncService::adjustQuantity($productId, 'addition', $quantity);
+            } catch (\Exception $e) {
+              // Log error but don't fail the transaction
+              \Log::error("Failed to restore product quantity for product {$productId}: " . $e->getMessage());
+            }
           }
         }
       }
@@ -1090,18 +1314,22 @@ class OrderController extends Controller
       // Calculate total price
       $totalPrice = $validated['unit_price'] * $validated['quantity'];
       
-      // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
-      $unitVat = round((float)($product->vat_amount ?? 0), 2);
-      $totalVat = round($unitVat * $validated['quantity'], 2);
-      
-      // Calculate total: total_price + total_vat
-      $total = round($totalPrice + $totalVat, 2);
-
       DB::beginTransaction();
 
       // Get order to determine type
       $order = Order::findOrFail($validated['order_id']);
       $itemType = $order->type ?? 'SO';
+      
+      // Calculate VAT: if order type is EST, VAT is 0 (included in price), otherwise use product vat_amount
+      if ($itemType === 'EST') {
+        $unitVat = 0; // VAT is included in the sale price for EST orders
+      } else {
+        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+      }
+      $totalVat = round($unitVat * $validated['quantity'], 2);
+      
+      // Calculate total: total_price + total_vat
+      $total = round($totalPrice + $totalVat, 2);
       
       // Create the order item
       $orderItem = OrderItem::create([
@@ -1175,8 +1403,12 @@ class OrderController extends Controller
       // Calculate total price
       $totalPrice = $validated['unit_price'] * $validated['quantity'];
       
-      // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
-      $unitVat = round((float)($product->vat_amount ?? 0), 2);
+      // Calculate VAT: if order type is EST, VAT is 0 (included in price), otherwise use product vat_amount
+      if ($order && $order->type === 'EST') {
+        $unitVat = 0; // VAT is included in the sale price for EST orders
+      } else {
+        $unitVat = round((float)($product->vat_amount ?? 0), 2);
+      }
       $totalVat = round($unitVat * $validated['quantity'], 2);
       
       // Calculate total: total_price + total_vat

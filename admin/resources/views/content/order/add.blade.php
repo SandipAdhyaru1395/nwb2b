@@ -52,29 +52,36 @@
         
         #products-table th:nth-child(2),
         #products-table td:nth-child(2) {
-            width: 120px;
-            min-width: 120px;
+            width: 100px;
+            min-width: 100px;
             
         }
         
         #products-table th:nth-child(3),
         #products-table td:nth-child(3) {
-            width: 100px;
-            min-width: 100px;
+            width: 80px;
+            min-width: 80px;
             text-align: right;
         }
         
         #products-table th:nth-child(4),
         #products-table td:nth-child(4) {
-            width: 120px;
-            min-width: 120px;
+            width: 100px;
+            min-width: 100px;
             text-align: right;
         }
         
-        #products-table tr th:nth-child(5),
-        #products-table tr td:nth-child(5) {
-            width: 120px;
-            min-width: 120px;
+        #products-table th:nth-child(5),
+        #products-table td:nth-child(5) {
+            width: 100px;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        #products-table tr th:nth-child(6),
+        #products-table tr td:nth-child(6) {
+            width: 50px;
+            min-width: 50px;
             text-align: center;
           
         }
@@ -146,6 +153,11 @@
                                     <select class="form-select" id="address_id" name="address_id">
                                         <option value="">Select Customer First</option>
                                     </select>
+                                    @if(old('address_id'))
+                                        <script>
+                                            window.oldAddressId = {{ old('address_id') }};
+                                        </script>
+                                    @endif
                                     @error('address_id')
                                         <span class="text-danger" role="alert">
                                             <strong>{{ $message }}</strong>
@@ -162,6 +174,19 @@
                                         value="{{ old('shipping_charge', '0.00') }}" placeholder="0.00" 
                                         onkeypress="return /^[0-9.]+$/.test(event.key)" autocomplete="off">
                                     @error('shipping_charge')
+                                        <span class="text-danger" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @enderror
+                                </div>
+                                <div class="col-md-4 mb-4 form-control-validation">
+                                    <div class="form-check mt-4">
+                                        <input class="form-check-input" type="checkbox" id="is_est" name="is_est" value="1" {{ old('is_est') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="is_est">
+                                            Is Est?
+                                        </label>
+                                    </div>
+                                    @error('is_est')
                                         <span class="text-danger" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -192,18 +217,19 @@
                                 <table id="products-table" class="table table-bordered">
                                     <thead class="table-primary">
                                         <tr>
-                                            <th width="40%">Product Name (Product Code)</th>
-                                            <th width="15%">Sale Price</th>
-                                            <th width="15%">Quantity</th>
-                                            <th width="15%">Sub Total</th>
+                                            <th width="30%">Product Name (Product Code)</th>
+                                            <th width="12%" id="sale-price-header">Sale Price</th>
+                                            <th width="12%">Quantity</th>
+                                            <th width="12%">VAT</th>
+                                            <th width="12%">Sub Total</th>
                                             <th style="width: 50px;"><i class="icon-base ti tabler-trash"></i></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr class="total-row">
-                                            <td class="text-end fw-bold" colspan="2">Total</td>
-                                            <td class="fw-bold total-quantity">0.00</td>
-                                            <td class="fw-bold total-amount">0.00</td>
+                                            <td class="text-end fw-bold" colspan="3">Total</td>
+                                            <td class="text-end fw-bold total-vat">0.00</td>
+                                            <td class="text-end fw-bold total-amount">0.00</td>
                                             <td></td>
                                         </tr>
                                     </tbody>

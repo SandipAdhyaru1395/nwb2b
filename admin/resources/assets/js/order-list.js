@@ -211,10 +211,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 </button>
                 <div class="dropdown-menu dropdown-menu-end m-0">
                   <a href="${baseUrl}order/invoice/${full['id']}" target="_blank" class="dropdown-item">View Invoice</a>
+                  <a href="javascript:void(0);" class="dropdown-item email-sale-btn" data-id="${full['id']}">Email Sale</a>
                   ${(!full['has_credit_note'] || full['has_credit_note'] == 0) && (!full['type'] || full['type'] !== 'CN') ? `<a href="${baseUrl}order/edit/${full['id']}" class="dropdown-item">Edit</a>` : ''}
                   ${parseFloat(full['unpaid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item add-payment-btn" data-id="${full['id']}" data-order-number="${(full['type'] || 'SO') + (full['order_number'] || '')}" data-unpaid="${full['unpaid_amount'] || 0}">Add Payment</a>` : ''}
                   ${parseFloat(full['paid_amount'] || 0) > 0 ? `<a href="javascript:void(0);" class="dropdown-item view-payments-btn" data-id="${full['id']}" data-order-number="${(full['type'] || 'SO') + (full['order_number'] || '')}">View Payments</a>` : ''}
-                  ${(!full['has_credit_note'] || full['has_credit_note'] == 0) && (!full['type'] || full['type'] !== 'CN') ? `<a href="${baseUrl}order/credit-note/add/${full['id']}" class="dropdown-item">Credit Note</a>` : ''}
+                  ${(!full['has_credit_note'] || full['has_credit_note'] == 0) && full['type'] !== 'CN' && full['type'] !== 'EST' ? `<a href="${baseUrl}order/credit-note/add/${full['id']}" class="dropdown-item">Credit Note</a>` : ''}
                   <a href="javascript:void(0);" class="dropdown-item delete-record" data-id="${full['id']}">Delete</a>
                 </div>
               </div>`;
@@ -440,6 +441,51 @@ document.addEventListener('DOMContentLoaded', function (e) {
           }
         }
       },
+      createdRow: function (row, data, dataIndex) {
+        // Set default white background
+        row.style.backgroundColor = '#ffffff';
+        
+        // Apply background color for EST orders based on payment status
+        const orderType = data['type'] || '';
+        const orderStatus = data['order_status'] || '';
+        const paymentStatus = data['payment_status'] || '';
+        
+        if (orderType === 'EST' && orderStatus === 'Completed') {
+          if (paymentStatus === 'Due' || paymentStatus === 'Partial') {
+            row.classList.add('est-order-unpaid');
+            row.style.backgroundColor = '#ffe6e6';
+          } else if (paymentStatus === 'Paid') {
+            row.classList.add('est-order-paid');
+            row.style.backgroundColor = '#e6ffe6';
+          }
+        }
+      },
+      drawCallback: function (settings) {
+        // Reapply background colors after each draw (for server-side processing)
+        const api = this.api();
+        api.rows().every(function (rowIdx, tableLoop, rowLoop) {
+          const data = this.data();
+          const orderType = data['type'] || '';
+          const orderStatus = data['order_status'] || '';
+          const paymentStatus = data['payment_status'] || '';
+          const row = this.node();
+          
+          // Reset to white by default
+          row.classList.remove('est-order-unpaid', 'est-order-paid');
+          row.style.backgroundColor = '#ffffff';
+          
+          // Apply colors only for EST orders
+          if (orderType === 'EST' && orderStatus === 'Completed') {
+            if (paymentStatus === 'Due' || paymentStatus === 'Partial') {
+              row.classList.add('est-order-unpaid');
+              row.style.backgroundColor = '#ffe6e6';
+            } else if (paymentStatus === 'Paid') {
+              row.classList.add('est-order-paid');
+              row.style.backgroundColor = '#e6ffe6';
+            }
+          }
+        });
+      },
       initComplete: function () {
         const api = this.api();
 
@@ -486,6 +532,146 @@ document.addEventListener('DOMContentLoaded', function (e) {
     if (typeof window.setPaymentDatatableInstance === 'function') {
       window.setPaymentDatatableInstance(dt_products);
     }
+
+    // Email Sale button handler
+    document.addEventListener('click', function (e) {
+      const trigger = e.target.closest('.email-sale-btn');
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Get order ID from data attribute
+      const orderId = trigger.getAttribute('data-id');
+      if (!orderId) return;
+
+      // Get the row data from DataTable
+      let customerEmail = '';
+      try {
+        const rowNode = trigger.closest('tr');
+        if (rowNode && dt_products) {
+          const row = dt_products.row(rowNode);
+          const rowData = row.data();
+          customerEmail = rowData ? (rowData['customer_email'] || '') : '';
+        }
+      } catch (error) {
+        console.error('Error getting row data:', error);
+      }
+
+      // Show prompt with customer email pre-filled
+      Swal.fire({
+        title: 'Send Invoice Email',
+        html: `
+          <div class="mb-3">
+            <label for="swal-email-input" class="form-label">Email Addresses (comma-separated)</label>
+            <input type="text" id="swal-email-input" class="form-control" 
+                   value="${customerEmail}" 
+                   placeholder="email1@example.com, email2@example.com" autocomplete="off">
+            <small class="form-text text-muted">Enter email addresses separated by commas</small>
+          </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: 'Send Email',
+        cancelButtonText: 'Cancel',
+        customClass: {
+          confirmButton: 'btn btn-primary waves-effect waves-light',
+          cancelButton: 'btn btn-secondary waves-effect waves-light'
+        },
+        didOpen: () => {
+          // Focus on the input field
+          const input = document.getElementById('swal-email-input');
+          if (input) {
+            input.focus();
+            input.select();
+          }
+        },
+        preConfirm: () => {
+          const emailInput = document.getElementById('swal-email-input');
+          const emails = emailInput ? emailInput.value.trim() : '';
+          
+          if (!emails) {
+            Swal.showValidationMessage('Please enter at least one email address');
+            return false;
+          }
+
+          // Validate email format (basic validation)
+          const emailList = emails.split(',').map(e => e.trim()).filter(e => e);
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          const invalidEmails = emailList.filter(email => !emailRegex.test(email));
+          
+          if (invalidEmails.length > 0) {
+            Swal.showValidationMessage(`Invalid email format: ${invalidEmails.join(', ')}`);
+            return false;
+          }
+
+          return emailList;
+        }
+      }).then((result) => {
+        if (result.isConfirmed && result.value) {
+          const emailList = result.value;
+          
+          // Store original text
+          const originalText = trigger.textContent;
+          
+          // Disable button and show loading state
+          trigger.disabled = true;
+          trigger.textContent = 'Sending...';
+          trigger.style.pointerEvents = 'none';
+
+          // Send AJAX request to email endpoint with email list
+          fetch(`${baseUrl}order/invoice/${orderId}/email`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+              'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({
+              emails: emailList
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              Swal.fire({
+                title: 'Success!',
+                text: data.message || 'Invoice email sent successfully',
+                icon: 'success',
+                customClass: {
+                  confirmButton: 'btn btn-success waves-effect waves-light'
+                }
+              });
+            } else {
+              Swal.fire({
+                title: 'Error!',
+                text: data.message || 'Failed to send email',
+                icon: 'error',
+                customClass: {
+                  confirmButton: 'btn btn-danger waves-effect waves-light'
+                }
+              });
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+              title: 'Error!',
+              text: 'Error sending email. Please try again.',
+              icon: 'error',
+              customClass: {
+                confirmButton: 'btn btn-danger waves-effect waves-light'
+              }
+            });
+          })
+          .finally(() => {
+            // Re-enable button
+            trigger.disabled = false;
+            trigger.textContent = originalText;
+            trigger.style.pointerEvents = '';
+          });
+        }
+      });
+    });
 
     // Delete order with confirmation (same flow as details page)
     document.addEventListener('click', function (e) {

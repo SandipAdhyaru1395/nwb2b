@@ -1,17 +1,16 @@
-<!-- Reference image for pixel comparison: /mnt/data/page_0.png -->
+<!-- PDF version of invoice without buttons -->
 <!doctype html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <title>@if($order->type === 'CN')Credit Note @else Invoice @endif {{ $order->order_number ?? '' }}</title>
     <style>
         /* A4 sizing and print-ready */
         @page {
             size: A4;
-            margin: 12mm;
+            margin: 10mm;
         }
 
         html,
@@ -19,16 +18,19 @@
             height: 100%;
             margin: 0;
             padding: 0;
-            background: #eee;
-            font-family: 'DejaVu Sans', 'Arial', sans-serif
+            background: #fff;
+            font-family: 'DejaVu Sans', 'Arial', sans-serif;
+            width: 100%;
+            overflow-x: hidden;
         }
 
         .page {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 10px auto;
+            width: 100%;
+            max-width: 190mm;
+            min-height: 277mm;
+            margin: 0 auto;
             background: #fff;
-            padding: 14mm;
+            padding: 10mm;
             box-sizing: border-box;
             color: #111;
         }
@@ -63,7 +65,8 @@
         table.header td {
             vertical-align: top;
             border: none;
-            padding: 8px 6px
+            padding: 6px 4px;
+            word-wrap: break-word;
         }
 
         table.header td.meta {
@@ -139,8 +142,9 @@
         }
 
         table.addresses td {
-            padding: 8px;
-            font-size: 12px
+            padding: 6px 4px;
+            font-size: 11px;
+            word-wrap: break-word;
         }
 
         .addr h4 {
@@ -157,23 +161,27 @@
         table.items {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12.1px;
+            font-size: 11px;
             margin-bottom: 6mm;
-            border: 1px solid #333
+            border: 1px solid #333;
+            table-layout: fixed;
         }
 
         table.items thead th {
-            padding: 8px 6px;
+            padding: 6px 4px;
             text-align: left;
             font-weight: 700;
             background: transparent;
-            border: 1px solid #333
+            border: 1px solid #333;
+            word-wrap: break-word;
         }
 
         table.items tbody td {
-            padding: 8px 6px;
+            padding: 6px 4px;
             border: 1px solid #333;
-            vertical-align: top
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .center {
@@ -211,9 +219,10 @@
         }
 
         table.payment td {
-            padding: 8px;
-            font-size: 12px;
-            border: 1px solid #333
+            padding: 6px 4px;
+            font-size: 11px;
+            border: 1px solid #333;
+            word-wrap: break-word;
         }
 
         .payment-left {
@@ -232,17 +241,19 @@
         }
 
         table.history thead th {
-            padding: 6px;
+            padding: 6px 4px;
             text-align: left;
             font-weight: 700;
             border: 1px solid #333;
-            font-size: 12px
+            font-size: 11px;
+            word-wrap: break-word;
         }
 
         table.history td {
-            padding: 6px;
-            font-size: 12px
-            border: 1px solid #333
+            padding: 6px 4px;
+            font-size: 11px;
+            border: 1px solid #333;
+            word-wrap: break-word;
         }
 
         /* signatures */
@@ -275,21 +286,9 @@
         }
 
         table.footer td {
-            padding: 8px;
-            border: 1px solid #333
-        }
-
-        /* Print tweaks */
-        @media print {
-            body {
-                background: white
-            }
-
-            .page {
-                box-shadow: none;
-                margin: 0;
-                padding: 12mm
-            }
+            padding: 6px 4px;
+            border: 1px solid #333;
+            word-wrap: break-word;
         }
 
         /* Small helpers to match PDF spacing */
@@ -318,105 +317,17 @@
             word-wrap: break-word;
             overflow-wrap: break-word;
         }
-
-        /* Action buttons */
-        .invoice-actions {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 1000;
-        }
-
-        .invoice-actions button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .invoice-actions .btn-print {
-            background-color: #0d6efd;
-            color: white;
-        }
-
-        .invoice-actions .btn-print:hover {
-            background-color: #0b5ed7;
-        }
-
-        .invoice-actions .btn-email {
-            background-color: #198754;
-            color: white;
-        }
-
-        .invoice-actions .btn-email:hover {
-            background-color: #157347;
-        }
-
-        .invoice-actions .btn-back {
-            background-color: #6c757d;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-        }
-
-        .invoice-actions .btn-back:hover {
-            background-color: #5c636a;
-            color: white;
-        }
-
-        @media print {
-            .invoice-actions {
-                display: none;
-            }
-        }
-
-        /* SweetAlert2 form styling */
-        .swal2-popup .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        .swal2-popup .form-control {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 0.25rem;
-            font-size: 1rem;
-        }
-        .swal2-popup .form-text {
-            display: block;
-            margin-top: 0.25rem;
-            font-size: 0.875rem;
-            color: #6c757d;
-        }
     </style>
 </head>
 
 <body>
-    <div class="invoice-actions">
-        <button class="btn-print" onclick="window.print()">Print</button>
-        <button class="btn-email" onclick="sendEmail()">Email</button>
-        <a href="{{ route('order.list') }}" class="btn-back">Back</a>
-    </div>
-    
     <div class="page" role="document">
         <table class="header" aria-label="Invoice header">
             <tr>
                 <td class="left" aria-label="Seller">
-                        <img src="{{ asset('storage/'.$settings['company_logo']) }}" alt="Logo" class="logo">
-                    
+                    @if(isset($logoBase64) && $logoBase64)
+                        <img src="{{ $logoBase64 }}" alt="Logo" class="logo">
+                    @endif
                 </td>
                 <td class="meta" aria-label="Invoice meta">
                     <div class="company">{{ $settings['company_name'] ?? 'A & F Supplies LTD' }}</div>
@@ -472,19 +383,19 @@
         <table class="items" aria-label="Items">
             <thead>
                 <tr>
-                    <th rowspan="2" style="width: 60px;">Sr No.</th>
-                    <th rowspan="2" style="width: 350px;">Box Qty</th>
-                    <th rowspan="2" style="width: 40%;">Product</th>
-                    <th rowspan="2" style="width: 60px; text-align: center;">Qty</th>
+                    <th rowspan="2" style="width: 5%;">Sr No.</th>
+                    <th rowspan="2" style="width: 12%;">Box Qty</th>
+                    <th rowspan="2" style="width: 25%;">Product</th>
+                    <th rowspan="2" style="width: 6%; text-align: center;">Qty</th>
                     <th colspan="2" style="text-align: center;">Rate</th>
                     <th colspan="2" style="text-align: center;">VAT</th>
-                    <th rowspan="2" style="width: 100px; text-align: center;">Amount</th>
+                    <th rowspan="2" style="width: 10%; text-align: center;">Amount</th>
                 </tr>
                 <tr>
-                    <th style="width: 80px; text-align: center;">Unit</th>
-                    <th style="width: 80px; text-align: center;">Total</th>
-                    <th style="width: 60px; text-align: center;">Unit</th>
-                    <th style="width: 60px; text-align: center;">Total</th>
+                    <th style="width: 8%; text-align: center;">Unit</th>
+                    <th style="width: 8%; text-align: center;">Total</th>
+                    <th style="width: 8%; text-align: center;">Unit</th>
+                    <th style="width: 8%; text-align: center;">Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -597,9 +508,9 @@
         </table>
         @endif
 
-        <table class="payment-info" style="width:100%;margin-top:6mm;border:1px solid #333;border-collapse:collapse;table-layout:fixed;font-size:12px">
+        <table class="payment-info" style="width:100%;margin-top:6mm;border:1px solid #333;border-collapse:collapse;table-layout:fixed;font-size:11px">
             <tr>
-                <td style="width:50%;padding:8px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:12px">
+                <td style="width:50%;padding:6px 4px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:11px">
                     <div style="margin-bottom:16px">Please make cheques payable to:</div>
                     <div style="font-weight:700;">{{ $settings['company_name'] ?? 'A & F Supplies LTD' }}</div>
                     @if(isset($settings['company_address']) && $settings['company_address'])
@@ -634,7 +545,7 @@
                     @endif
                     <div style="margin-top:25px;font-size:11px;color:#666">Your order will not ship until we receive payment.</div>
                 </td>
-                <td style="width:50%;padding:8px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:12px">
+                <td style="width:50%;padding:6px 4px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:11px">
                     <div class="detail-row">
                         <span class="detail-label">TO ORDER:</span>
                         <span class="detail-value"></span>
@@ -665,125 +576,7 @@
         </table>
         
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function sendEmail() {
-            const orderId = {{ $order->id }};
-            const customerEmail = '{{ optional($order->customer)->email ?? '' }}';
-            const btn = event.target;
-            
-            // Show prompt with customer email pre-filled
-            Swal.fire({
-                title: 'Send Invoice Email',
-                html: `
-                    <div class="mb-3">
-                        <label for="swal-email-input" class="form-label">Email Addresses (comma-separated)</label>
-                        <input type="text" id="swal-email-input" class="form-control" 
-                               value="${customerEmail}" 
-                               placeholder="email1@example.com, email2@example.com" autocomplete="off">
-                        <small class="form-text text-muted">Enter email addresses separated by commas</small>
-                    </div>
-                `,
-                icon: 'info',
-                showCancelButton: true,
-                confirmButtonText: 'Send Email',
-                cancelButtonText: 'Cancel',
-                customClass: {
-                    confirmButton: 'btn btn-primary waves-effect waves-light',
-                    cancelButton: 'btn btn-secondary waves-effect waves-light'
-                },
-                didOpen: () => {
-                    // Focus on the input field
-                    const input = document.getElementById('swal-email-input');
-                    if (input) {
-                        input.focus();
-                        input.select();
-                    }
-                },
-                preConfirm: () => {
-                    const emailInput = document.getElementById('swal-email-input');
-                    const emails = emailInput ? emailInput.value.trim() : '';
-                    
-                    if (!emails) {
-                        Swal.showValidationMessage('Please enter at least one email address');
-                        return false;
-                    }
-
-                    // Validate email format (basic validation)
-                    const emailList = emails.split(',').map(e => e.trim()).filter(e => e);
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const invalidEmails = emailList.filter(email => !emailRegex.test(email));
-                    
-                    if (invalidEmails.length > 0) {
-                        Swal.showValidationMessage(`Invalid email format: ${invalidEmails.join(', ')}`);
-                        return false;
-                    }
-
-                    return emailList;
-                }
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    const emailList = result.value;
-                    const originalText = btn.textContent;
-                    
-                    // Disable button and show loading state
-                    btn.disabled = true;
-                    btn.textContent = 'Sending...';
-                    
-                    // Send AJAX request to email endpoint with email list
-                    fetch(`/order/invoice/${orderId}/email`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-                        },
-                        body: JSON.stringify({
-                            emails: emailList
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: data.message || 'Invoice email sent successfully',
-                                icon: 'success',
-                                customClass: {
-                                    confirmButton: 'btn btn-success waves-effect waves-light'
-                                }
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error!',
-                                text: data.message || 'Failed to send email',
-                                icon: 'error',
-                                customClass: {
-                                    confirmButton: 'btn btn-danger waves-effect waves-light'
-                                }
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        Swal.fire({
-                            title: 'Error!',
-                            text: 'Error sending email. Please try again.',
-                            icon: 'error',
-                            customClass: {
-                                confirmButton: 'btn btn-danger waves-effect waves-light'
-                            }
-                        });
-                    })
-                    .finally(() => {
-                        // Re-enable button
-                        btn.disabled = false;
-                        btn.textContent = originalText;
-                    });
-                }
-            });
-        }
-    </script>
 </body>
 
 </html>
+

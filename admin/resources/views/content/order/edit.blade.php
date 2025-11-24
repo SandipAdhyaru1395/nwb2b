@@ -52,29 +52,36 @@
         
         #products-table th:nth-child(2),
         #products-table td:nth-child(2) {
-            width: 120px;
-            min-width: 120px;
+            width: 100px;
+            min-width: 100px;
             
         }
         
         #products-table th:nth-child(3),
         #products-table td:nth-child(3) {
-            width: 100px;
-            min-width: 100px;
+            width: 80px;
+            min-width: 80px;
             text-align: right;
         }
         
         #products-table th:nth-child(4),
         #products-table td:nth-child(4) {
-            width: 120px;
-            min-width: 120px;
+            width: 100px;
+            min-width: 100px;
             text-align: right;
         }
         
-        #products-table tr th:nth-child(5),
-        #products-table tr td:nth-child(5) {
-            width: 120px;
-            min-width: 120px;
+        #products-table th:nth-child(5),
+        #products-table td:nth-child(5) {
+            width: 100px;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        #products-table tr th:nth-child(6),
+        #products-table tr td:nth-child(6) {
+            width: 50px;
+            min-width: 50px;
             text-align: center;
           
         }
@@ -108,7 +115,8 @@
                                     {{ $item->product_id }},
                                     '{{ addslashes($item->product->name ?? 'Product #' . $item->product_id) }} ({{ addslashes($item->product->sku ?? 'N/A') }})',
                                     {{ number_format((float)$item->quantity, 0, '.', '') }},
-                                    {{ number_format((float)($item->unit_price ?? 0), 2, '.', '') }}
+                                    {{ number_format((float)($item->unit_price ?? 0), 2, '.', '') }},
+                                    {{ number_format((float)($item->unit_vat ?? ($item->product->vat_amount ?? 0)), 2, '.', '') }}
                                 );
                             @endif
                         @endforeach
@@ -238,18 +246,19 @@
                                 <table id="products-table" class="table table-bordered">
                                     <thead class="table-primary">
                                         <tr>
-                                            <th width="40%">Product Name (Product Code)</th>
-                                            <th width="15%">Sale Price</th>
-                                            <th width="15%">Quantity</th>
-                                            <th width="15%">Sub Total</th>
+                                            <th width="30%">Product Name (Product Code)</th>
+                                            <th width="12%">Sale Price</th>
+                                            <th width="12%">Quantity</th>
+                                            <th width="12%">VAT</th>
+                                            <th width="12%">Sub Total</th>
                                             <th style="width: 50px;"><i class="icon-base ti tabler-trash"></i></th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr class="total-row">
-                                            <td class="text-end fw-bold" colspan="2">Total</td>
-                                            <td class="fw-bold total-quantity">0.00</td>
-                                            <td class="fw-bold total-amount">0.00</td>
+                                            <td class="text-end fw-bold" colspan="3">Total</td>
+                                            <td class="text-end fw-bold total-vat">0.00</td>
+                                            <td class="text-end fw-bold total-amount">0.00</td>
                                             <td></td>
                                         </tr>
                                     </tbody>

@@ -1,4 +1,4 @@
-<!-- Reference image for pixel comparison: /mnt/data/page_0.png -->
+<!-- EST Invoice without VAT columns -->
 <!doctype html>
 <html lang="en">
 
@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="csrf-token" content="{{ csrf_token() }}" />
-    <title>@if($order->type === 'CN')Credit Note @else Invoice @endif {{ $order->order_number ?? '' }}</title>
+    <title>#EST{{ $order->order_number ?? '' }}</title>
     <style>
         /* A4 sizing and print-ready */
         @page {
@@ -414,61 +414,16 @@
     <div class="page" role="document">
         <table class="header" aria-label="Invoice header">
             <tr>
-                <td class="left" aria-label="Seller">
-                        <img src="{{ asset('storage/'.$settings['company_logo']) }}" alt="Logo" class="logo">
-                    
-                </td>
-                <td class="meta" aria-label="Invoice meta">
-                    <div class="company">{{ $settings['company_name'] ?? 'A & F Supplies LTD' }}</div>
-                    @if(isset($settings['company_phone']) && $settings['company_phone'])
-                        <div class="small">Mobile No.: {{ $settings['company_phone'] }}</div>
-                    @endif
-                    @if(isset($settings['company_email']) && $settings['company_email'])
-                        <div class="small">Email-Id: {{ $settings['company_email'] }}</div>
-                    @endif
-                </td>
-            </tr>
-            <tr>
                 <td colspan="2" class="center" style="font-size:20px;font-weight:700;padding:6px">
-                    @if($order->type === 'CN')
-                        Credit Note
-                    @else
-                        Invoice
-                    @endif
+                    Order Details
                 </td>
             </tr>
             <tr>
-                <td class="addr" aria-label="Customer address">
-                    <h4>Customer Name & Address</h4>
-                    <div class="bold">{{ optional($order->customer)->company_name ?? '' }}</div>
-                    @if($order->address_line1)
-                        <div>{{ $order->address_line1 }}</div>
-                    @endif
-                    @if($order->address_line2)
-                        <div>{{ $order->address_line2 }}</div>
-                    @endif
-                    @if($order->city)
-                        <div>{{ $order->city }}@if($order->state) {{ $order->state }}@endif @if($order->country){{ $order->country }}@endif</div>
-                    @endif
-                    @if($order->zip_code)
-                        <div>{{ $order->zip_code }}</div>
-                    @endif
-                </td>
                 <td class="addr" aria-label="Payment details">
-                    @if($order->type === 'CN')
-                        <p><b>CN Date:</b> {{ optional($order->order_date)->format('d/m/Y H:i') ?? optional($order->created_at)->format('d/m/Y H:i') }}</p>
-                        <p><b>CN No.:</b> #CN{{ $order->order_number }}</p>
-                    @else
-                        <p><b>Invoice Date:</b> {{ optional($order->order_date)->format('d/m/Y H:i') ?? optional($order->created_at)->format('d/m/Y H:i') }}</p>
-                        <p><b>Invoice No.:</b> #SO{{ $order->order_number }}</p>
-                    @endif
-                    @if($order->invoice_ref)
-                        <p><b>Invoice Ref:</b> {{ $order->invoice_ref }}</p>
-                    @endif
+                    <p><b>Order Date:</b> {{ optional($order->order_date)->format('d/m/Y H:i') ?? optional($order->created_at)->format('d/m/Y H:i') }}</p>
                 </td>
             </tr>
         </table>
-
         <table class="items" aria-label="Items">
             <thead>
                 <tr>
@@ -477,14 +432,11 @@
                     <th rowspan="2" style="width: 40%;">Product</th>
                     <th rowspan="2" style="width: 60px; text-align: center;">Qty</th>
                     <th colspan="2" style="text-align: center;">Rate</th>
-                    <th colspan="2" style="text-align: center;">VAT</th>
                     <th rowspan="2" style="width: 100px; text-align: center;">Amount</th>
                 </tr>
                 <tr>
                     <th style="width: 80px; text-align: center;">Unit</th>
                     <th style="width: 80px; text-align: center;">Total</th>
-                    <th style="width: 60px; text-align: center;">Unit</th>
-                    <th style="width: 60px; text-align: center;">Total</th>
                 </tr>
             </thead>
             <tbody>
@@ -492,14 +444,8 @@
                     $itemNumber = 1;
                     $soldItems = $order->items->where('type', '!=', 'returned');
                     
-                    // If this is a credit note, show credit note items
-                    if ($order->type === 'CN') {
-                        $soldItems = $order->items;
-                    }
-                    
                     // Use order subtotal and VAT from order
                     $orderSubtotal = (float)($order->subtotal ?? 0);
-                    $orderTotalVat = (float)($order->vat_amount ?? 0);
                     $orderTotal = (float)($order->total_amount ?? 0);
                     $paidAmount = (float)($order->paid_amount ?? 0);
                     $dueAmount = (float)($order->unpaid_amount ?? 0);
@@ -510,8 +456,6 @@
                         $totalPrice = (float)($item->total_price ?? 0);
                         $unitPrice = (float)($item->unit_price ?? 0);
                         $quantity = (float)($item->quantity ?? 0);
-                        $unitVat = (float)($item->unit_vat ?? 0);
-                        $totalVat = (float)($item->total_vat ?? 0);
                         $total = (float)($item->total ?? 0);
                         // Get box qty from product_unit or default
                         $boxQty = $item->product_unit ?? '';
@@ -522,9 +466,6 @@
                         <td>
                             @if($item->product)
                                 {{ $item->product->name ?? 'N/A' }}
-                                @if($order->type === 'CN')
-                                    [RETURN ITEM]
-                                @endif
                             @else
                                 Product #{{ $item->product_id }}
                             @endif
@@ -532,41 +473,33 @@
                         <td class="center">{{ number_format($quantity, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($unitPrice, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($totalPrice, 2) }}</td>
-                        <td class="right">{{ $currencySymbol }}{{ number_format($unitVat, 2) }}</td>
-                        <td class="right">{{ $currencySymbol }}{{ number_format($totalVat, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                     </tr>
                 @endforeach
 
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Sub Total</td>
+                    <td colspan="6" class="right" style="padding-top:10px">Sub Total</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($orderSubtotal, 2) }}</td>
                 </tr>
-                @if(isset($order->vat_amount) && $order->vat_amount > 0)
-                <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">VAT</td>
-                    <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($order->vat_amount, 2) }}</td>
-                </tr>
-                @endif
                 @if(isset($order->shipping_cost) && $order->shipping_cost > 0)
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Shipping</td>
+                    <td colspan="6" class="right" style="padding-top:10px">Shipping</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format((float)$order->shipping_cost, 2) }}</td>
                 </tr>
                 @endif
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Total</td>
+                    <td colspan="6" class="right" style="padding-top:10px">Total</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($orderTotal, 2) }}</td>
                 </tr>
                 @if($paidAmount > 0)
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">- Paid</td>
+                    <td colspan="6" class="right" style="padding-top:10px">- Paid</td>
                     <td class="right" style="padding-top:10px">- {{ $currencySymbol }}{{ number_format($paidAmount, 2) }}</td>
                 </tr>
                 @endif
                 @if($dueAmount > 0)
                 <tr>
-                    <td colspan="8" class="right" style="font-weight:700;padding-top:10px">Due</td>
+                    <td colspan="6" class="right" style="font-weight:700;padding-top:10px">Due</td>
                     <td class="right" style="font-weight:700;padding-top:10px">{{ $currencySymbol }}{{ number_format($dueAmount, 2) }}</td>
                 </tr>
                 @endif
@@ -596,73 +529,6 @@
             </tbody>
         </table>
         @endif
-
-        <table class="payment-info" style="width:100%;margin-top:6mm;border:1px solid #333;border-collapse:collapse;table-layout:fixed;font-size:12px">
-            <tr>
-                <td style="width:50%;padding:8px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:12px">
-                    <div style="margin-bottom:16px">Please make cheques payable to:</div>
-                    <div style="font-weight:700;">{{ $settings['company_name'] ?? 'A & F Supplies LTD' }}</div>
-                    @if(isset($settings['company_address']) && $settings['company_address'])
-                    <div class="detail-row">
-                        <span class="detail-label">Address:</span>
-                        <span class="detail-value">{{ $settings['company_address'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($settings['account_name']) && $settings['account_name'])
-                    <div class="detail-row">
-                        <span class="detail-label">Account:</span>
-                        <span class="detail-value">{{ $settings['account_name'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($settings['bank']) && $settings['bank'])
-                    <div class="detail-row">
-                        <span class="detail-label">Bank:</span>
-                        <span class="detail-value">{{ $settings['bank'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($settings['sort_code']) && $settings['sort_code'])
-                    <div class="detail-row">
-                        <span class="detail-label">Sort Code:</span>
-                        <span class="detail-value">{{ $settings['sort_code'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($settings['account_no']) && $settings['account_no'])
-                    <div class="detail-row">
-                        <span class="detail-label">Account No:</span>
-                        <span class="detail-value">{{ $settings['account_no'] }}</span>
-                    </div>
-                    @endif
-                    <div style="margin-top:25px;font-size:11px;color:#666">Your order will not ship until we receive payment.</div>
-                </td>
-                <td style="width:50%;padding:8px;vertical-align:top;border:1px solid #333;word-wrap:break-word;overflow-wrap:break-word;font-size:12px">
-                    <div class="detail-row">
-                        <span class="detail-label">TO ORDER:</span>
-                        <span class="detail-value"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">OFFICE:</span>
-                        <span class="detail-value"></span>
-                    </div>
-                    @if(isset($settings['company_phone']) && $settings['company_phone'])
-                    <div class="detail-row">
-                        <span class="detail-label">MOBILE NO.:</span>
-                        <span class="detail-value">{{ $settings['company_phone'] }}</span>
-                    </div>
-                    @endif
-                    @if(isset($settings['company_email']) && $settings['company_email'])
-                    <div class="detail-row">
-                        <span class="detail-label">EMAIL:</span>
-                        <span class="detail-value">{{ $settings['company_email'] }}</span>
-                    </div>
-                    @endif
-                    <div style="margin-top:20px">
-                        <div style="margin-top:25px;border-bottom:1px solid #ddd;padding-top:6px;font-size:11px">PICKER SIGN:</div>
-                        <div style="margin-top:25px;border-bottom:1px solid #ddd;padding-top:6px;font-size:11px">PACKER SIGN:</div>
-                        <div style="margin-top:25px;border-bottom:1px solid #ddd;padding-top:6px;font-size:11px">RECIPIENT SIGN:</div>
-                    </div>
-                </td>
-            </tr>
-        </table>
         
     </div>
 
@@ -787,3 +653,4 @@
 </body>
 
 </html>
+
