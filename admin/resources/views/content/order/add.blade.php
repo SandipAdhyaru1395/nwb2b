@@ -122,7 +122,7 @@
                                 <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="customer_id">Customer <span class="text-danger">*</span></label>
                                     <select class="form-select" id="customer_id" name="customer_id">
-                                        <option value="" disabled {{ old('customer_id') ? '' : 'selected' }}>Select Customer</option>
+                                        <option value="">Select Customer</option>
                                         @forelse($customers as $customer)
                                             <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
                                                 {{ $customer->company_name ?? $customer->email ?? 'Customer #' . $customer->id }}

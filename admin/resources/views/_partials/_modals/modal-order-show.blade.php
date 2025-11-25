@@ -775,8 +775,8 @@
                 <td>{{ $currencySymbol }}{{ number_format($orderSubtotal, 2) }}</td>
             </tr>
             <tr>
-                <td>VAT {{ $currencySymbol }}{{ number_format($orderTotalVat, 2) }}</td>
-                <td>{{ $currencySymbol }}{{ number_format($totalVat, 2) }}</td>
+                <td>VAT </td>
+                <td>{{ $currencySymbol }}{{ number_format($orderTotalVat, 2) }}</td>
             </tr>
             <tr>
                 <td style="font-weight: 700; background-color: #e9ecef;">Grand Total</td>
