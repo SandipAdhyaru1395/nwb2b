@@ -291,25 +291,50 @@
                     </div>
                     <!-- /Product Information -->
                     <!-- Media -->
-                    <div class="card mb-6 pt-5">
-                        <img class="align-self-center" height="300px" width="400px"
-                            src="{{ str_contains($product->image_url, 'https') ? $product->image_url : asset('storage/' . $product->image_url) }}" />
-                        <div class="card-body form-control-validation">
-                            <input type="file" name="productImage" id="productImage" hidden>
-                            <div class="dropzone needsclick p-0" id="dropzone-basic">
-                                <div class="dz-message needsclick">
-                                    <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
-                                    <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
-                                    <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
-                                        image</span>
+                    <div class="card mb-6">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Product Image</h5>
+                        </div>
+                        <div class="card-body">
+                            @if($product->image_url)
+                                <div class="mb-4 text-center">
+                                    <img class="align-self-center" height="300px" width="400px"
+                                        src="{{ $product->image_url }}" alt="Current Product Image" />
+                                </div>
+                            @endif
+                            <div class="mb-4 form-control-validation">
+                                <label class="form-label" for="productImageUrl">Image URL</label>
+                                <input type="url" class="form-control" id="productImageUrl"
+                                    placeholder="https://example.com/image.jpg" name="productImageUrl" 
+                                    aria-label="Product Image URL" value="{{ old('productImageUrl', $product->image_url) }}" 
+                                    autocomplete="off" />
+                                <div class="form-text">Enter a full image URL or upload an image file below</div>
+                                @error('productImageUrl')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Or Upload Image</label>
+                            </div>
+                            <div class="form-control-validation">
+                                <input type="file" name="productImage" id="productImage" hidden>
+                                <div class="dropzone needsclick p-0" id="dropzone-basic">
+                                    <div class="dz-message needsclick">
+                                        <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
+                                        <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
+                                        <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
+                                            image</span>
+                                    </div>
                                 </div>
                             </div>
+                            @error('productImage')
+                                <span class="text-danger text-center mb-5" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
-                        @error('productImage')
-                            <span class="text-danger text-center mb-5" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
                     <!-- /Media -->
                 </div>

@@ -88,19 +88,19 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       {/* Bottom Navigation */}
       {/* <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-3 footer-nav-col">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <Home className="w-7 h-7 mb-1" />
             <span className="text-xs">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <ShoppingBag className="w-7 h-7 mb-1" />
             <span className="text-xs">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-green-600 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-green-600 hover:cursor-pointer">
             <Wallet className="w-7 h-7 mb-1" />
             <span className="text-xs">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <User className="w-7 h-7 mb-1" />
             <span className="text-xs">Account</span>
           </button>
@@ -110,19 +110,19 @@ export function MobileWallet({ onNavigate }: MobileWalletProps) {
       {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
               <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
-                <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Dashboard</span>
                 </button>
-                <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Shop</span>
                 </button>
-                <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Wallet</span>
                 </button>
-                <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Account</span>
                 </button>

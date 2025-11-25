@@ -369,7 +369,7 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
                         });
                       } catch {}
                     }}
-                    className="w-[70px] h-[32px] rounded-sm border border-[#c0d3c4] mr-[12px] text-sm text-black bg-white hover:bg-gray-50 hover:cursor-pointer border-btn-shadow"
+                    className="w-[70px] h-[32px] rounded-sm border border-[#c0d3c4] mr-[12px] text-sm text-black bg-white hover:cursor-pointer border-btn-shadow"
                   >
                     Delete
                   </button>
@@ -421,25 +421,25 @@ export function MobileBasket({ onNavigate, cart, increment, decrement, totals, c
               </div>
             </div>
             <div className="text-sm font-semibold text-center text-[#999] pt-1 pb-2 leading-[16px]">Includes FREE delivery</div>
-            <button onClick={handleCheckout} className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-sm font-semibold text-lg hover:cursor-pointer box-shadow-bottom">
+            <button onClick={handleCheckout} className="w-full bg-green-600 text-white py-2 rounded-sm font-semibold text-lg hover:cursor-pointer box-shadow-bottom">
               Checkout
             </button>
           </div>
         )}
         <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col px-[18px]">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Account</span>
           </button>

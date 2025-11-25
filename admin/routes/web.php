@@ -80,6 +80,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     Route::middleware('permission:product.create')->group(function () {
         Route::get('/product/add', [ProductController::class, 'add'])->name('product.add');
         Route::post('/product/create', [ProductController::class, 'create'])->name('product.create');
+        Route::post('/product/import', [ProductController::class, 'import'])->name('product.import');
+        Route::get('/product/import/sample', [ProductController::class, 'downloadSample'])->name('product.import.sample');
     });
 
     Route::middleware('permission:product.write')->group(function () {

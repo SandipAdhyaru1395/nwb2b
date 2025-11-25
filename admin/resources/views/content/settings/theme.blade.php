@@ -34,25 +34,47 @@
 
           <div class="card mb-6">
             <div class="card-header">
-              <h5 class="card-title mb-0">Button Colors</h5>
+              <h5 class="card-title mb-0">Primary</h5>
             </div>
             <div class="card-body">
               <div class="row mb-6 g-6">
                 <div class="col-12 col-md-6">
-                  <label class="form-label mb-1" for="button-color">Primary Color</label>
+                  <label class="form-label mb-1" for="primary-bg-color">Background Color</label>
                   <div class="input-group">
-                    <input type="color" class="form-control form-control-color" id="button-color" name="buttonColor" value="{{ $setting['theme_primary_color'] ?? '#16a34a' }}" />
-                    <input type="text" class="form-control" id="button-color-text" value="{{ $setting['theme_primary_color'] ?? '#16a34a' }}" placeholder="#16a34a" />
+                    <input type="color" class="form-control form-control-color" id="primary-bg-color" name="primaryBgColor" value="{{ $setting['primary_bg_color'] ?? $setting['theme_primary_color'] ?? '#16a34a' }}" />
+                    <input type="text" class="form-control" id="primary-bg-color-text" value="{{ $setting['primary_bg_color'] ?? $setting['theme_primary_color'] ?? '#16a34a' }}" placeholder="#16a34a" />
                   </div>
-                  <small class="text-muted">Used for: all bg-green-*, text-green-*, and border-green-* classes</small>
                 </div>
                 <div class="col-12 col-md-6">
-                  <label class="form-label mb-1" for="button-hover-color">Secondary Color</label>
+                  <label class="form-label mb-1" for="primary-font-color">Font Color</label>
                   <div class="input-group">
-                    <input type="color" class="form-control form-control-color" id="button-hover-color" name="buttonHoverColor" value="{{ $setting['theme_secondary_color'] ?? '#15803d' }}" />
-                    <input type="text" class="form-control" id="button-hover-color-text" value="{{ $setting['theme_secondary_color'] ?? '#15803d' }}" placeholder="#15803d" />
+                    <input type="color" class="form-control form-control-color" id="primary-font-color" name="primaryFontColor" value="{{ $setting['primary_font_color'] ?? $setting['theme_secondary_color'] ?? '#15803d' }}" />
+                    <input type="text" class="form-control" id="primary-font-color-text" value="{{ $setting['primary_font_color'] ?? $setting['theme_secondary_color'] ?? '#15803d' }}" placeholder="#15803d" />
                   </div>
-                  <small class="text-muted">Used for: all hover:bg-green-* and hover:text-green-* classes</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mb-6">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Secondary</h5>
+            </div>
+            <div class="card-body">
+              <div class="row mb-6 g-6">
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="secondary-bg-color">Background Color</label>
+                  <div class="input-group">
+                    <input type="color" class="form-control form-control-color" id="secondary-bg-color" name="secondaryBgColor" value="{{ $setting['secondary_bg_color'] ?? '#22c55e' }}" />
+                    <input type="text" class="form-control" id="secondary-bg-color-text" value="{{ $setting['secondary_bg_color'] ?? '#22c55e' }}" placeholder="#22c55e" />
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label mb-1" for="secondary-font-color">Font Color</label>
+                  <div class="input-group">
+                    <input type="color" class="form-control form-control-color" id="secondary-font-color" name="secondaryFontColor" value="{{ $setting['secondary_font_color'] ?? '#ffffff' }}" />
+                    <input type="text" class="form-control" id="secondary-font-color-text" value="{{ $setting['secondary_font_color'] ?? '#ffffff' }}" placeholder="#ffffff" />
+                  </div>
                 </div>
               </div>
             </div>

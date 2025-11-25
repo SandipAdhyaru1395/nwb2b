@@ -199,7 +199,7 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
               <Button
                 onClick={form.handleSubmit(saveCompanyDetails)}
                 disabled={saving}
-                className="w-full gap-0 cursor-pointer leading-[16px] h-[45px] bg-green-600 hover:bg-green-700 text-[16px] text-white !p-[14px] rounded font-medium flex items-center justify-center"
+                className="w-full gap-0 cursor-pointer leading-[16px] h-[45px] bg-green-600 text-[16px] text-white !p-[14px] rounded font-medium flex items-center justify-center"
               >
                 <FontAwesomeIcon className="mx-[4px] leading-[16px]" icon={faCircleCheck}  style={{ width: "16px", height: "16px" }} />
                 <span className="mx-[4px] font-semibold leading-[16px]">
@@ -213,19 +213,19 @@ export function MobileCompanyDetails({ onNavigate, onBack }: MobileCompanyDetail
        {/* Bottom Navigation */}
             <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
               <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
-                <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Dashboard</span>
                 </button>
-                <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Shop</span>
                 </button>
-                <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Wallet</span>
                 </button>
-                <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+                <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
                   <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
                   <span className="text-xs mt-[5px]">Account</span>
                 </button>

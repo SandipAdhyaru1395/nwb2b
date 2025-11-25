@@ -9,8 +9,7 @@ import { useSettings } from "./settings-provider"
  * - All bg-green-* backgrounds
  * - All text-green-* text colors
  * - All border-green-* borders
- * - All hover:bg-green-* hover states
- * - All hover:text-green-* hover text colors
+ * - Hover color effects have been removed (no hover color changes applied)
  * - Login buttons (bg-black)
  */
 export function ThemeProvider() {
@@ -30,8 +29,10 @@ export function ThemeProvider() {
 
     // Apply theme colors to all green color usages
     applyThemeColors(
-      theme.button_color,
-      theme.button_hover,
+      theme.primary_bg_color,
+      theme.primary_font_color,
+      theme.secondary_bg_color,
+      theme.secondary_font_color,
       theme.button_login
     )
   }, [settings?.theme, loading])
@@ -56,6 +57,8 @@ function removeThemeStyles() {
 function applyThemeColors(
   themeColor?: string | null,
   themeHover?: string | null,
+  secondaryBgColor?: string | null,
+  secondaryFontColor?: string | null,
   login?: string | null
 ) {
   const styleId = 'dynamic-theme-styles'
@@ -104,6 +107,32 @@ function applyThemeColors(
       }
     `
 
+    // Apply primary_font_color only to specific text elements
+    if (themeHover) {
+      css += `
+        /* Font color for Referral Rewards card - only specific labels */
+        .bg-green-500 .referralbox h3,
+        .bg-green-500 .referralbox p {
+          color: ${themeHover} !important;
+        }
+        /* Font color for Shop and Favourites button text and icons */
+        button.bg-green-500 span.font-semibold,
+        button.bg-green-500 svg {
+          color: ${themeHover} !important;
+        }
+        /* Font color for top-level category buttons (depth 0) */
+        .space-y-2 button.bg-green-600 span,
+        .space-y-2 button.bg-green-600 svg,
+        .space-y-2 button.bg-green-600 > svg {
+          color: ${themeHover} !important;
+        }
+        /* Font color for Login and Register buttons */
+        .loginRegisterWrapper button.bg-green-500 {
+          color: ${themeHover} !important;
+        }
+      `
+    }
+
     // Apply theme color to all border green classes
     css += `
       /* Border colors */
@@ -120,40 +149,139 @@ function applyThemeColors(
         border-color: ${themeColor} !important;
       }
     `
-  }
 
-  // Apply theme hover color to all hover green classes
-  if (themeHover) {
+    // Apply secondary colors to second-level category buttons (depth 1)
+    if (secondaryBgColor) {
+      css += `
+        /* Apply secondary background color to second-level category buttons (depth 1) */
+        .space-y-2 button.bg-green-50 {
+          background-color: ${secondaryBgColor} !important;
+        }
+      `
+    }
+
+    if (secondaryFontColor) {
+      css += `
+        /* Apply secondary font color to second-level category buttons (depth 1) */
+        .space-y-2 button.bg-green-50 span,
+        .space-y-2 button.bg-green-50 svg,
+        .space-y-2 button.bg-green-50 > svg {
+          color: ${secondaryFontColor} !important;
+        }
+      `
+    }
+
+    // Exclude theme colors from depth 2+ category buttons
     css += `
-      /* Hover background colors */
-      .hover\\:bg-green-50:hover,
-      .hover\\:bg-green-100:hover,
-      .hover\\:bg-green-200:hover,
-      .hover\\:bg-green-300:hover,
-      .hover\\:bg-green-400:hover,
-      .hover\\:bg-green-500:hover,
-      .hover\\:bg-green-600:hover,
-      .hover\\:bg-green-700:hover,
-      .hover\\:bg-green-800:hover,
-      .hover\\:bg-green-900:hover {
-        background-color: ${themeHover} !important;
+      /* Exclude theme colors from depth 2+ category buttons - restore original Tailwind colors */
+      .space-y-2 button.bg-green-100 {
+        background-color: unset !important;
       }
+      .space-y-2 button.bg-green-100 {
+        background-color: #dcfce7 !important;
+      }
+      /* Exclude theme colors from depth 2+ category button contents (lines 526-532) */
+      .space-y-2 button.bg-green-100 span,
+      .space-y-2 button.bg-green-100 div {
+        color: unset !important;
+      }
+      /* Exclude theme colors from tags (lines 546-554) - more specific selectors */
+      .space-y-2 button.bg-green-600 span.bg-green-600,
+      .space-y-2 button.bg-green-50 span.bg-green-600,
+      .space-y-2 button.bg-green-100 span.bg-green-600,
+      .space-y-2 button.bg-green-600 .flex.items-center.gap-1 span.bg-green-600,
+      .space-y-2 button.bg-green-50 .flex.items-center.gap-1 span.bg-green-600,
+      .space-y-2 button.bg-green-100 .flex.items-center.gap-1 span.bg-green-600 {
+        background-color: #16a34a !important;
+      }
+    `
 
-      /* Hover text colors */
-      .hover\\:text-green-50:hover,
-      .hover\\:text-green-100:hover,
-      .hover\\:text-green-200:hover,
-      .hover\\:text-green-300:hover,
-      .hover\\:text-green-400:hover,
-      .hover\\:text-green-500:hover,
-      .hover\\:text-green-600:hover,
-      .hover\\:text-green-700:hover,
-      .hover\\:text-green-800:hover,
-      .hover\\:text-green-900:hover {
-        color: ${themeHover} !important;
+    // Exclude theme colors from elements inside CategoryNode children and products (below line 562-563)
+    css += `
+      /* Exclude theme colors from nested category nodes and products - restore original Tailwind colors */
+      .space-y-3 .product-grid-responsive .text-green-400,
+      .space-y-3 .product-grid-responsive .text-green-500,
+      .space-y-3 .product-grid-responsive .text-green-600,
+      .space-y-3 > div > .space-y-2 .text-green-400,
+      .space-y-3 > div > .space-y-2 .text-green-500,
+      .space-y-3 > div > .space-y-2 .text-green-600 {
+        color: unset !important;
+      }
+      .space-y-3 .product-grid-responsive .text-green-400 {
+        color: #4ade80 !important;
+      }
+      .space-y-3 .product-grid-responsive .text-green-500,
+      .space-y-3 > div > .space-y-2 .text-green-500 {
+        color: #22c55e !important;
+      }
+      .space-y-3 .product-grid-responsive .text-green-600,
+      .space-y-3 > div > .space-y-2 .text-green-600 {
+        color: #16a34a !important;
+      }
+      .space-y-3 > div > .space-y-2 .bg-green-100 {
+        background-color: #dcfce7 !important;
+      }
+      .space-y-3 > div > .space-y-2 .bg-green-600 {
+        background-color: #16a34a !important;
+      }
+    `
+
+    // Apply secondary colors to nested second-level category buttons (inside expanded sections)
+    if (secondaryBgColor) {
+      css += `
+        .space-y-3 > div > .space-y-2 button.bg-green-50 {
+          background-color: ${secondaryBgColor} !important;
+        }
+      `
+    } else {
+      css += `
+        .space-y-3 > div > .space-y-2 button.bg-green-50 {
+          background-color: #f0fdf4 !important;
+        }
+      `
+    }
+
+    if (secondaryFontColor) {
+      css += `
+        .space-y-3 > div > .space-y-2 button.bg-green-50 span,
+        .space-y-3 > div > .space-y-2 button.bg-green-50 svg,
+        .space-y-3 > div > .space-y-2 button.bg-green-50 > svg {
+          color: ${secondaryFontColor} !important;
+        }
+      `
+    }
+
+    css += `
+      /* Exclude theme colors from nested category buttons (depth 0 and depth 2+ inside expanded sections) */
+      .space-y-3 > div > .space-y-2 button.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-100 {
+        background-color: unset !important;
+      }
+      .space-y-3 > div > .space-y-2 button.bg-green-600 {
+        background-color: #16a34a !important;
+      }
+      .space-y-3 > div > .space-y-2 button.bg-green-100 {
+        background-color: #dcfce7 !important;
+      }
+      .space-y-3 > div > .space-y-2 button.bg-green-600 span,
+      .space-y-3 > div > .space-y-2 button.bg-green-100 span,
+      .space-y-3 > div > .space-y-2 button.bg-green-600 div,
+      .space-y-3 > div > .space-y-2 button.bg-green-100 div {
+        color: unset !important;
+      }
+      /* Exclude theme colors from nested tags (inside expanded sections) */
+      .space-y-3 > div > .space-y-2 button.bg-green-600 span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-50 span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-100 span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-600 .flex.items-center.gap-1 span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-50 .flex.items-center.gap-1 span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button.bg-green-100 .flex.items-center.gap-1 span.bg-green-600 {
+        background-color: #16a34a !important;
       }
     `
   }
+
+  // Hover color effects removed - no hover color changes applied
 
   // Login buttons: bg-black
   if (login) {
@@ -161,6 +289,19 @@ function applyThemeColors(
       .loginregisterform button,
       button.bg-black {
         background-color: ${login} !important;
+      }
+    `
+  }
+
+  // Final catch-all: Exclude theme colors from tag spans (must come last to override)
+  if (themeColor) {
+    css += `
+      /* Final override for tag spans - ensure original Tailwind green-600 color */
+      button span.bg-green-600.text-white,
+      button span.bg-green-600.rounded-full,
+      .space-y-2 button span.bg-green-600,
+      .space-y-3 > div > .space-y-2 button span.bg-green-600 {
+        background-color: #16a34a !important;
       }
     `
   }

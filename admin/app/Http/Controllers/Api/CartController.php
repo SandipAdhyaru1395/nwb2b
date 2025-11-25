@@ -75,7 +75,7 @@ class CartController extends Controller
                     'product' => $product ? [
                         'id' => $product->id,
                         'name' => $product->name,
-                        'image' => ($product->image_url) ? asset('storage/'.$product->image_url) : null,
+                        'image' => $product->image_url ?? null,
                         'price' => $product->price,
                         'wallet_credit' => $product->wallet_credit,
                         'vat_amount' => $product->vat_amount,

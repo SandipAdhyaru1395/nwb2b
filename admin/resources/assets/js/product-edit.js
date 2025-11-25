@@ -181,6 +181,15 @@
             }
           }
         },
+        productImageUrl: {
+          validators: {
+            uri: {
+              message: 'Please enter a valid URL',
+              allowLocal: false,
+              allowEmpty: true
+            }
+          }
+        },
         brand_id: {
           validators: {
             notEmpty: {

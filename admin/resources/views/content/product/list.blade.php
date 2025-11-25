@@ -129,4 +129,56 @@
   </div>
 </div>
 
+<!-- Import Product Modal -->
+<div class="modal fade" id="importProductModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Import Products</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="importProductForm" method="POST" action="{{ route('product.import') }}" enctype="multipart/form-data">
+        @csrf
+        <div class="modal-body">
+          <div class="mb-4">
+            <label class="form-label" for="importFile">Select File <span class="text-danger">*</span></label>
+            <input type="file" class="form-control" id="importFile" name="importFile" accept=".csv" required>
+            <div class="form-text">Supported format: CSV only. Convert Excel files to CSV before uploading.</div>
+            @error('importFile')
+              <span class="text-danger" role="alert">
+                <strong>{{ $message }}</strong>
+              </span>
+            @enderror
+          </div>
+            <div class="alert alert-info">
+            <h6 class="alert-heading">File Format Requirements:</h6>
+            <ul class="mb-0">
+              <li><strong>File Format:</strong> CSV files only. If you have an Excel file (.xlsx, .xls), please convert it to CSV first: In Excel, go to File > Save As > Choose "CSV (Comma delimited) (*.csv)"</li>
+              <li><strong>Column Headers (in order):</strong> SR NO., Product Name, Product Code, Product Unit Code, Selling Price, Cost Price (Optional), Wallet Credit (Optional), Weight (Kg) (Optional), RRP (Optional), Expiry Date (Optional), Quantity, Product Unit, VAT Method, Description (Optional), Status (1 = Active / 0 = Inactive), Brand, Image</li>
+              <li><strong>Required fields:</strong> Product Name, Product Code, Product Unit Code, Selling Price, Status, Brand</li>
+              <li><strong>Optional fields:</strong> Cost Price, Wallet Credit, Weight (Kg), RRP, Expiry Date, Quantity, Product Unit, VAT Method, Description, Image</li>
+              <li><strong>Status:</strong> Enter 1 for Active or 0 for Inactive</li>
+              <li><strong>Brand:</strong> Enter one or more brand names separated by commas (e.g., "Brand 1, Brand 2, Brand 3"). All brands must match existing brand names exactly.</li>
+              <li><strong>VAT Method:</strong> Enter the VAT Method name as it appears in your system (e.g., "20%", "Standard VAT", etc.). Must match an existing active VAT Method.</li>
+              <li><strong>Expiry Date:</strong> Format must be dd/mm/yyyy or dd-mm-yyyy (e.g., 26/11/2026 or 26-11-2026)</li>
+              <li><strong>Product Code & Product Unit Code:</strong> Must be unique. Scientific notation (e.g., 6.93633E+12) will be automatically converted.</li>
+              <li><strong>Image:</strong> Enter a full URL (e.g., https://example.com/image.jpg). If URL doesn't start with http:// or https://, it will be automatically prefixed.</li>
+              <li><strong>Important:</strong> All rows will be validated before any products are imported. If any row has errors, no products will be imported. Fix all errors and try again.</li>
+            </ul>
+          </div>
+          <div class="mb-3">
+            <a href="{{ route('product.import.sample') }}" class="btn btn-sm btn-label-secondary">
+              <i class="icon-base ti tabler-download me-1"></i>Download Sample CSV
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Import Products</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 @endsection

@@ -78,11 +78,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
             let output;
 
             if (image_url) {
-              if(image_url.includes("https")){
-                output = `<img src="${image_url}" alt="Product-${id}" class="rounded">`;
-              }else{
-                output = `<img src="${assetsPath}storage/${image_url}" alt="Product-${id}" class="rounded">`;
-              }
+              output = `<img src="${image_url}" alt="Product-${id}" class="rounded">`;
               // For Product image
             } else {
               // For Product badge
@@ -391,6 +387,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       }
                     }
                   ]
+                },
+                {
+                  text: '<i class="icon-base ti tabler-upload me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Import Products</span>',
+                  className: 'btn btn-label-secondary me-2',
+                  action: function () {
+                    $('#importProductModal').modal('show');
+                  }
                 },
                 {
                   text: '<i class="icon-base ti tabler-plus me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Add Product</span>',

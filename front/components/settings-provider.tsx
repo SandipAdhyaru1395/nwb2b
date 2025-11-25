@@ -5,8 +5,10 @@ import api from "@/lib/axios"
 
 type Theme = {
   use_default?: boolean | null
-  button_color?: string | null
-  button_hover?: string | null
+  primary_bg_color?: string | null
+  primary_font_color?: string | null
+  secondary_bg_color?: string | null
+  secondary_font_color?: string | null
   button_login?: string | null
 }
 
@@ -60,8 +62,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         maintenance_mode: typeof s?.maintenance_mode === 'boolean' ? s.maintenance_mode : null,
         theme: s?.theme ? {
           use_default: typeof s.theme.use_default === 'boolean' ? s.theme.use_default : null,
-          button_color: s.theme.button_color ?? null,
-          button_hover: s.theme.button_hover ?? null,
+          primary_bg_color: s.theme.primary_bg_color ?? null,
+          primary_font_color: s.theme.primary_font_color ?? null,
+          secondary_bg_color: s.theme.secondary_bg_color ?? null,
+          secondary_font_color: s.theme.secondary_font_color ?? null,
           button_login: s.theme.button_login ?? null,
         } : null,
       }

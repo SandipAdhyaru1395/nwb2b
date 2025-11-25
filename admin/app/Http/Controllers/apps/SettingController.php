@@ -420,8 +420,10 @@ class SettingController extends Controller
   {
     $validated = $request->validate([
       'useDefaultColors' => 'nullable|in:1',
-      'buttonColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
-      'buttonHoverColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'primaryBgColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'primaryFontColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'secondaryBgColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
+      'secondaryFontColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
       'buttonLoginColor' => 'nullable|string|regex:/^#[0-9A-Fa-f]{6}$/',
     ]);
 
@@ -430,8 +432,10 @@ class SettingController extends Controller
     Setting::updateOrCreate(['key' => 'default_theme'], ['value' => $useDefault ? '1' : '0']);
 
     $map = [
-      'theme_primary_color' => $validated['buttonColor'] ?? '',
-      'theme_secondary_color' => $validated['buttonHoverColor'] ?? '',
+      'primary_bg_color' => $validated['primaryBgColor'] ?? '',
+      'primary_font_color' => $validated['primaryFontColor'] ?? '',
+      'secondary_bg_color' => $validated['secondaryBgColor'] ?? '',
+      'secondary_font_color' => $validated['secondaryFontColor'] ?? '',
       'theme_button_login' => $validated['buttonLoginColor'] ?? '',
     ];
 

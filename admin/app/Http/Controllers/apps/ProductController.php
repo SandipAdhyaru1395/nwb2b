@@ -38,7 +38,8 @@ class ProductController extends Controller
       'productSku' => ['required','unique:products,sku'],
       'productUnitSku' => ['required','unique:products,product_unit_sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
-      'productImage' => ['required', 'image', 'mimes:jpeg,png,jpg,webp'],
+      'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
+      'productImageUrl' => ['nullable', 'url', 'max:2048'],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
       'unit_id' => ['nullable','exists:units,id'],
       'costPrice' => ['nullable', 'numeric', 'min:0'],
@@ -58,9 +59,10 @@ class ProductController extends Controller
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
       'productPrice.min' => 'Price can not be less than 0',
-      'productImage.required' => 'Image is required',
       'productImage.image' => 'Must be valid image',
       'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'productImageUrl.url' => 'Must be a valid URL',
+      'productImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'costPrice.numeric' => 'Cost price must be valid number',
       'costPrice.min' => 'Cost price can not be less than 0',
       'weight.numeric' => 'Weight must be a number',
@@ -68,7 +70,21 @@ class ProductController extends Controller
       'expiry_date.date_format' => 'Expiry date must be in dd/mm/yyyy format',
     ]);
 
-    $path = $request->file('productImage')->store('products', 'public');
+    // Validate that at least one image source is provided
+    if (!$request->hasFile('productImage') && empty($request->productImageUrl)) {
+      return redirect()->back()
+        ->withInput()
+        ->withErrors(['productImage' => 'Either an image file or image URL is required.']);
+    }
+
+    // Determine image URL: use uploaded file if provided, otherwise use URL input
+    $imageUrl = null;
+    if ($request->hasFile('productImage')) {
+      $path = $request->file('productImage')->store('products', 'public');
+      $imageUrl = asset('storage/' . $path);
+    } elseif (!empty($request->productImageUrl)) {
+      $imageUrl = $request->productImageUrl;
+    }
     $price = $validated['productPrice'];
     $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
     if ($request->vat_method_id) {
@@ -85,7 +101,7 @@ class ProductController extends Controller
     $quantity = $request->quantity ?? 0;
     $costPrice = $request->costPrice ?? 0;
 
-    $product = DB::transaction(function () use ($validated, $request, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $path) {
+    $product = DB::transaction(function () use ($validated, $request, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl) {
       $product = Product::create([
         'name' => $validated['productTitle'],
         'sku' => $validated['productSku'],
@@ -98,7 +114,7 @@ class ProductController extends Controller
         'weight' => $request->weight ?? null,
         'rrp' => $request->rrp ?? null,
         'expiry_date' => $expiryDate,
-        'image_url' => $path,
+        'image_url' => $imageUrl,
         'stock_quantity' => $quantity,
         'vat_amount' => $vatAmount,
         'vat_method_name' => $vatMethodName,
@@ -151,6 +167,7 @@ class ProductController extends Controller
       'productUnitSku' => ['required','unique:products,product_unit_sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
       'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
+      'productImageUrl' => ['nullable', 'url', 'max:2048'],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
       'unit_id' => ['nullable','exists:units,id'],
       'costPrice' => ['nullable', 'numeric', 'min:0'],
@@ -172,6 +189,8 @@ class ProductController extends Controller
       'productPrice.min' => 'Price can not be less than 0',
       'productImage.image' => 'Must be valid image',
       'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'productImageUrl.url' => 'Must be a valid URL',
+      'productImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'costPrice.numeric' => 'Cost price must be valid number',
       'costPrice.min' => 'Cost price can not be less than 0',
       'weight.numeric' => 'Weight must be a number',
@@ -180,18 +199,15 @@ class ProductController extends Controller
     ]);
      
 
-    // Ensure $path exists even if no image is uploaded
-    $path = null;
+    // Determine image URL: prioritize uploaded file, then URL input, then keep existing
+    $product = Product::findOrFail($request->id);
+    $imageUrl = $product->image_url; // Default to existing image
 
-    if($request->file('productImage') != null){
-
-      $image = Product::find($request->id)->image;  
-
-      if($image){
-        Storage::disk('public')->delete($image);
-      }
-
+    if($request->hasFile('productImage')){
       $path = $request->file('productImage')->store('products', 'public');
+      $imageUrl = asset('storage/' . $path);
+    } elseif(!empty($request->productImageUrl)){
+      $imageUrl = $request->productImageUrl;
     }
     $price = $validated['productPrice'];
     $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
@@ -209,8 +225,7 @@ class ProductController extends Controller
     $quantity = $request->quantity ?? 0;
     $costPrice = $request->costPrice ?? 0;
 
-    DB::transaction(function () use ($request, $validated, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $path) {
-      $product = Product::findOrFail($request->id);
+    DB::transaction(function () use ($request, $validated, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl, $product) {
       
       $product->update([
         'name' => $validated['productTitle'],
@@ -224,7 +239,7 @@ class ProductController extends Controller
         'weight' => $request->weight ?? null,
         'rrp' => $request->rrp ?? null,
         'expiry_date' => $expiryDate,
-        'image_url' => $request->file('productImage') != null ? $path : $product->image_url,
+        'image_url' => $imageUrl,
         'stock_quantity' => $quantity,
         'vat_amount' => $vatAmount,
         'vat_method_name' => $vatMethodName,
@@ -356,5 +371,705 @@ class ProductController extends Controller
       ->exists();
 
     return response()->json(['valid' => !$exists]);
+  }
+
+  public function import(Request $request)
+  {
+    $request->validate([
+      'importFile' => ['required', 'file', 'max:10240'], // 10MB max
+    ], [
+      'importFile.required' => 'Please select a file to import',
+      'importFile.file' => 'The uploaded file is invalid',
+      'importFile.max' => 'File size must not exceed 10MB',
+    ]);
+    
+    // Custom validation for file type
+    $file = $request->file('importFile');
+    $extension = strtolower($file->getClientOriginalExtension());
+    $allowedExtensions = ['csv', 'txt'];
+    
+    if (!in_array($extension, $allowedExtensions)) {
+      return redirect()->back()
+        ->withErrors(['importFile' => 'File must be in CSV format (.csv). If you have an Excel file, please convert it to CSV first.'])
+        ->withInput();
+    }
+    
+    // Check if file is actually an Excel file (ZIP signature)
+    $fileContent = file_get_contents($file->getRealPath(), false, null, 0, 4);
+    $isExcelFile = (substr($fileContent, 0, 2) === 'PK'); // Excel files start with ZIP signature
+    
+    if ($isExcelFile) {
+      return redirect()->back()
+        ->withErrors(['importFile' => 'The file appears to be an Excel file. Please convert it to CSV format first. In Excel: File > Save As > CSV (Comma delimited) (*.csv)'])
+        ->withInput();
+    }
+
+    $results = [
+      'success' => 0,
+      'failed' => 0,
+      'errors' => []
+    ];
+
+    try {
+      // Read CSV file
+      $rows = $this->readCsvFile($file);
+
+      if (empty($rows)) {
+        Toastr::error('No data found in the file or file is empty. Please ensure your file is a valid CSV file.');
+        return redirect()->back();
+      }
+
+      // Get header row and remove it from data
+      if (empty($rows)) {
+        Toastr::error('File appears to be empty or could not be read. Please ensure it is a valid CSV file.');
+        return redirect()->back();
+      }
+      
+      $headers = array_shift($rows);
+      
+      // Validate that we got actual headers (not binary data)
+      if (empty($headers) || (count($headers) === 1 && strlen(trim($headers[0])) < 3)) {
+        Toastr::error('Could not read headers from file. The file may be corrupted or in an unsupported format. Please ensure you are uploading a CSV file (not Excel format).');
+        return redirect()->back();
+      }
+      
+      // Clean headers - remove BOM and trim
+      $headers = array_map(function($header) {
+        // Remove BOM characters
+        $header = preg_replace('/\x{FEFF}/u', '', $header);
+        // Remove any non-printable characters except spaces
+        $header = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $header);
+        // Trim whitespace
+        $header = trim($header);
+        return $header;
+      }, $headers);
+      
+      // Filter out empty headers
+      $headers = array_filter($headers, function($h) { return !empty(trim($h)); });
+      $headers = array_values($headers); // Re-index array
+      
+      $headerMap = $this->mapHeaders($headers);
+
+      // Validate headers (case-insensitive matching with alternative names)
+      $requiredHeadersMap = [
+        'Product Name' => ['Product Name', 'product name', 'PRODUCT NAME', 'Name', 'name', 'Product Title', 'product title'],
+        'Product Code' => ['Product Code', 'product code', 'PRODUCT CODE', 'Code', 'code', 'SKU', 'sku', 'Product SKU'],
+        'Product Unit Code' => ['Product Unit Code', 'product unit code', 'PRODUCT UNIT CODE', 'Unit Code', 'unit code', 'Product Unit SKU'],
+        'Selling Price' => ['Selling Price', 'selling price', 'SELLING PRICE', 'Price', 'price', 'Sale Price'],
+        'Status' => ['Status (1 = Active / 0 = Inactive)', 'Status', 'status', 'STATUS', 'Product Status', 'product status', 'Status (1 = Active / 0 = Inactive)'],
+        'Brand' => ['Brand', 'brand', 'BRAND', 'Product Brand', 'product brand']
+      ];
+      
+      // Optional headers map (for better matching)
+      $optionalHeadersMap = [
+        'Image' => ['Image', 'image', 'IMAGE', 'Product Image', 'product image', 'Image URL', 'image url', 'ImageUrl'],
+        'Cost Price' => ['Cost Price (Optional)', 'Cost Price', 'cost price', 'COST PRICE', 'Cost', 'cost'],
+        'Wallet Credit' => ['Wallet Credit (Optional)', 'Wallet Credit', 'wallet credit', 'WALLET CREDIT', 'Wallet', 'wallet'],
+        'Weight (Kg)' => ['Weight (Kg) (Optional)', 'Weight (Kg)', 'weight (kg)', 'WEIGHT (KG)', 'Weight', 'weight', 'Weight (kg)', 'Weight(Kg)'],
+        'RRP' => ['RRP (Optional)', 'RRP', 'rrp', 'Recommended Retail Price'],
+        'Expiry Date' => ['Expiry Date (Optional)', 'Expiry Date', 'expiry date', 'EXPIRY DATE', 'Expiry', 'expiry', 'Exp Date', 'exp date'],
+        'Quantity' => ['Quantity', 'quantity', 'QUANTITY', 'Qty', 'qty', 'Stock Quantity', 'stock quantity'],
+        'VAT Method' => ['VAT Method (Optional)', 'VAT Method', 'vat method', 'VAT METHOD', 'Vat Method', 'VAT', 'vat', 'Tax Method', 'tax method'],
+        'Product Unit' => ['Product Unit', 'product unit', 'PRODUCT UNIT', 'Unit', 'unit'],
+        'Description' => ['Description (Optional)', 'Description', 'description', 'DESCRIPTION', 'Desc', 'desc']
+      ];
+      
+      $missingHeaders = [];
+      $foundHeaders = array_keys($headerMap);
+      $normalizedHeaderMap = [];
+      
+      // Build normalized header map for required headers
+      foreach ($requiredHeadersMap as $canonicalName => $variations) {
+        $found = false;
+        $foundIndex = null;
+        
+        // Check each variation
+        foreach ($variations as $variation) {
+          // Check exact match
+          if (isset($headerMap[$variation])) {
+            $normalizedHeaderMap[$canonicalName] = $headerMap[$variation];
+            $found = true;
+            break;
+          }
+          
+          // Check case-insensitive match
+          foreach ($foundHeaders as $foundHeader) {
+            if (strcasecmp(trim($foundHeader), trim($variation)) === 0) {
+              $normalizedHeaderMap[$canonicalName] = $headerMap[$foundHeader];
+              $found = true;
+              break 2;
+            }
+          }
+        }
+        
+        if (!$found) {
+          $missingHeaders[] = $canonicalName;
+        }
+      }
+      
+      // Build normalized header map for optional headers (like Image)
+      foreach ($optionalHeadersMap as $canonicalName => $variations) {
+        $found = false;
+        
+        // Check each variation
+        foreach ($variations as $variation) {
+          // Check exact match
+          if (isset($headerMap[$variation])) {
+            $normalizedHeaderMap[$canonicalName] = $headerMap[$variation];
+            $found = true;
+            break;
+          }
+          
+          // Check case-insensitive match
+          foreach ($foundHeaders as $foundHeader) {
+            if (strcasecmp(trim($foundHeader), trim($variation)) === 0) {
+              $normalizedHeaderMap[$canonicalName] = $headerMap[$foundHeader];
+              $found = true;
+              break 2;
+            }
+          }
+        }
+      }
+      
+      // Update headerMap with normalized names
+      $headerMap = $normalizedHeaderMap;
+
+      if (!empty($missingHeaders)) {
+        $errorMsg = 'Missing required columns: ' . implode(', ', $missingHeaders);
+        $errorMsg .= '<br><strong>Found headers in file:</strong> ' . implode(', ', array_map(function($h) { return '"' . $h . '"'; }, array_slice($foundHeaders, 0, 20)));
+        if (count($foundHeaders) > 20) {
+          $errorMsg .= ' (and ' . (count($foundHeaders) - 20) . ' more)';
+        }
+        Toastr::error($errorMsg, '', ['timeOut' => 10000]);
+        return redirect()->back();
+      }
+
+      // Step 1: Validate ALL rows first (don't insert anything yet)
+      $validatedProducts = [];
+      $allErrors = [];
+      
+      foreach ($rows as $rowIndex => $row) {
+        $rowNumber = $rowIndex + 2; // +2 because header is row 1, and array is 0-indexed
+        
+        try {
+          $productData = $this->mapRowToProductData($row, $headerMap, $rowNumber);
+          
+          // Validate product data using same rules as create method
+          $validationResult = $this->validateProductData($productData);
+          
+          if ($validationResult['valid']) {
+            // Store validated product data for later insertion
+            $validatedProducts[] = $productData;
+          } else {
+            $allErrors[] = "Row {$rowNumber}: " . implode(', ', $validationResult['errors']);
+          }
+        } catch (\Exception $e) {
+          $allErrors[] = "Row {$rowNumber}: " . $e->getMessage();
+        }
+      }
+
+      // Step 2: If there are any validation errors, show them and don't insert anything
+      if (!empty($allErrors)) {
+        $errorMessage = "Import failed. Please fix the following errors and try again:<br>";
+        if (count($allErrors) <= 20) {
+          $errorMessage .= "<ul style='margin: 10px 0; padding-left: 20px;'>";
+          foreach ($allErrors as $error) {
+            $errorMessage .= "<li>" . htmlspecialchars($error) . "</li>";
+          }
+          $errorMessage .= "</ul>";
+        } else {
+          $errorMessage .= "<ul style='margin: 10px 0; padding-left: 20px;'>";
+          foreach (array_slice($allErrors, 0, 20) as $error) {
+            $errorMessage .= "<li>" . htmlspecialchars($error) . "</li>";
+          }
+          $errorMessage .= "</ul>";
+          $errorMessage .= "<strong>And " . (count($allErrors) - 20) . " more error(s).</strong>";
+        }
+        Toastr::error($errorMessage, '', ['timeOut' => 15000, 'escapeHtml' => false]);
+        return redirect()->back();
+      }
+
+      // Step 3: All rows passed validation - now insert all records in a single transaction
+      if (empty($validatedProducts)) {
+        Toastr::warning('No valid products found to import.');
+        return redirect()->back();
+      }
+
+      try {
+        DB::beginTransaction();
+        
+        foreach ($validatedProducts as $productData) {
+          $this->createProductFromImport($productData);
+          $results['success']++;
+        }
+        
+        DB::commit();
+        
+        Toastr::success("Successfully imported {$results['success']} product(s).");
+      } catch (\Exception $e) {
+        DB::rollBack();
+        Toastr::error('Import failed: ' . $e->getMessage());
+      }
+
+    } catch (\Exception $e) {
+      Toastr::error('Import failed: ' . $e->getMessage());
+    }
+
+    return redirect()->route('product.list');
+  }
+
+  private function readCsvFile($file)
+  {
+    $rows = [];
+    // Try to detect encoding and handle BOM
+    $content = file_get_contents($file->getRealPath());
+    
+    // Remove BOM if present
+    $content = preg_replace('/\x{FEFF}/u', '', $content);
+    
+    // Try to convert to UTF-8 if not already
+    if (!mb_check_encoding($content, 'UTF-8')) {
+      $content = mb_convert_encoding($content, 'UTF-8', 'auto');
+    }
+    
+    // Write cleaned content to temp file
+    $tempFile = tempnam(sys_get_temp_dir(), 'csv_import_');
+    file_put_contents($tempFile, $content);
+    
+    $handle = fopen($tempFile, 'r');
+    
+    if ($handle !== false) {
+      while (($row = fgetcsv($handle, 1000, ',')) !== false) {
+        $rows[] = $row;
+      }
+      fclose($handle);
+    }
+    
+    // Clean up temp file
+    if (file_exists($tempFile)) {
+      unlink($tempFile);
+    }
+    
+    return $rows;
+  }
+
+  private function readExcelFile($file)
+  {
+    // Excel files cannot be read directly with fgetcsv
+    // This method is kept for future use with PhpSpreadsheet library
+    // For now, users should convert Excel to CSV
+    return [];
+  }
+
+  private function mapHeaders($headers)
+  {
+    $map = [];
+    foreach ($headers as $index => $header) {
+      // Already cleaned in import method, but ensure trim here too
+      $header = trim($header);
+      // Remove BOM if still present
+      $header = preg_replace('/\x{FEFF}/u', '', $header);
+      if (!empty($header)) {
+        $map[$header] = $index;
+      }
+    }
+    return $map;
+  }
+
+  private function mapRowToProductData($row, $headerMap, $rowNumber)
+  {
+    $getValue = function($headerName) use ($row, $headerMap) {
+      // Try exact match first
+      if (isset($headerMap[$headerName])) {
+        $index = $headerMap[$headerName];
+        if (isset($row[$index])) {
+          $value = $row[$index];
+          // Return trimmed string or the value itself
+          $trimmed = is_string($value) ? trim($value) : (string)$value;
+          // Return null for empty strings, otherwise return the value
+          return $trimmed === '' ? null : $trimmed;
+        }
+      }
+      
+      // Try case-insensitive match
+      foreach ($headerMap as $mapHeader => $index) {
+        if (strcasecmp(trim($mapHeader), trim($headerName)) === 0) {
+          if (isset($row[$index])) {
+            $value = $row[$index];
+            $trimmed = is_string($value) ? trim($value) : (string)$value;
+            return $trimmed === '' ? null : $trimmed;
+          }
+        }
+      }
+      
+      return null;
+    };
+
+    // Map sheet columns to product data
+    $data = [
+      'productTitle' => $getValue('Product Name'),
+      'productSku' => $getValue('Product Code'),
+      'productUnitSku' => $getValue('Product Unit Code'),
+      'productPrice' => $getValue('Selling Price'),
+      'costPrice' => $getValue('Cost Price') ?: $getValue('Cost Price (Optional)') ?: $getValue('cost price') ?: $getValue('Cost'),
+      'walletCredit' => $getValue('Wallet Credit') ?: $getValue('Wallet Credit (Optional)') ?: $getValue('wallet credit') ?: $getValue('Wallet'),
+      'weight' => $getValue('Weight (Kg)') ?: $getValue('Weight (Kg) (Optional)') ?: $getValue('weight (kg)') ?: $getValue('Weight') ?: $getValue('Weight(Kg)'),
+      'rrp' => $getValue('RRP') ?: $getValue('RRP (Optional)') ?: $getValue('rrp') ?: $getValue('Recommended Retail Price'),
+      'expiry_date' => $getValue('Expiry Date') ?: $getValue('Expiry Date (Optional)') ?: $getValue('expiry date') ?: $getValue('Expiry') ?: $getValue('Exp Date'),
+      'quantity' => $getValue('Quantity') ?: $getValue('quantity') ?: $getValue('Qty') ?: $getValue('Stock Quantity'),
+      'productUnit' => $getValue('Product Unit') ?: $getValue('product unit') ?: $getValue('Unit'),
+      'vatMethod' => $getValue('VAT Method (Optional)') ?: $getValue('VAT Method') ?: $getValue('vat method') ?: $getValue('VAT') ?: $getValue('Tax Method'),
+      'productDescription' => $getValue('Description') ?: $getValue('Description (Optional)') ?: $getValue('description') ?: $getValue('Desc'),
+      'productStatus' => $getValue('Status'),
+      'brand' => $getValue('Brand'),
+      'productImageUrl' => $getValue('Image') ?: $getValue('Image URL') ?: $getValue('image') ?: $getValue('image url') ?: $getValue('Product Image'),
+    ];
+
+    // Convert scientific notation to regular number for Product Code
+    if ($data['productSku'] && (stripos($data['productSku'], 'E+') !== false || stripos($data['productSku'], 'E-') !== false)) {
+      $data['productSku'] = (string)(float)$data['productSku'];
+    }
+    if ($data['productUnitSku'] && (stripos($data['productUnitSku'], 'E+') !== false || stripos($data['productUnitSku'], 'E-') !== false)) {
+      $data['productUnitSku'] = (string)(float)$data['productUnitSku'];
+    }
+
+    return $data;
+  }
+
+  private function validateProductData($data)
+  {
+    $errors = [];
+
+    // Required fields
+    if (empty($data['productTitle'])) {
+      $errors[] = 'Product Name is required';
+    }
+    if (empty($data['productSku'])) {
+      $errors[] = 'Product Code is required';
+    } elseif (Product::where('sku', $data['productSku'])->exists()) {
+      $errors[] = 'Product Code already exists';
+    }
+    if (empty($data['productUnitSku'])) {
+      $errors[] = 'Product Unit Code is required';
+    } elseif (Product::where('product_unit_sku', $data['productUnitSku'])->exists()) {
+      $errors[] = 'Product Unit Code already exists';
+    }
+    if (empty($data['productPrice'])) {
+      $errors[] = 'Selling Price is required';
+    } elseif (!is_numeric($data['productPrice']) || $data['productPrice'] < 0) {
+      $errors[] = 'Selling Price must be a valid number >= 0';
+    }
+    // Handle multiple brands (comma-separated)
+    if (empty($data['brand'])) {
+      $errors[] = 'Brand is required';
+    } else {
+      // Split brands by comma and trim each
+      $brandNames = array_map('trim', explode(',', $data['brand']));
+      $brandNames = array_filter($brandNames, function($name) { return !empty($name); }); // Remove empty values
+      
+      if (empty($brandNames)) {
+        $errors[] = 'At least one brand is required';
+      } else {
+        // Validate each brand exists
+        $missingBrands = [];
+        foreach ($brandNames as $brandName) {
+          $brand = Brand::where('name', $brandName)->first();
+          if (!$brand) {
+            $missingBrands[] = $brandName;
+          }
+        }
+        
+        if (!empty($missingBrands)) {
+          $errors[] = 'Brand(s) not found: ' . implode(', ', $missingBrands);
+        }
+      }
+    }
+
+    // Optional numeric fields
+    if (!empty($data['costPrice']) && (!is_numeric($data['costPrice']) || $data['costPrice'] < 0)) {
+      $errors[] = 'Cost Price must be a valid number >= 0';
+    }
+    if (!empty($data['weight']) && !is_numeric($data['weight'])) {
+      $errors[] = 'Weight must be a number';
+    }
+    if (!empty($data['rrp']) && !is_numeric($data['rrp'])) {
+      $errors[] = 'RRP must be a number';
+    }
+    if (!empty($data['walletCredit']) && (!is_numeric($data['walletCredit']) || $data['walletCredit'] < 0)) {
+      $errors[] = 'Wallet Credit must be a valid number >= 0';
+    }
+
+    // Status validation - allow "0" as valid value (inactive)
+    if (isset($data['productStatus']) && $data['productStatus'] !== '' && $data['productStatus'] !== null) {
+      $status = trim($data['productStatus']);
+      if (!in_array($status, ['0', '1', 'Active', 'Inactive'])) {
+        $errors[] = 'Status must be 0, 1, Active, or Inactive';
+      }
+    } else {
+      $errors[] = 'Status is required';
+    }
+
+    // Expiry date validation
+    if (!empty($data['expiry_date'])) {
+      $dateStr = trim($data['expiry_date']);
+      // Try to parse date in dd/mm/yyyy or dd-mm-yyyy format
+      $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+      if (!$date) {
+        $date = \DateTime::createFromFormat('d-m-Y', $dateStr);
+      }
+      if (!$date) {
+        $errors[] = 'Expiry Date must be in dd/mm/yyyy or dd-mm-yyyy format';
+      }
+    }
+
+    // Image URL validation (more lenient - just check if it's not empty and looks like a URL)
+    if (!empty($data['productImageUrl'])) {
+      $url = trim($data['productImageUrl']);
+      // Check if it's a valid URL format (starts with http/https or is a valid URL)
+      if (!preg_match('/^https?:\/\//i', $url) && !filter_var($url, FILTER_VALIDATE_URL)) {
+        // Don't add error if it's just missing http:// prefix - we'll add it in createProductFromImport
+        // Only error if it's clearly not a URL
+        if (strpos($url, '://') !== false || (strpos($url, '.') === false && strpos($url, '/') === false)) {
+          $errors[] = 'Image must be a valid URL';
+        }
+      }
+    }
+
+    // Unit validation
+    if (!empty($data['productUnit'])) {
+      $unit = Unit::where('name', $data['productUnit'])->where('status', 'Active')->first();
+      if (!$unit) {
+        $errors[] = 'Product Unit "' . $data['productUnit'] . '" not found or inactive';
+      }
+    }
+
+    // VAT Method validation (optional)
+    if (!empty($data['vatMethod'])) {
+      $vatMethodName = trim($data['vatMethod']);
+      $vatMethod = VatMethod::where('name', $vatMethodName)->where('status', 'Active')->first();
+      if (!$vatMethod) {
+        $errors[] = 'VAT Method "' . $vatMethodName . '" not found or inactive';
+      }
+    }
+
+    return [
+      'valid' => empty($errors),
+      'errors' => $errors
+    ];
+  }
+
+  private function createProductFromImport($data)
+  {
+    // Get brand IDs (support multiple brands comma-separated)
+    $brandNames = array_map('trim', explode(',', $data['brand']));
+    $brandNames = array_filter($brandNames, function($name) { return !empty($name); }); // Remove empty values
+    
+    $brandIds = [];
+    foreach ($brandNames as $brandName) {
+      $brand = Brand::where('name', $brandName)->first();
+      if ($brand) {
+        $brandIds[] = $brand->id;
+      }
+    }
+    
+    if (empty($brandIds)) {
+      throw new \Exception('No valid brands found');
+    }
+
+    // Get unit ID if provided
+    $unitId = null;
+    if (!empty($data['productUnit'])) {
+      $unit = Unit::where('name', $data['productUnit'])->where('status', 'Active')->first();
+      if ($unit) {
+        $unitId = $unit->id;
+      }
+    }
+
+    // Parse status - allow "0" as valid value (inactive)
+    $status = 0;
+    if (isset($data['productStatus']) && $data['productStatus'] !== '' && $data['productStatus'] !== null) {
+      $statusStr = trim($data['productStatus']);
+      if (in_array($statusStr, ['1', 'Active'])) {
+        $status = 1;
+      } elseif (in_array($statusStr, ['0', 'Inactive'])) {
+        $status = 0;
+      }
+    }
+
+    // Parse expiry date
+    $expiryDate = null;
+    if (!empty($data['expiry_date'])) {
+      $dateStr = trim($data['expiry_date']);
+      $date = \DateTime::createFromFormat('d/m/Y', $dateStr);
+      if (!$date) {
+        $date = \DateTime::createFromFormat('d-m-Y', $dateStr);
+      }
+      if ($date) {
+        $expiryDate = $date->format('Y-m-d');
+      }
+    }
+
+    // Set default step quantity (default to 1)
+    $step = 1;
+
+    $price = (float)$data['productPrice'];
+    
+    // Handle VAT Method
+    $vatAmount = 0;
+    $vatMethodName = null;
+    $vatMethodType = null;
+    if (!empty($data['vatMethod'])) {
+      $vatMethodName = trim($data['vatMethod']);
+      $vatMethod = VatMethod::where('name', $vatMethodName)->where('status', 'Active')->first();
+      if ($vatMethod) {
+        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
+        $vatMethodName = $vatMethod->name;
+        $vatMethodType = $vatMethod->type;
+      }
+    }
+    
+    // Handle numeric fields - convert empty strings to null/0, handle "0" as valid value
+    $costPrice = 0;
+    if (isset($data['costPrice']) && $data['costPrice'] !== '' && $data['costPrice'] !== null) {
+      $costPrice = is_numeric($data['costPrice']) ? (float)$data['costPrice'] : 0;
+    }
+    
+    $quantity = 0;
+    if (isset($data['quantity']) && $data['quantity'] !== '' && $data['quantity'] !== null) {
+      $quantity = is_numeric($data['quantity']) ? (int)$data['quantity'] : 0;
+    }
+    
+    $walletCredit = 0;
+    if (isset($data['walletCredit']) && $data['walletCredit'] !== '' && $data['walletCredit'] !== null) {
+      $walletCredit = is_numeric($data['walletCredit']) ? (float)$data['walletCredit'] : 0;
+    }
+    
+    $weight = null;
+    if (isset($data['weight']) && $data['weight'] !== '' && $data['weight'] !== null && trim($data['weight']) !== '') {
+      $weight = is_numeric($data['weight']) ? (float)$data['weight'] : null;
+    }
+    
+    $rrp = null;
+    if (isset($data['rrp']) && $data['rrp'] !== '' && $data['rrp'] !== null && trim($data['rrp']) !== '') {
+      $rrp = is_numeric($data['rrp']) ? (float)$data['rrp'] : null;
+    }
+
+    // Validate and set image URL
+    $imageUrl = null;
+    if (!empty($data['productImageUrl'])) {
+      $url = trim($data['productImageUrl']);
+      // More lenient URL validation - check if it starts with http:// or https://
+      if (preg_match('/^https?:\/\//i', $url)) {
+        $imageUrl = $url;
+      } elseif (filter_var($url, FILTER_VALIDATE_URL)) {
+        $imageUrl = $url;
+      } else {
+        // If it doesn't start with http, try adding it
+        if (strpos($url, '://') === false && !empty($url)) {
+          $imageUrl = 'https://' . ltrim($url, '/');
+        }
+      }
+    }
+
+    // Note: Transaction is handled at the import level for all-or-nothing behavior
+    $product = Product::create([
+      'name' => $data['productTitle'],
+      'sku' => $data['productSku'],
+      'product_unit_sku' => $data['productUnitSku'],
+      'step_quantity' => $step,
+      'description' => $data['productDescription'] ?? null,
+      'price' => $price,
+      'cost_price' => $costPrice,
+      'wallet_credit' => $walletCredit,
+      'weight' => $weight,
+      'rrp' => $rrp,
+      'expiry_date' => $expiryDate,
+      'image_url' => $imageUrl,
+        'stock_quantity' => $quantity,
+        'vat_amount' => $vatAmount,
+        'vat_method_name' => $vatMethodName,
+        'vat_method_type' => $vatMethodType,
+        'unit_id' => $unitId,
+      'is_active' => $status,
+    ]);
+
+    // Create product brands (multiple brands supported)
+    foreach ($brandIds as $brandId) {
+      ProductBrand::create([
+        'product_id' => $product->id,
+        'brand_id' => $brandId
+      ]);
+    }
+
+    // Sync warehouse product
+    WarehouseProductSyncService::sync($product->id, $quantity, $costPrice);
+  }
+
+  public function downloadSample()
+  {
+    $headers = [
+      'SR NO.',
+      'Product Name',
+      'Product Code',
+      'Product Unit Code',
+      'Selling Price',
+      'Cost Price (Optional)',
+      'Wallet Credit (Optional)',
+      'Weight (Kg) (Optional)',
+      'RRP (Optional)',
+      'Expiry Date (Optional)',
+        'Quantity',
+        'Product Unit',
+        'VAT Method (Optional)',
+        'Description (Optional)',
+      'Status (1 = Active / 0 = Inactive)',
+      'Brand',
+      'Image'
+    ];
+
+    $sampleData = [
+      [
+        '1',
+        'Hayati Pro Ultra+ 25K Prefilled Pod Kit [Blackcurrant Cotton K - Blue Raspberry / 20mg]',
+        '6936330000000',
+        '6936330000000',
+        '32.00',
+        '0.00',
+        '0.00',
+        '0.00',
+        '0.00',
+        '26-11-2026',
+        '500',
+        'Box QTY 5',
+        '20%',
+        '',
+        '1',
+        '
+Hayati Pro Ultra 25K Prefilled Pods, Hayati Pro Ultra 25K',
+        'https://aidemo.in/nwb2b/admin/public/storage/products/jihfqWToNwczA0CK6.JH19x9NSrFCyVAOv07.JtfGv.jpg'
+      ]
+    ];
+
+    $filename = 'sample-products-import.csv';
+    $handle = fopen('php://temp', 'r+');
+    
+    // Add BOM for UTF-8 Excel compatibility
+    fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF));
+    
+    // Write headers
+    fputcsv($handle, $headers);
+    
+    // Write sample data
+    foreach ($sampleData as $row) {
+      fputcsv($handle, $row);
+    }
+    
+    rewind($handle);
+    $csv = stream_get_contents($handle);
+    fclose($handle);
+
+    return response($csv)
+      ->header('Content-Type', 'text/csv; charset=UTF-8')
+      ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
   }
 }

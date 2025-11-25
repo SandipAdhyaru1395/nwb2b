@@ -74,13 +74,10 @@ class OrderController extends Controller
 
         $items = $order->items()->with('product')->get()->map(function(OrderItem $item) {
             $image = optional($item->product)->image_url;
-            // if ($image && !Str::startsWith($image, ['http://', 'https://', '/'])) {
-            //     $image = url($image);
-            // }
             return [
                 'product_id' => (int) $item->product_id,
                 'product_name' => optional($item->product)->name,
-                'product_image' => ($image) ? asset('storage/'.$image) : null,
+                'product_image' => $image ?? null,
                 'quantity' => (int) $item->quantity,
                 'unit_price' => (float) $item->unit_price,
                 'wallet_credit_earned' => (float) ($item->wallet_credit_earned ?? 0),
@@ -187,12 +184,13 @@ class OrderController extends Controller
                 ], 200);
             }
 
-            $total = 0;
+            $subtotal = 0;
             $units = 0;
             $skus = 0;
             $items = [];
             $totalWalletCreditEarned = 0;
             $pendingOrderItems = [];
+            $vatAmount = 0;
 
             $adjustments = [];
             $adjusted = false;
@@ -224,7 +222,8 @@ class OrderController extends Controller
                 }
 
                 $price = (float) $product->price;
-                $lineTotal = $price * $qty;
+                // Calculate total price: price * quantity (no discounted_price column exists)
+                $totalPrice = round($price * $qty, 2);
                 // Calculate VAT: unit_vat = product vat_amount, total_vat = unit_vat * quantity
                 $unitVat = round((float)($product->vat_amount ?? 0), 2);
                 $totalVat = round($unitVat * $qty, 2);
@@ -234,8 +233,8 @@ class OrderController extends Controller
                 // Get product unit name
                 $productUnit = $product->unit ? $product->unit->name : null;
                 
-                $totalPrice = ($product->discounted_price != 0) ? $product->discounted_price * $qty : $lineTotal;
-                $total = round($totalPrice + $totalVat, 2);
+                // Calculate item total: total_price + total_vat
+                $itemTotal = round($totalPrice + $totalVat, 2);
                 
                 $pendingOrderItems[] = [
                     'type' => 'SO',
@@ -248,10 +247,13 @@ class OrderController extends Controller
                     'wallet_credit_earned' => $walletCreditEarned,
                     'total_price' => $totalPrice,
                     'total_vat' => $totalVat,
-                    'total' => $total,
+                    'total' => $itemTotal,
                 ];
 
-                $total += $lineTotal;
+                // Accumulate subtotal (sum of all item total_prices, excluding VAT)
+                $subtotal += $totalPrice;
+                // Accumulate VAT amount
+                $vatAmount += $totalVat;
                 $units += $qty;
                 $skus += 1;
                 $totalWalletCreditEarned += (float)($product->wallet_credit ?? 0) * $qty;
@@ -260,16 +262,6 @@ class OrderController extends Controller
 
 			// Auto-apply available wallet credit to this purchase (partial or full)
 			$availableCredit = (float) optional($customer)->credit_balance ?? 0.0;
-			$subtotal = $total;
-			// Calculate total VAT from products in the cart
-            $vatAmount = 0;
-            foreach ($items as $item) {
-                $product = Product::find($item['product_id']);
-                $qty = (int)($item['quantity'] ?? 0);
-                if ($product && isset($product->vat_amount)) {
-                    $vatAmount += $product->vat_amount * $qty;
-                }
-            }
             // Only trust delivery_method_id from user, fetch method in secure server-side
             $deliveryMethod = $request->input('delivery_method_id') ? 
                 \App\Models\DeliveryMethod::find($request->input('delivery_method_id')) : null;
@@ -436,7 +428,7 @@ class OrderController extends Controller
                 'success' => true,
                 'message' => 'Order placed successfully',
                 'order_number' => $orderNumber,
-                'total' => $total,
+                'subtotal' => $subtotal,
                 'units' => $units,
                 'skus' => $skus,
                 'items_count' => count($items),

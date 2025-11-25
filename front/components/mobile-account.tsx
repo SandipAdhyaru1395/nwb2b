@@ -68,7 +68,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       {/* Account Menu Items */}
       <div className="p-[10px] mb-[80px]">
         {/* Account Details Section */}
-        <Button variant="outline" onClick={() => onNavigate("rep-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" onClick={() => onNavigate("rep-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] flex items-center justify-center">
               <FontAwesomeIcon icon={faUserTie} className="text-green-600" style={{ width: "14px", height: "16px" }} />
@@ -78,7 +78,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" onClick={() => onNavigate("company-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" onClick={() => onNavigate("company-details")} className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faBuilding} className="text-green-600" style={{ width: "12px", height: "16px" }} />
@@ -88,7 +88,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" onClick={() => onNavigate("branches")} className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" onClick={() => onNavigate("branches")} className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faStore} className="text-green-600" style={{ width: "18px", height: "16px" }} />
@@ -101,7 +101,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         <hr className="mt-[20px] mb-[20px]"></hr>
 
         {/* Utilities Section */}
-        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[20px] rounded-full flex items-center justify-center ">{revoLogo}</div>
             <span className="text-[14px] font-semibold ml-[10px]">Revo Utilities - guaranteed to reduce your bills!</span>
@@ -110,7 +110,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
         </Button>
 
         {/* Services Section */}
-        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faBarChart} className="text-green-600" style={{ width: "20px", height: "16px" }} />
@@ -120,7 +120,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faFileSignature} className="text-green-600" style={{ width: "16px", height: "16px" }} />
@@ -134,7 +134,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
 
         {/* Settings Section */}
 
-        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faBell} className="text-green-600" style={{ width: "16px", height: "16px" }} />
@@ -144,7 +144,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer">
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer">
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <FontAwesomeIcon icon={faLock} className="text-green-600" style={{ width: "16px", height: "16px" }} />
@@ -154,7 +154,7 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
           <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
         </Button>
 
-        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 hover:bg-gray-50 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
+        <Button variant="outline" className="h-[42px] w-full p-[12px] mb-[10px] justify-between text-left border border-green-600 bg-transparent hover:cursor-pointer" onClick={handleLogout}>
           <div className="flex items-center">
             <div className="w-[16px] h-[16px] rounded-full flex items-center justify-center">
               <LogOut className="w-4 h-4 text-green-600" />
@@ -168,19 +168,19 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       {/* Bottom Navigation */}
       {/* <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t footer-nav">
         <div className="grid grid-cols-4 py-3 footer-nav-col">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <Home className="w-7 h-7 mb-1" />
             <span className="text-xs">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <ShoppingBag className="w-7 h-7 mb-1" />
             <span className="text-xs">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-gray-400 hover:cursor-pointer">
             <Wallet className="w-7 h-7 mb-1" />
             <span className="text-xs">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-green-600 hover:text-green-600 hover:cursor-pointer">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-green-600 hover:cursor-pointer">
             <User className="w-7 h-7 mb-1" />
             <span className="text-xs">Account</span>
           </button>
@@ -190,19 +190,19 @@ export function MobileAccount({ onNavigate }: MobileAccountProps) {
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
         <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
-          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("dashboard")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("shop")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Account</span>
           </button>

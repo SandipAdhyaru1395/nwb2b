@@ -147,7 +147,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
 
           {/* Wallet Credit */}
 
-          <Card onClick={() => onNavigate("wallet")} className="p-[12px] mb-[10px] hover:bg-green-100 hover:cursor-pointer">
+          <Card onClick={() => onNavigate("wallet")} className="p-[12px] mb-[10px] hover:cursor-pointer">
             <div className="flex items-center justify-between h-[16px]">
               <div className="flex items-center gap-2">
                 <FontAwesomeIcon icon={faWallet} className="text-green-600" style={{ width: "16px", height: "16px" }} />
@@ -161,11 +161,11 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
           </Card>
           {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-[10px]">
-            <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px] gap-0">
+            <Button onClick={() => onNavigate("shop")} className="bg-green-500 hover:cursor-pointer text-white rounded-sm h-[45px] gap-0">
               <FontAwesomeIcon icon={faShop} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ width: "20px", height: "16px" }} />
               <span className="font-semibold text-[16px]">Shop</span>
             </Button>
-            <Button onClick={() => onNavigate("shop", true)} className="gap-0 bg-green-500 hover:bg-green-600 hover:cursor-pointer text-white rounded-sm h-[45px]">
+            <Button onClick={() => onNavigate("shop", true)} className="gap-0 bg-green-500 hover:cursor-pointer text-white rounded-sm h-[45px]">
               <FontAwesomeIcon icon={faStar} className="text-[#fff] mr-[8px] min-w-[20px] min-h-[16px] min-w-{20px} min-h-{16px}" style={{ minWidth: "20px", minHeight: "16px" }} />
               <span className="font-semibold text-[16px]">Favourites</span>
             </Button>
@@ -175,7 +175,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
         {/* Recent Notifications */}
         <h3 className="font-semibold text-gray-900 my-[10px] text-[14px] px-[10px] leading-[16px]">Recent Notifications</h3>
         <div className="my-[10px] px-[10px]">
-          <Card className="h-[42px] mb-[10px] p-[12px] hover:bg-green-100 hover:cursor-pointer">
+          <Card className="h-[42px] mb-[10px] p-[12px] hover:cursor-pointer">
             <div className="h-[16px] flex items-center justify-between leading-[16px]">
               <div className="flex items-center leading-[16px]">
                 {/* <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"> */}
@@ -186,7 +186,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
               <FontAwesomeIcon icon={faChevronRight} className="text-green-600" style={{ width: "12.5px", height: "21px" }} />
             </div>
           </Card>
-          <Card className="h-[42px] mb-[10px] p-[12px] hover:bg-green-100 hover:cursor-pointer">
+          <Card className="h-[42px] mb-[10px] p-[12px] hover:cursor-pointer">
             <div className="h-[16px] flex items-center justify-between leading-[16px]">
               <div className="flex items-center leading-[16px]">
                 {/* <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"> */}
@@ -264,7 +264,7 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
                     // ignore
                   }
                 }}
-                className="h-[42px] w-full border border-green-600  bg-white text-black hover:bg-green-50 hover:cursor-pointer text-sm font-semibold"
+                className="h-[42px] w-full border border-green-600  bg-white text-black hover:cursor-pointer text-sm font-semibold"
               >
                 View All Orders
               </Button>
@@ -277,19 +277,19 @@ export function MobileDashboard({ onNavigate, onOpenOrder }: MobileDashboardProp
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[1000px] bg-white border-t z-50 px-[18px]">
         <div className="flex flex-row items-center justify-between h-[72px] footer-nav-col">
-          <button className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faGauge} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Dashboard</span>
           </button>
-          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("shop", false)} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faShop} className="text-[#607565]" style={{ width: "30px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Shop</span>
           </button>
-          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("wallet")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faWallet} className="text-[#607565]" style={{ width: "24px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Wallet</span>
           </button>
-          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:text-[#607565] hover:cursor-pointer w-[192px]">
+          <button onClick={() => onNavigate("account")} className="flex flex-col items-center text-[#607565] hover:cursor-pointer w-[192px]">
             <FontAwesomeIcon icon={faUser} className="text-[#607565]" style={{ width: "21px", height: "24px" }} />
             <span className="text-xs mt-[5px]">Account</span>
           </button>
