@@ -10,8 +10,12 @@ export function Banner() {
   }
 
   return (
-    <div className="w-full">
-      <img src={settings.banner} alt="Banner" className="w-full h-auto object-cover" style={{ maxHeight: "266.66px" }} />
+    <div className="w-full" style={{ height: 266.66 }}>
+      <img
+        src={settings.banner}
+        alt="Banner"
+        className="w-full h-full"
+      />
     </div>
   );
 }

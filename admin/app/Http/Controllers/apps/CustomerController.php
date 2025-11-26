@@ -221,7 +221,6 @@ class CustomerController extends Controller
         'company_city' => $request->city,
         'company_country' => $request->country,
         'company_zip_code' => $request->zip_code,
-        'rep_code' => $request->rep_code ?? null,
         'rep_id' => $request->rep_id ?? null
       ]);
 
@@ -279,7 +278,6 @@ class CustomerController extends Controller
       'company_city' => $request->city,
       'company_country' => $request->country,
       'company_zip_code' => $request->zip_code,
-      'rep_code' => $request->rep_code ?? null,
       'rep_id' => $request->rep_id ?? null
     ];
 

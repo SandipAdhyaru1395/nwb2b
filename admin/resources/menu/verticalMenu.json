@@ -67,6 +67,12 @@
       "slug": "role"
     },
     {
+      "url": "report",
+      "icon": "menu-icon icon-base ti tabler-settings",
+      "name": "Reports",
+      "slug": "report"
+    },
+    {
       "url": "settings",
       "icon": "menu-icon icon-base ti tabler-settings",
       "name": "Settings",

@@ -125,15 +125,6 @@
                                 @enderror
                             </div>
                             <div class="mb-6">
-                                <label class="form-label" for="rep_code">Rep Code</label>
-                                <input type="text" autocomplete="off" id="rep_code" class="form-control"
-                                    placeholder="Enter rep code" aria-label="Enter rep code" name="rep_code"
-                                    value="{{ old('rep_code') }}" />
-                                @error('rep_code', 'add')
-                                    <span class="text-danger">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-6">
                                 <label class="form-label" for="rep_id">Sales Person</label>
                                 <select id="rep_id" name="rep_id" class="form-control select2">
                                     @if ($sales_persons->isNotEmpty())

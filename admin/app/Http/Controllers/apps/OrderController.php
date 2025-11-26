@@ -24,7 +24,11 @@ class OrderController extends Controller
 {
   public function index()
   {
-    return view('content.order.list');
+    $customers = \App\Models\Customer::where('is_active', 1)
+      ->orderBy('company_name')
+      ->orderBy('email')
+      ->get();
+    return view('content.order.list', ['customers' => $customers]);
   }
 
   public function add()
@@ -813,10 +817,137 @@ class OrderController extends Controller
         $join->on('credit_notes.parent_order_id', '=', 'orders.id')
              ->where('credit_notes.type', '=', 'CN');
       })
-      ->withCount(['creditNotes as has_credit_note_count'])
-      ->orderBy('orders.id', 'desc');
+      ->withCount(['creditNotes as has_credit_note_count']);
+
+    // Apply filters
+    if ($request->has('reference_no') && !empty($request->reference_no)) {
+      $referenceNo = trim($request->reference_no);
+      
+      // Check if search term starts with order type (SO, EST, CN)
+      $orderTypes = ['SO', 'EST', 'CN'];
+      $matchedType = null;
+      $numberPart = $referenceNo;
+      
+      foreach ($orderTypes as $type) {
+        // Case-insensitive check if search starts with type
+        if (stripos($referenceNo, $type) === 0) {
+          $matchedType = $type;
+          // Extract the number part after the type
+          $numberPart = substr($referenceNo, strlen($type));
+          break;
+        }
+      }
+      
+      // Build the query to search both type+number combination and order_number
+      $query->where(function($q) use ($referenceNo, $matchedType, $numberPart) {
+        if ($matchedType && !empty($numberPart)) {
+          // If type was matched with a number (e.g., "SO1"), search for that specific type + number
+          $q->where('orders.type', '=', $matchedType)
+            ->where('orders.order_number', 'like', '%' . $numberPart . '%');
+        } elseif ($matchedType) {
+          // If only type was provided (e.g., "SO"), search for that type
+          $q->where('orders.type', '=', $matchedType);
+        } else {
+          // If no type prefix (only numbers like "1", "12"), search by order_number only (matches any type)
+          $q->where('orders.order_number', 'like', '%' . $numberPart . '%');
+        }
+      });
+    }
+
+    if ($request->has('customer') && !empty($request->customer)) {
+      // If customer is numeric, treat it as customer_id, otherwise search by name/email
+      if (is_numeric($request->customer)) {
+        $query->where('orders.customer_id', '=', $request->customer);
+      } else {
+        $query->where(function($q) use ($request) {
+          $q->where('customers.company_name', 'like', '%' . $request->customer . '%')
+            ->orWhere('customers.email', 'like', '%' . $request->customer . '%');
+        });
+      }
+    }
+
+    if ($request->has('start_date') && !empty($request->start_date)) {
+      try {
+        $startDateStr = trim($request->start_date);
+        // Try to parse d/m/Y format first
+        if (strpos($startDateStr, '/') !== false) {
+          $startDate = Carbon::createFromFormat('d/m/Y', $startDateStr)->startOfDay();
+        } else {
+          // Fallback to standard parsing
+          $startDate = Carbon::parse($startDateStr)->startOfDay();
+        }
+        $query->where('orders.order_date', '>=', $startDate);
+      } catch (\Exception $e) {
+        // Invalid date format, skip filter
+      }
+    }
+
+    if ($request->has('end_date') && !empty($request->end_date)) {
+      try {
+        $endDateStr = trim($request->end_date);
+        // Try to parse d/m/Y format first
+        if (strpos($endDateStr, '/') !== false) {
+          $endDate = Carbon::createFromFormat('d/m/Y', $endDateStr)->endOfDay();
+        } else {
+          // Fallback to standard parsing
+          $endDate = Carbon::parse($endDateStr)->endOfDay();
+        }
+        $query->where('orders.order_date', '<=', $endDate);
+      } catch (\Exception $e) {
+        // Invalid date format, skip filter
+      }
+    }
+
+    $query->orderBy('orders.id', 'desc');
 
     return DataTables::eloquent($query)
+      ->filter(function ($query) use ($request) {
+        // Handle global search - search across all relevant columns
+        if ($request->has('search') && !empty($request->input('search.value'))) {
+          $keyword = $request->input('search.value');
+          
+          $query->where(function($q) use ($keyword) {
+            // Search in order number
+            $q->where('orders.order_number', 'like', "%{$keyword}%");
+            
+            // Search in order type + number combination (e.g., SO1, EST12, CN5)
+            $orderTypes = ['SO', 'EST', 'CN'];
+            foreach ($orderTypes as $type) {
+              if (stripos($keyword, $type) === 0) {
+                $numberPart = substr($keyword, strlen($type));
+                if (!empty($numberPart)) {
+                  $q->orWhere(function($subQ) use ($type, $numberPart) {
+                    $subQ->where('orders.type', '=', $type)
+                         ->where('orders.order_number', 'like', "%{$numberPart}%");
+                  });
+                } else {
+                  $q->orWhere('orders.type', '=', $type);
+                }
+                break; // Found a match, no need to check other types
+              }
+            }
+            
+            // Search in customer name
+            $q->orWhere('customers.company_name', 'like', "%{$keyword}%");
+            // Search in customer email
+            $q->orWhere('customers.email', 'like', "%{$keyword}%");
+            // Search in order date
+            $q->orWhere('orders.order_date', 'like', "%{$keyword}%");
+            // Search in total amount
+            $q->orWhere('orders.total_amount', 'like', "%{$keyword}%");
+            // Search in paid amount
+            $q->orWhere('orders.paid_amount', 'like', "%{$keyword}%");
+            // Search in unpaid amount
+            $q->orWhere('orders.unpaid_amount', 'like', "%{$keyword}%");
+            // Search in VAT amount
+            $q->orWhere('orders.vat_amount', 'like', "%{$keyword}%");
+            // Search in order status
+            $q->orWhere('orders.status', 'like', "%{$keyword}%");
+            // Search in payment status
+            $q->orWhere('orders.payment_status', 'like', "%{$keyword}%");
+          });
+        }
+      })
       ->addColumn('has_credit_note', function ($order) {
         if ($order->type === 'SO') {
           return ($order->has_credit_note_count ?? 0) > 0 ? 1 : 0;
@@ -1784,7 +1915,7 @@ class OrderController extends Controller
   public function getStatistics()
   {
     try {
-      // Calculate statistics for SO orders only (exclude CN from totals)
+      // Calculate statistics for SO orders
       $soStats = Order::selectRaw('
         COALESCE(SUM(total_amount), 0) as grand_total,
         COALESCE(SUM(paid_amount), 0) as paid,
@@ -1796,8 +1927,11 @@ class OrderController extends Controller
       ->where('type', 'SO')
       ->first();
 
-      // Calculate payment status counts for CN orders separately
+      // Calculate statistics for CN orders
       $cnStats = Order::selectRaw('
+        COALESCE(SUM(total_amount), 0) as grand_total,
+        COALESCE(SUM(paid_amount), 0) as paid,
+        COALESCE(SUM(unpaid_amount), 0) as balance,
         SUM(CASE WHEN payment_status = "Due" THEN 1 ELSE 0 END) as due_count,
         SUM(CASE WHEN payment_status = "Partial" THEN 1 ELSE 0 END) as partial_count,
         SUM(CASE WHEN payment_status = "Paid" THEN 1 ELSE 0 END) as paid_count
@@ -1805,12 +1939,20 @@ class OrderController extends Controller
       ->where('type', 'CN')
       ->first();
 
+      // Calculate statistics as SO - CN
+      $soGrandTotal = (float) ($soStats->grand_total ?? 0);
+      $cnGrandTotal = (float) ($cnStats->grand_total ?? 0);
+      $soPaid = (float) ($soStats->paid ?? 0);
+      $cnPaid = (float) ($cnStats->paid ?? 0);
+      $soBalance = (float) ($soStats->balance ?? 0);
+      $cnBalance = (float) ($cnStats->balance ?? 0);
+
       return response()->json([
         'success' => true,
         'statistics' => [
-          'grand_total' => (float) ($soStats->grand_total ?? 0),
-          'paid' => (float) ($soStats->paid ?? 0),
-          'balance' => (float) ($soStats->balance ?? 0),
+          'grand_total' => $soGrandTotal - $cnGrandTotal,
+          'paid' => $soPaid - $cnPaid,
+          'balance' => $soBalance - $cnBalance,
           'due_count_so' => (int) ($soStats->due_count ?? 0),
           'partial_count_so' => (int) ($soStats->partial_count ?? 0),
           'paid_count_so' => (int) ($soStats->paid_count ?? 0),

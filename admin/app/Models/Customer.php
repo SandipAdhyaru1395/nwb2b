@@ -34,7 +34,6 @@ class Customer extends Model
         'company_address_line2',
         'company_city',
         'company_zip_code',
-        'rep_code',
         'rep_id'
     ];
 

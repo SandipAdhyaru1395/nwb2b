@@ -105,7 +105,6 @@ class AuthController extends Controller
             'state' => ['nullable', 'string', 'max:255'],
             'country' => ['nullable', 'string', 'max:255'],
             'zip_code' => ['required', 'string', 'max:255'],
-            'rep_code' => ['nullable', 'string', 'max:255'],
         ], [
             'email.required' => 'Please enter email',
             'email.unique' => 'Email already exists',
@@ -144,7 +143,6 @@ class AuthController extends Controller
             'company_city' => $data['city'],
             'company_country' => $data['country'] ?? null,
             'company_zip_code' => $data['zip_code'],
-            'rep_code' => $data['rep_code'] ?? null
         ]);
     
 

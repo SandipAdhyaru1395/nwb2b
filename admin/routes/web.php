@@ -14,6 +14,7 @@ use App\Http\Controllers\apps\UserController;
 use App\Http\Controllers\apps\SettingController;
 use App\Http\Controllers\apps\RoleController;
 use App\Http\Controllers\apps\QuantityAdjustmentController;
+use App\Http\Controllers\apps\ReportController;
 use App\Http\Controllers\pages\UserProfile;
 use App\Http\Controllers\pages\UserTeams;
 use App\Http\Controllers\pages\UserProjects;
@@ -271,6 +272,15 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     });
 
     
+
+    // Report
+    Route::middleware('permission:report.read')->group(function () {
+        Route::get('/report', [ReportController::class, 'index'])->name('report.index');
+        Route::get('/report/sales', [ReportController::class, 'salesReport'])->name('report.sales');
+        Route::get('/report/sales/ajax', [ReportController::class, 'salesReportAjax'])->name('report.sales.ajax');
+        Route::get('/report/daily-sales', [ReportController::class, 'dailySalesReport'])->name('report.daily-sales');
+        Route::get('/report/daily-sales/ajax', [ReportController::class, 'dailySalesReportAjax'])->name('report.daily-sales.ajax');
+    });
 
     Route::middleware('permission:settings.read')->group(function () {
         Route::get('/settings', [SettingController::class, 'viewGeneralSettings'])->name('settings.general');

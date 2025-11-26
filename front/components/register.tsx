@@ -35,7 +35,6 @@ export default function Register() {
       email: "",
       password: "",
       password2: "",
-      repCode: "",
     },
   });
   const [loading, setLoading] = useState(false);
@@ -58,7 +57,6 @@ export default function Register() {
         state: values.state || undefined,
         country: values.country || undefined,
         zip_code: values.postcode,
-        rep_code : values.repCode
       });
       if (data?.success) {
         setSuccess("Registration submitted successfully. You can now log in.");
@@ -174,9 +172,6 @@ export default function Register() {
               />
             </div>
           </div>
-          <div className="border-t my-5"></div>
-          {/* Rep Code */}
-          <FloatingInput label="Rep code" placeholder="Please enter rep code..." {...register("repCode")} />
           <div className="border-t my-5"></div>
           <button type="submit" disabled={loading || isSubmitting} className="w-full bg-black text-white rounded py-3 disabled:opacity-60 hover:cursor-pointer">
             {loading ? "Registering..." : "Register"}

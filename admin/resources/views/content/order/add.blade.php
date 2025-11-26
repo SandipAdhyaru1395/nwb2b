@@ -183,7 +183,7 @@
                                     <div class="form-check mt-4">
                                         <input class="form-check-input" type="checkbox" id="is_est" name="is_est" value="1" {{ old('is_est') ? 'checked' : '' }}>
                                         <label class="form-check-label" for="is_est">
-                                            Is Est?
+                                            Is estimated?
                                         </label>
                                     </div>
                                     @error('is_est')

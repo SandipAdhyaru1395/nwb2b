@@ -10,7 +10,8 @@
 'resources/assets/vendor/libs/quill/typography.scss',
 'resources/assets/vendor/libs/quill/katex.scss',
 'resources/assets/vendor/libs/quill/editor.scss',
-'resources/assets/vendor/libs/flatpickr/flatpickr.scss'])
+'resources/assets/vendor/libs/flatpickr/flatpickr.scss',
+'resources/assets/vendor/libs/select2/select2.scss'])
 @endsection
 
 @section('vendor-script')
@@ -20,7 +21,8 @@
 'resources/assets/vendor/libs/quill/quill.js',
 'resources/assets/vendor/libs/@form-validation/popular.js',
 'resources/assets/vendor/libs/@form-validation/bootstrap5.js',
-'resources/assets/vendor/libs/@form-validation/auto-focus.js'])
+'resources/assets/vendor/libs/@form-validation/auto-focus.js',
+'resources/assets/vendor/libs/select2/select2.js'])
 @endsection
 
 @section('page-script')
@@ -197,6 +199,37 @@
 
 <!-- Order List Table -->
 <div class="card">
+  <!-- Filters -->
+  <div class="card-header border-bottom">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <label class="form-label">Reference No</label>
+        <input type="text" id="filter-reference-no" class="form-control" placeholder="Search reference no..." autocomplete="off">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Customer</label>
+        <select id="filter-customer" class="form-select select2">
+          <option value="">All Customers</option>
+          @foreach($customers as $customer)
+            <option value="{{ $customer->id }}">{{ $customer->company_name ?? $customer->email }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">Start Date</label>
+        <input type="text" id="filter-start-date" class="form-control flatpickr" placeholder="Select start date" autocomplete="off">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">End Date</label>
+        <input type="text" id="filter-end-date" class="form-control flatpickr" placeholder="Select end date" autocomplete="off">
+      </div>
+    </div>
+    <div class="row g-3 mt-2">
+      <div class="col-md-12">
+        <button type="button" id="btn-clear-filters" class="btn btn-label-secondary">Clear Filters</button>
+      </div>
+    </div>
+  </div>
   <div class="card-datatable table-responsive">
     <table class="datatables-order table border-top">
       <thead>

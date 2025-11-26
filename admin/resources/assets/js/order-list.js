@@ -31,11 +31,22 @@ document.addEventListener('DOMContentLoaded', function (e) {
   // E-commerce Products datatable
 
   if (dt_order_table) {
+    let startDatePicker, endDatePicker;
+
     const dt_products = new DataTable(dt_order_table, {
       processing: true,
       stateSave: true,
       serverSide: true,
-      ajax: baseUrl + 'order/list/ajax',
+      ajax: {
+        url: baseUrl + 'order/list/ajax',
+        data: function(d) {
+          // Get filter values and add to request
+          d.reference_no = document.getElementById('filter-reference-no')?.value || '';
+          d.customer = document.getElementById('filter-customer')?.value || '';
+          d.start_date = document.getElementById('filter-start-date')?.value || '';
+          d.end_date = document.getElementById('filter-end-date')?.value || '';
+        }
+      },
       columns: [
         // columns according to JSON
         { data: 'id' },
@@ -488,6 +499,132 @@ document.addEventListener('DOMContentLoaded', function (e) {
       },
       initComplete: function () {
         const api = this.api();
+
+        // Initialize Select2 for customer dropdown
+        if (typeof $ !== 'undefined' && $.fn.select2) {
+          const $customerSelect = $('#filter-customer');
+          if ($customerSelect.length && !$customerSelect.hasClass('select2-hidden-accessible')) {
+            $customerSelect.select2({
+              placeholder: 'All Customers',
+              allowClear: true,
+              width: '100%',
+              dropdownParent: $customerSelect.closest('.card-header')
+            });
+          }
+        }
+
+        // Initialize flatpickr for date filters after DataTable is created
+        if (window.flatpickr) {
+          const startDateEl = document.getElementById('filter-start-date');
+          const endDateEl = document.getElementById('filter-end-date');
+          
+          if (startDateEl && !startDatePicker) {
+            startDatePicker = flatpickr(startDateEl, {
+              dateFormat: 'd/m/Y',
+              allowInput: true,
+              onChange: function(selectedDates, dateStr, instance) {
+                dt_products.draw();
+              },
+              onClose: function(selectedDates, dateStr, instance) {
+                // Trigger refresh when date picker is closed (including when cleared)
+                dt_products.draw();
+              }
+            });
+            
+            // Also listen for manual input clearing
+            startDateEl.addEventListener('input', function() {
+              if (!this.value || this.value.trim() === '') {
+                dt_products.draw();
+              }
+            });
+            
+            // Listen for blur event to catch manual clearing
+            startDateEl.addEventListener('blur', function() {
+              if (!this.value || this.value.trim() === '') {
+                dt_products.draw();
+              }
+            });
+          }
+          
+          if (endDateEl && !endDatePicker) {
+            endDatePicker = flatpickr(endDateEl, {
+              dateFormat: 'd/m/Y',
+              allowInput: true,
+              onChange: function(selectedDates, dateStr, instance) {
+                dt_products.draw();
+              },
+              onClose: function(selectedDates, dateStr, instance) {
+                // Trigger refresh when date picker is closed (including when cleared)
+                dt_products.draw();
+              }
+            });
+            
+            // Also listen for manual input clearing
+            endDateEl.addEventListener('input', function() {
+              if (!this.value || this.value.trim() === '') {
+                dt_products.draw();
+              }
+            });
+            
+            // Listen for blur event to catch manual clearing
+            endDateEl.addEventListener('blur', function() {
+              if (!this.value || this.value.trim() === '') {
+                dt_products.draw();
+              }
+            });
+          }
+        }
+
+        // Setup filter event listeners
+        const filterReferenceNo = document.getElementById('filter-reference-no');
+        const filterCustomer = document.getElementById('filter-customer');
+        const btnClearFilters = document.getElementById('btn-clear-filters');
+        
+        // Debounce function for input filters
+        let referenceNoTimeout;
+        
+        if (filterReferenceNo) {
+          filterReferenceNo.addEventListener('input', function() {
+            clearTimeout(referenceNoTimeout);
+            referenceNoTimeout = setTimeout(function() {
+              dt_products.draw();
+            }, 500);
+          });
+        }
+        
+        if (filterCustomer) {
+          // Use jQuery if Select2 is initialized, otherwise use native change event
+          if (typeof $ !== 'undefined' && $.fn.select2 && $('#filter-customer').hasClass('select2-hidden-accessible')) {
+            $('#filter-customer').on('change', function() {
+              dt_products.draw();
+            });
+          } else {
+            filterCustomer.addEventListener('change', function() {
+              dt_products.draw();
+            });
+          }
+        }
+        
+        if (btnClearFilters) {
+          btnClearFilters.addEventListener('click', function() {
+            if (filterReferenceNo) filterReferenceNo.value = '';
+            if (filterCustomer) {
+              if (typeof $ !== 'undefined' && $.fn.select2 && $('#filter-customer').hasClass('select2-hidden-accessible')) {
+                $('#filter-customer').val('').trigger('change');
+              } else {
+                filterCustomer.value = '';
+              }
+            }
+            if (startDatePicker) {
+              startDatePicker.clear();
+            }
+            if (endDatePicker) {
+              endDatePicker.clear();
+            }
+            // Trigger table refresh after clearing
+            dt_products.draw();
+          });
+        }
 
         // Row click to open details modal (ignore checkbox and actions columns)
         dt_order_table.querySelector('tbody').addEventListener('click', function (e) {
