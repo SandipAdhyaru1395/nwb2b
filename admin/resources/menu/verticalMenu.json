@@ -68,7 +68,7 @@
     },
     {
       "url": "report",
-      "icon": "menu-icon icon-base ti tabler-settings",
+      "icon": "menu-icon icon-base ti tabler-report",
       "name": "Reports",
       "slug": "report"
     },
