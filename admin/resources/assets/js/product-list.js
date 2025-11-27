@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               image_url = full['image_url'];
 
             let output;
-            const defaultImagePath = baseUrl + 'assets/img/default_product.png';
+            const defaultImagePath = baseUrl + 'public/assets/img/default_product.png';
 
             if (image_url) {
               output = `<img src="${image_url}" alt="Product-${id}" class="rounded" onerror="this.onerror=null; this.src='${defaultImagePath}';">`;

@@ -76,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
               image = full['image'];
 
             let output;
-            const defaultImagePath = baseUrl + 'assets/img/default_brand.png';
+            const defaultImagePath = baseUrl + 'public/assets/img/default_brand.png';
             
             if(image){
               output = `<img src="${assetsPath}storage/${image}" alt="Brand-${id}" class="rounded" onerror="this.onerror=null; this.src='${defaultImagePath}';">`;

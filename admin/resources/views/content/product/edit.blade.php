@@ -81,7 +81,7 @@
             updateVatAmount(); // Run initially in case fields are pre-filled
             
             // Handle image URL preview with fallback
-            const defaultImagePath = '{{ asset('assets/img/default_product.png') }}';
+            const defaultImagePath = '{{ asset('public/public/assets/img/default_product.png') }}';
             const $imageUrlInput = $('#productImageUrl');
             const $imagePreview = $('#imagePreview');
             const $imagePreviewContainer = $('#imagePreviewContainer');
@@ -334,13 +334,13 @@
                             <div id="imagePreviewContainer" class="mb-4 text-center" style="display: none;">
                                 <img id="imagePreview" class="align-self-center" height="300px" width="400px"
                                     alt="Product Image Preview" 
-                                    onerror="this.onerror=null; this.src='{{ asset('assets/img/default_product.png') }}';" />
+                                    onerror="this.onerror=null; this.src='{{ asset('public/public/assets/img/default_product.png') }}';" />
                             </div>
                             @if($product->image_url)
                                 <div id="existingImageContainer" class="mb-4 text-center">
                                     <img class="align-self-center" height="300px" width="400px"
                                         src="{{ $product->image_url }}" alt="Current Product Image" 
-                                        onerror="this.onerror=null; this.src='{{ asset('assets/img/default_product.png') }}';" />
+                                        onerror="this.onerror=null; this.src='{{ asset('public/public/assets/img/default_product.png') }}';" />
                                 </div>
                             @endif
                             <div class="mb-4 form-control-validation">
