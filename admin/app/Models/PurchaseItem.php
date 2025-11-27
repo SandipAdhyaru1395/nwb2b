@@ -13,12 +13,18 @@ class PurchaseItem extends Model
         'product_id',
         'quantity',
         'unit_cost',
+        'unit_vat',
+        'total_cost',
+        'total_vat',
         'subtotal',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
         'unit_cost' => 'decimal:2',
+        'unit_vat' => 'decimal:2',
+        'total_cost' => 'decimal:2',
+        'total_vat' => 'decimal:2',
         'subtotal' => 'decimal:2',
     ];
 

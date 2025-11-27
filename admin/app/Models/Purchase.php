@@ -14,6 +14,7 @@ class Purchase extends Model
         'supplier_id',
         'deliver',
         'shipping_charge',
+        'vat',
         'sub_total',
         'document',
         'note',
@@ -25,6 +26,7 @@ class Purchase extends Model
         'date' => 'datetime',
         'total_amount' => 'decimal:2',
         'shipping_charge' => 'decimal:2',
+        'vat' => 'decimal:2',
         'sub_total' => 'decimal:2',
     ];
 

@@ -73,7 +73,6 @@ class QuantityAdjustmentController extends Controller
                     }
                 }
             ],
-            'reference_no' => ['nullable', 'string', 'max:255'],
             'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
             'note' => ['nullable', 'string'],
             'products' => ['required', 'array', 'min:1'],
@@ -113,15 +112,17 @@ class QuantityAdjustmentController extends Controller
             $date = Carbon::parse($date);
         }
 
-        $default_reference_no = OrderRef::orderBy('id', 'desc')->first();
-        if ($validated['reference_no']==null) {
-            $reference_no = $default_reference_no->qa;
-            $default_reference_no->update([
-                'qa' => $default_reference_no->qa + 1,
-            ]);
-
+        // Get reference_no from order_ref table (qa column) and increment it
+        $orderRef = OrderRef::orderBy('id', 'desc')->first();
+        if (!$orderRef) {
+            // Create new OrderRef if it doesn't exist
+            $orderRef = OrderRef::create(['qa' => 1]);
+            $reference_no = 1;
         } else {
-            $reference_no = $validated['reference_no'];
+            $reference_no = $orderRef->qa ?? 1;
+            $orderRef->update([
+                'qa' => ($orderRef->qa ?? 0) + 1,
+            ]);
         }
 
         // Normalize products array (in case keys are product IDs)
@@ -214,7 +215,6 @@ class QuantityAdjustmentController extends Controller
                     }
                 }
             ],
-            'reference_no' => ['nullable', 'string', 'max:255'],
             'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
             'note' => ['nullable', 'string'],
             'products' => ['required', 'array', 'min:1'],
@@ -271,10 +271,9 @@ class QuantityAdjustmentController extends Controller
             $date = Carbon::parse($date);
         }
 
-        // Update adjustment
+        // Update adjustment (reference_no is not updated, it remains as originally set from order_ref)
         $adjustment->update([
             'date' => $date,
-            'reference_no' => $validated['reference_no'] ?? null,
             'document' => $documentPath,
             'note' => $request->note ?? null,
         ]);
@@ -361,7 +360,7 @@ class QuantityAdjustmentController extends Controller
 
         return DataTables::eloquent($query)
             ->addColumn('reference_no_display', function ($adjustment) {
-                return $adjustment->reference_no ?? 'N/A';
+                return $adjustment->reference_no ? '#QA' . $adjustment->reference_no : 'N/A';
             })
             ->addColumn('user_name', function ($adjustment) {
                 return $adjustment->user ? $adjustment->user->name : 'N/A';

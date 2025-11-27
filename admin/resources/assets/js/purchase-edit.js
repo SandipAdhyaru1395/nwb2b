@@ -78,7 +78,9 @@
         const $button = $('<button type="button" class="list-group-item list-group-item-action bg-white text-dark"></button>')
           .text(item.text)
           .data('productId', item.id)
-          .data('productText', item.text);
+          .data('productText', item.text)
+          .data('productCost', item.unit_cost || 0)
+          .data('productVat', item.vat_amount || 0);
         $productResults.append($button);
       });
 
@@ -172,7 +174,9 @@
       }
       const productId = $(this).data('productId');
       const productText = $(this).data('productText');
-      window.addProductToTable(productId, productText);
+      const productCost = $(this).data('productCost') || 0;
+      const productVat = $(this).data('productVat') || 0;
+      window.addProductToTable(productId, productText, 1, productCost, productVat);
       $productSearch.val('').trigger('focus');
       resetResults();
     });
@@ -195,7 +199,13 @@
         var $row = $(this);
         var qty = parseFloat($row.find('.quantity-input').val()) || 0;
         var cost = parseFloat($row.find('.cost-input').val()) || 0;
-        var sub = qty * cost;
+        var vat = parseFloat($row.find('.vat-input').val()) || 0;
+        
+        // Calculate totals
+        var totalCost = qty * cost;
+        var totalVat = qty * vat;
+        var sub = totalCost + totalVat;
+        
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
         totalAmount += sub;
@@ -205,7 +215,7 @@
     }
 
     // Add product row - make it available globally for initialization
-    window.addProductToTable = function(productId, productText, quantity = 1, unit_cost = 0) {
+    window.addProductToTable = function(productId, productText, quantity = 1, unit_cost = 0, unit_vat = 0) {
       // Check if product already exists in the table
       var existingRow = $('#products-table tbody tr[data-product-id="' + productId + '"]:not(.total-row)');
       
@@ -224,6 +234,7 @@
         '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + unit_cost + '" autocomplete="off"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + quantity + '" autocomplete="off"></td>' +
+        '<td class="vat-cell">' + currencySymbol + parseFloat(unit_vat || 0).toFixed(2) + '<input type="hidden" class="vat-input" name="products[' + productId + '][unit_vat]" value="' + unit_vat + '"></td>' +
         '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
         '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';
@@ -245,7 +256,7 @@
     });
 
     // Update totals on input change
-    $(document).on('input', '.quantity-input, .cost-input', calculateTotal);
+    $(document).on('input', '.quantity-input, .cost-input, .vat-input', calculateTotal);
 
     // Initialize Quill editor for note
     const noteEditor = document.querySelector('#note-editor');

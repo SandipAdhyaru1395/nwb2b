@@ -396,5 +396,77 @@ class ReportController extends Controller
       'daily_data' => $dailyData
     ]);
   }
+
+  public function monthlySalesReport()
+  {
+    return view('content.report.monthly-sales');
+  }
+
+  public function monthlySalesReportAjax(Request $request)
+  {
+    $year = $request->input('year', date('Y'));
+    
+    // Get start and end dates for the year
+    $startDate = Carbon::createFromDate($year, 1, 1)->startOfDay();
+    $endDate = Carbon::createFromDate($year, 12, 31)->endOfDay();
+    
+    // Get SO orders for the year - group by month
+    $soOrders = Order::where('type', 'SO')
+      ->whereBetween('order_date', [$startDate, $endDate])
+      ->get()
+      ->groupBy(function($order) {
+        return Carbon::parse($order->order_date)->format('Y-m');
+      })
+      ->map(function($orders) {
+        return (object)[
+          'subtotal' => $orders->sum('subtotal'),
+          'shipping' => $orders->sum('delivery_charge'),
+          'product_tax' => $orders->sum('vat_amount'),
+          'total' => $orders->sum('total_amount'),
+        ];
+      });
+    
+    // Get CN orders for the year - group by month
+    $cnOrders = Order::where('type', 'CN')
+      ->whereBetween('order_date', [$startDate, $endDate])
+      ->get()
+      ->groupBy(function($order) {
+        return Carbon::parse($order->order_date)->format('Y-m');
+      })
+      ->map(function($orders) {
+        return (object)[
+          'subtotal' => $orders->sum('subtotal'),
+          'shipping' => $orders->sum('delivery_charge'),
+          'product_tax' => $orders->sum('vat_amount'),
+          'total' => $orders->sum('total_amount'),
+        ];
+      });
+    
+    // Combine SO and CN data (SO - CN) for each month
+    $monthlyData = [];
+    $monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                   'July', 'August', 'September', 'October', 'November', 'December'];
+    
+    for ($month = 1; $month <= 12; $month++) {
+      $monthKey = sprintf('%d-%02d', $year, $month);
+      $soData = $soOrders->get($monthKey);
+      $cnData = $cnOrders->get($monthKey);
+      
+      $monthlyData[$monthKey] = [
+        'month' => $month,
+        'month_name' => $monthNames[$month - 1],
+        'subtotal' => (float)($soData->subtotal ?? 0) - (float)($cnData->subtotal ?? 0),
+        'shipping' => (float)($soData->shipping ?? 0) - (float)($cnData->shipping ?? 0),
+        'product_tax' => (float)($soData->product_tax ?? 0) - (float)($cnData->product_tax ?? 0),
+        'total' => (float)($soData->total ?? 0) - (float)($cnData->total ?? 0),
+      ];
+    }
+    
+    return response()->json([
+      'success' => true,
+      'year' => $year,
+      'monthly_data' => $monthlyData
+    ]);
+  }
 }
 

@@ -75,18 +75,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
               id = full['id'],
               image = full['image'];
 
-
             let output;
+            const defaultImagePath = baseUrl + 'assets/img/default_brand.png';
             
             if(image){
-              output = `<img src="${assetsPath}storage/${image}" alt="Product-${id}" class="rounded">`;
+              output = `<img src="${assetsPath}storage/${image}" alt="Brand-${id}" class="rounded" onerror="this.onerror=null; this.src='${defaultImagePath}';">`;
             }else{
-               // For Avatar badge
-              const stateNum = Math.floor(Math.random() * 6) + 1;
-              const states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
-              const state = states[stateNum];
-              const initials = (name.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
-              output = `<span class="avatar-initial rounded-circle bg-label-${state}">${initials}</span>`;
+              output = `<img src="${defaultImagePath}" alt="Brand-${id}" class="rounded">`;
             }
              
             let rowOutput = `

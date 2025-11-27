@@ -57,7 +57,7 @@
                     <!-- /Brand Information -->
                     <!-- Media -->
                     <div class="card mb-6">
-                        <img class="align-self-center" height="300px" width="400px" src="{{  asset('storage/'.$brand->image) }}" />
+                        <img class="align-self-center" height="300px" width="400px" src="{{ $brand->image ? asset('storage/'.$brand->image) : asset('assets/img/default_brand.png') }}" onerror="this.onerror=null; this.src='{{ asset('assets/img/default_brand.png') }}';" />
                         <div class="card-body form-control-validation">
                             <input type="file" name="brandImage" id="brandImage" hidden>
                             <div class="dropzone needsclick p-0" id="dropzone-basic">

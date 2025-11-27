@@ -23,7 +23,7 @@
                     </div> 
                     <div class="row">
                       <div class="col">
-                        <b>Reference:</b> {{ $adjustment->reference_no ?? 'N/A' }}
+                        <b>Reference:</b> {{ $adjustment->reference_no ? '#QA' . $adjustment->reference_no : 'N/A' }}
                       </div>
                     </div>                   
                 </div>

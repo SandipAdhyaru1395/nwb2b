@@ -28,7 +28,7 @@
                     <b>Date:</b> {{ optional($purchase->date)->format('d/m/Y H:i') }}<br>
                 </div>
                 <div class="col">
-                    <b>Reference:</b> {{ $purchase->reference_no ?? 'N/A' }}
+                    <b>Reference:</b> {{ $purchase->reference_no ? '#PO' . $purchase->reference_no : 'N/A' }}
                 </div>
             </div>
 
@@ -40,6 +40,7 @@
                             <th>Description</th>
                             <th style="width: 120px;">Quantity</th>
                             <th style="width: 120px;">Cost Price</th>
+                            <th style="width: 120px;">VAT</th>
                             <th style="width: 120px;">Subtotal</th>
                         </tr>
                     </thead>
@@ -51,6 +52,7 @@
                                 </td>
                                 <td>{{ number_format((float) $item->quantity, 2) }}</td>
                                 <td>{{ number_format((float) ($item->unit_cost ?? 0), 2) }}</td>
+                                <td>{{ number_format((float) ($item->total_vat ?? 0), 2) }}</td>
                                 <td>{{ number_format((float) ($item->subtotal ?? 0), 2) }}</td>
                             </tr>
                         @endforeach
@@ -65,6 +67,10 @@
                             <tr>
                                 <td class="text-end fw-bold">Subtotal:</td>
                                 <td class="text-end">{{ number_format((float) ($purchase->sub_total ?? 0), 2) }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-end fw-bold">VAT:</td>
+                                <td class="text-end">{{ number_format((float) ($purchase->vat ?? 0), 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-end fw-bold">Shipping Charge:</td>

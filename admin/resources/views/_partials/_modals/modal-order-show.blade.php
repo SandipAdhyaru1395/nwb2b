@@ -644,6 +644,8 @@
     <div class="invoice-title-bar">
         @if($order->type === 'CN')
             CREDIT NOTE
+        @elseif($order->type === 'EST')
+            ESTIMATE
         @else
             INVOICE
         @endif
@@ -681,6 +683,15 @@
                         <td>CN NO.:</td>
                         <td>{{ '#CN' . $order->order_number }}</td>
                     </tr>
+                @elseif($order->type === 'EST')
+                    <tr>
+                        <td>ORDER DATE:</td>
+                        <td>{{ optional($order->order_date)->format('d/m/Y H:i') ?? optional($order->created_at)->format('d/m/Y H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <td>ORDER NO.:</td>
+                        <td>{{ '#EST' . $order->order_number }}</td>
+                    </tr>
                 @else
                     <tr>
                         <td>INVOICE DATE:</td>
@@ -706,7 +717,7 @@
                 <th rowspan="2">Product</th>
                 <th rowspan="2" style="width: 80px; text-align: center;">Qty</th>
                 <th colspan="2" style="text-align: center;">Rate</th>
-                <th colspan="2" style="text-align: center;">VAT</th>
+                <th colspan="3" style="text-align: center;">VAT</th>
                 <th rowspan="2" style="width: 120px; text-align: center;">Amount</th>
             </tr>
             <tr>
@@ -714,6 +725,7 @@
                 <th style="width: 100px; text-align: center;">Total</th>
                 <th style="width: 80px; text-align: center;">Unit</th>
                 <th style="width: 80px; text-align: center;">Total</th>
+                <th style="width: 80px; text-align: center;">%</th>
             </tr>
         </thead>
         <tbody>
@@ -741,6 +753,11 @@
                     $total = (float)($item->total ?? 0);
                     // Get box qty from product_unit or default
                     $boxQty = $item->product_unit ?? '';
+                    // Calculate VAT percentage
+                    $vatPercentage = 0;
+                    if ($unitPrice > 0) {
+                            $vatPercentage = ($unitVat / $unitPrice) * 100;
+                    }
                 @endphp
                 <tr>
                     <td>{{ $itemNumber++ }}</td>
@@ -760,6 +777,7 @@
                     <td style="text-align: right;">{{ $currencySymbol }}{{ number_format($totalPrice, 2) }}</td>
                     <td style="text-align: right;">{{ $currencySymbol }}{{ number_format($unitVat, 2) }}</td>
                     <td style="text-align: right;">{{ $currencySymbol }}{{ number_format($totalVat, 2) }}</td>
+                    <td style="text-align: right;">{{ number_format($vatPercentage, 2) }}</td>
                     <td style="text-align: right;">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                 </tr>
             @endforeach

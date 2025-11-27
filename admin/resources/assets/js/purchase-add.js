@@ -80,7 +80,8 @@
           .text(item.text)
           .data('productId', item.id)
           .data('productText', item.text)
-          .data('productCost', item.unit_cost);
+          .data('productCost', item.unit_cost)
+          .data('productVat', item.vat_amount || 0);
         $productResults.append($button);
       });
 
@@ -176,8 +177,9 @@
       const productId = $(this).data('productId');
       const productText = $(this).data('productText');
       const productCost = $(this).data('productCost');
+      const productVat = $(this).data('productVat') || 0;
 
-      addProductToTable(productId, productText, productCost);
+      addProductToTable(productId, productText, productCost, productVat);
       $productSearch.val('').trigger('focus');
       resetResults();
     });
@@ -200,7 +202,13 @@
         var $row = $(this);
         var qty = parseFloat($row.find('.quantity-input').val()) || 0;
         var cost = parseFloat($row.find('.cost-input').val()) || 0;
-        var sub = qty * cost;
+        var vat = parseFloat($row.find('.vat-input').val()) || 0;
+        
+        // Calculate totals
+        var totalCost = qty * cost;
+        var totalVat = qty * vat;
+        var sub = totalCost + totalVat;
+        
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
         totalAmount += sub;
@@ -210,7 +218,8 @@
     }
 
     // Add product row
-    function addProductToTable(productId, productText, productCost) {
+    function addProductToTable(productId, productText, productCost, productVat) {
+      productVat = productVat || 0;
       // Check if product already exists in the table
       var existingRow = $('#products-table tbody tr[data-product-id="' + productId + '"]:not(.total-row)');
       
@@ -229,6 +238,7 @@
         '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="'+productCost+'" autocomplete="off"></td>' +
         '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="1" autocomplete="off"></td>' +
+        '<td class="vat-cell">' + currencySymbol + parseFloat(productVat || 0).toFixed(2) + '<input type="hidden" class="vat-input" name="products[' + productId + '][unit_vat]" value="'+productVat+'"></td>' +
         '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
         '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';
@@ -250,7 +260,7 @@
     });
 
     // Update total on quantity change
-    $(document).on('input', '.quantity-input, .cost-input', calculateTotal);
+    $(document).on('input', '.quantity-input, .cost-input, .vat-input', calculateTotal);
 
     // Initialize Quill editor for note
     const noteEditor = document.querySelector('#note-editor');
@@ -287,14 +297,14 @@
         const productText = ($row.find('td').eq(0).text() || '').trim();
         const unit_cost = $row.find('.cost-input').val();
         const quantity = $row.find('.quantity-input').val();
-        products.push({ productId, productText, unit_cost, quantity });
+        const unit_vat = $row.find('.vat-input').val();
+        products.push({ productId, productText, unit_cost, quantity, unit_vat });
       });
       return {
         date: ($('#date').val() || '').trim(),
         supplier_id: ($('#supplier_id').val() || '').trim(),
         deliver: ($('#deliver').val() || '').trim(),
         shipping_charge: ($('#shipping_charge').val() || '').trim(),
-        reference_no: ($('#reference_no').val() || '').trim(),
         note: ($('#note').val() || '').trim(),
         products
       };
@@ -321,14 +331,17 @@
       }
     }
 
-    function buildProductRowHtml(productId, productText, quantity, unit_cost) {
+    function buildProductRowHtml(productId, productText, quantity, unit_cost, unit_vat) {
       const safeQty = (quantity == null || quantity === '') ? '1' : String(quantity);
       const safeCost = (unit_cost == null || unit_cost === '') ? '0.00' : String(unit_cost);
+      const safeVat = (unit_vat == null || unit_vat === '') ? '0.00' : String(unit_vat);
+      const vatDisplay = parseFloat(safeVat || 0).toFixed(2);
       return '' +
         '<tr data-product-id="' + productId + '">' +
           '<td>' + productText + '<input type="hidden" name="products[' + productId + '][product_id]" value="' + productId + '"></td>' +
           '<td><input type="text" onkeypress="return /^[0-9.]+$/.test(event.key)" class="form-control form-control-sm cost-input" name="products[' + productId + '][unit_cost]" value="' + safeCost + '" autocomplete="off"></td>' +
           '<td><input type="text" onkeypress="return /^[0-9]+$/.test(event.key)" class="form-control form-control-sm quantity-input" name="products[' + productId + '][quantity]" value="' + safeQty + '" autocomplete="off"></td>' +
+          '<td class="vat-cell">' + currencySymbol + vatDisplay + '<input type="hidden" class="vat-input" name="products[' + productId + '][unit_vat]" value="' + safeVat + '"></td>' +
           '<td class="subtotal-cell">' + currencySymbol + '0.00</td>' +
           '<td><a href="javascript:;" title="Remove" class="remove-product"><i class="icon-base ti tabler-x"></i></a></td>' +
         '</tr>';
@@ -340,7 +353,6 @@
         if (!raw) return;
         const state = JSON.parse(raw);
         if (state.date) $('#date').val(state.date);
-        if (state.reference_no) $('#reference_no').val(state.reference_no);
         if (state.supplier_id && $('#supplier_id option[value="' + state.supplier_id + '"]').length) {
           $('#supplier_id').val(state.supplier_id).trigger('change.select2');
         }
@@ -371,7 +383,7 @@
           var $totalRow = $('#products-table tbody tr.total-row');
           state.products.forEach(function(p) {
             if (!p || !p.productId || !p.productText) return;
-            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost);
+            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost, p.unit_vat);
             // Insert before the total row so total stays at bottom
             if ($totalRow.length > 0) {
               $totalRow.before(rowHtml);
@@ -387,12 +399,12 @@
     }
 
     // Save on basic input changes
-    $('#date, #reference_no, #supplier_id, #deliver, #shipping_charge').on('input change', saveFormStateDebounced);
+    $('#date, #supplier_id, #deliver, #shipping_charge').on('input change', saveFormStateDebounced);
 
     // Enhance existing handlers to save state as well
     const originalAddProductToTable = addProductToTable;
-    addProductToTable = function(productId, productText, productCost) {
-      originalAddProductToTable(productId, productText, productCost);
+    addProductToTable = function(productId, productText, productCost, productVat) {
+      originalAddProductToTable(productId, productText, productCost, productVat);
       saveFormStateDebounced();
     }
 
@@ -404,7 +416,7 @@
       $(document).data('purchaseRemoveBound', true);
     }
 
-    $(document).on('input', '.quantity-input', saveFormStateDebounced);
+      $(document).on('input', '.quantity-input', saveFormStateDebounced);
 
     // On initial load, restore any saved state after a short delay to ensure Select2 is ready
     setTimeout(function() {

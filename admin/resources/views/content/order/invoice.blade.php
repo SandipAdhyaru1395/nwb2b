@@ -477,7 +477,7 @@
                     <th rowspan="2" style="width: 40%;">Product</th>
                     <th rowspan="2" style="width: 60px; text-align: center;">Qty</th>
                     <th colspan="2" style="text-align: center;">Rate</th>
-                    <th colspan="2" style="text-align: center;">VAT</th>
+                    <th colspan="3" style="text-align: center;">VAT</th>
                     <th rowspan="2" style="width: 100px; text-align: center;">Amount</th>
                 </tr>
                 <tr>
@@ -485,6 +485,7 @@
                     <th style="width: 80px; text-align: center;">Total</th>
                     <th style="width: 60px; text-align: center;">Unit</th>
                     <th style="width: 60px; text-align: center;">Total</th>
+                    <th style="width: 60px; text-align: center;">%</th>
                 </tr>
             </thead>
             <tbody>
@@ -515,10 +516,15 @@
                         $total = (float)($item->total ?? 0);
                         // Get box qty from product_unit or default
                         $boxQty = $item->product_unit ?? '';
+                        // Calculate VAT percentage
+                        $vatPercentage = 0;
+                        if ($unitPrice > 0) {
+                            $vatPercentage = ($unitVat / $unitPrice) * 100;
+                        }
                     @endphp
                     <tr>
                         <td>{{ $itemNumber++ }}</td>
-                        <td>Box Qty : {{ $boxQty ?: '-' }}</td>
+                        <td>{{ $boxQty ?: '-' }}</td>
                         <td>
                             @if($item->product)
                                 {{ $item->product->name ?? 'N/A' }}
@@ -534,39 +540,40 @@
                         <td class="right">{{ $currencySymbol }}{{ number_format($totalPrice, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($unitVat, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($totalVat, 2) }}</td>
+                        <td class="right">{{ number_format($vatPercentage, 2) }}</td>
                         <td class="right">{{ $currencySymbol }}{{ number_format($total, 2) }}</td>
                     </tr>
                 @endforeach
 
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Sub Total</td>
+                    <td colspan="9" class="right" style="padding-top:10px">Sub Total</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($orderSubtotal, 2) }}</td>
                 </tr>
                 @if(isset($order->vat_amount) && $order->vat_amount > 0)
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">VAT</td>
+                    <td colspan="9" class="right" style="padding-top:10px">VAT</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($order->vat_amount, 2) }}</td>
                 </tr>
                 @endif
                 @if(isset($order->shipping_cost) && $order->shipping_cost > 0)
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Shipping</td>
+                    <td colspan="9" class="right" style="padding-top:10px">Shipping</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format((float)$order->shipping_cost, 2) }}</td>
                 </tr>
                 @endif
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">Total</td>
+                    <td colspan="9" class="right" style="padding-top:10px">Total</td>
                     <td class="right" style="padding-top:10px">{{ $currencySymbol }}{{ number_format($orderTotal, 2) }}</td>
                 </tr>
                 @if($paidAmount > 0)
                 <tr>
-                    <td colspan="8" class="right" style="padding-top:10px">- Paid</td>
+                    <td colspan="9" class="right" style="padding-top:10px">- Paid</td>
                     <td class="right" style="padding-top:10px">- {{ $currencySymbol }}{{ number_format($paidAmount, 2) }}</td>
                 </tr>
                 @endif
                 @if($dueAmount > 0)
                 <tr>
-                    <td colspan="8" class="right" style="font-weight:700;padding-top:10px">Due</td>
+                    <td colspan="9" class="right" style="font-weight:700;padding-top:10px">Due</td>
                     <td class="right" style="font-weight:700;padding-top:10px">{{ $currencySymbol }}{{ number_format($dueAmount, 2) }}</td>
                 </tr>
                 @endif

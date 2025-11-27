@@ -25,10 +25,11 @@
 
   // ! Don't change it unless you really know what you are doing
 
+  const defaultImagePath = baseUrl + 'assets/img/default_product.png';
   const previewTemplate = `<div class="dz-preview dz-file-preview">
 <div class="dz-details">
   <div class="dz-thumbnail">
-    <img data-dz-thumbnail>
+    <img data-dz-thumbnail onerror="this.onerror=null; this.src='${defaultImagePath}';">
     <span class="dz-nopreview">No preview</span>
     <div class="dz-success-mark"></div>
     <div class="dz-error-mark"></div>

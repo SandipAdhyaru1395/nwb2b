@@ -85,6 +85,7 @@ class PurchaseController extends Controller
             'products.*.product_id' => ['required', 'exists:products,id'],
             'products.*.quantity' => ['required', 'numeric', 'min:1'],
             'products.*.unit_cost' => ['required', 'numeric', 'min:0'],
+            'products.*.unit_vat' => ['nullable', 'numeric', 'min:0'],
         ], [
             'supplier_id.required' => 'Supplier is required',
             'supplier_id.exists' => 'Selected supplier does not exist',
@@ -123,15 +124,17 @@ class PurchaseController extends Controller
             $date = Carbon::parse($date);
         }
 
-        $default_reference_no = OrderRef::orderBy('id', 'desc')->first();
-        if ($validated['reference_no']==null) {
-            $reference_no = $default_reference_no->po ?? 1;
-            $default_reference_no->update([
-                'po' => ($default_reference_no->po ?? 0) + 1,
-            ]);
-
+        // Get reference_no from order_ref table (po column) and increment it
+        $orderRef = OrderRef::orderBy('id', 'desc')->first();
+        if (!$orderRef) {
+            // Create new OrderRef if it doesn't exist
+            $orderRef = OrderRef::create(['po' => 1]);
+            $reference_no = 1;
         } else {
-            $reference_no = $validated['reference_no'];
+            $reference_no = $orderRef->po ?? 1;
+            $orderRef->update([
+                'po' => ($orderRef->po ?? 0) + 1,
+            ]);
         }
 
         // Normalize products array (in case keys are product IDs)
@@ -157,6 +160,7 @@ class PurchaseController extends Controller
             $adjustments = [];
             $purchaseItemsForCost = [];
             $subTotal = 0;
+            $totalVat = 0;
             
             // Get current warehouse product states BEFORE processing adjustments
             $warehouseProducts = \App\Models\WarehousesProduct::whereIn('product_id', array_column($products, 'product_id'))
@@ -167,16 +171,26 @@ class PurchaseController extends Controller
             foreach ($products as $productData) {
                 $quantity = (float) $productData['quantity'];
                 $unitCost = (float) ($productData['unit_cost'] ?? 0);
-                $subtotal = round($quantity * $unitCost, 2);
+                $unitVat = (float) ($productData['unit_vat'] ?? 0);
+                
+                // Calculate totals
+                $totalCost = round($quantity * $unitCost, 2);
+                $totalVatItem = round($quantity * $unitVat, 2);
+                $subtotal = round($totalCost + $totalVatItem, 2);
+                
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $productData['product_id'],
                     'quantity' => $quantity,
                     'unit_cost' => $unitCost,
+                    'unit_vat' => $unitVat,
+                    'total_cost' => $totalCost,
+                    'total_vat' => $totalVatItem,
                     'subtotal' => $subtotal,
                 ]);
 
-                $subTotal += $subtotal;
+                $subTotal += $totalCost;
+                $totalVat += $totalVatItem;
 
                 $adjustments[] = [
                     'product_id' => $productData['product_id'],
@@ -195,14 +209,15 @@ class PurchaseController extends Controller
                 ];
             }
 
-            // Calculate total amount (sub_total + shipping_charge)
+            // Calculate total amount (shipping_charge + sub_total + vat)
             $shippingCharge = (float) ($validated['shipping_charge'] ?? 0);
-            $totalAmount = $subTotal + $shippingCharge;
+            $totalAmount = round($shippingCharge + $subTotal + $totalVat, 2);
 
-            // Update purchase with sub_total and total_amount
+            // Update purchase with vat, sub_total and total_amount
             $purchase->update([
+                'vat' => round($totalVat, 2),
                 'sub_total' => round($subTotal, 2),
-                'total_amount' => round($totalAmount, 2),
+                'total_amount' => $totalAmount,
             ]);
 
             // Process all adjustments at once (updates quantity)
@@ -268,13 +283,13 @@ class PurchaseController extends Controller
                     }
                 }
             ],
-            'reference_no' => ['nullable', 'string', 'max:255'],
             'document' => ['nullable', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png', 'max:10240'],
             'note' => ['nullable', 'string'],
             'products' => ['required', 'array', 'min:1'],
             'products.*.product_id' => ['required', 'exists:products,id'],
             'products.*.quantity' => ['required', 'numeric', 'min:1'],
             'products.*.unit_cost' => ['required', 'numeric', 'min:0'],
+            'products.*.unit_vat' => ['nullable', 'numeric', 'min:0'],
         ], [
             'id.required' => 'Purchase ID is required',
             'id.exists' => 'Purchase not found',
@@ -332,10 +347,9 @@ class PurchaseController extends Controller
             $date = Carbon::parse($date);
         }
 
-        // Update purchase
+        // Update purchase (reference_no is not updated, it remains as originally set from order_ref)
         $purchase->update([
             'date' => $date,
-            'reference_no' => $validated['reference_no'] ?? null,
             'supplier_id' => $validated['supplier_id'],
             'deliver' => $validated['deliver'],
             'shipping_charge' => $validated['shipping_charge'] ?? 0,
@@ -393,15 +407,25 @@ class PurchaseController extends Controller
             $newAdjustments = [];
             $newPurchaseItemsForCost = [];
             $subTotal = 0;
+            $totalVat = 0;
             foreach ($products as $productData) {
                 $quantity = (float) $productData['quantity'];
                 $unitCost = (float) ($productData['unit_cost'] ?? 0);
-                $subtotal = round($quantity * $unitCost, 2);
+                $unitVat = (float) ($productData['unit_vat'] ?? 0);
+                
+                // Calculate totals
+                $totalCost = round($quantity * $unitCost, 2);
+                $totalVatItem = round($quantity * $unitVat, 2);
+                $subtotal = round($totalCost + $totalVatItem, 2);
+                
                 PurchaseItem::create([
                     'purchase_id' => $purchase->id,
                     'product_id' => $productData['product_id'],
                     'quantity' => $quantity,
                     'unit_cost' => $unitCost,
+                    'unit_vat' => $unitVat,
+                    'total_cost' => $totalCost,
+                    'total_vat' => $totalVatItem,
                     'subtotal' => $subtotal,
                 ]);
 
@@ -421,12 +445,13 @@ class PurchaseController extends Controller
                     'old_avg_cost' => $warehouseProduct ? (float) $warehouseProduct->avg_cost : 0,
                 ];
 
-                $subTotal += $subtotal;
+                $subTotal += $totalCost;
+                $totalVat += $totalVatItem;
             }
             
-            // Calculate total amount (sub_total + shipping_charge)
+            // Calculate total amount (shipping_charge + sub_total + vat)
             $shippingCharge = (float) ($validated['shipping_charge'] ?? 0);
-            $totalAmount = $subTotal + $shippingCharge;
+            $totalAmount = round($shippingCharge + $subTotal + $totalVat, 2);
 
             // Apply new adjustments (updates quantity)
             WarehouseProductSyncService::processAdjustments($newAdjustments);
@@ -434,10 +459,11 @@ class PurchaseController extends Controller
             // Update average cost after quantity adjustments
             WarehouseProductSyncService::processAverageCostUpdates($newPurchaseItemsForCost);
 
-            // Update purchase with sub_total and total_amount
+            // Update purchase with vat, sub_total and total_amount
             $purchase->update([
+                'vat' => round($totalVat, 2),
                 'sub_total' => round($subTotal, 2),
-                'total_amount' => round($totalAmount, 2),
+                'total_amount' => $totalAmount,
             ]);
         });
 
@@ -521,7 +547,7 @@ class PurchaseController extends Controller
 
         return DataTables::eloquent($query)
             ->addColumn('reference_no_display', function ($purchase) {
-                return $purchase->reference_no ?? 'N/A';
+                return $purchase->reference_no ? '#PO' . $purchase->reference_no : 'N/A';
             })
             ->addColumn('supplier_name', function ($purchase) {
                 if ($purchase->supplier) {

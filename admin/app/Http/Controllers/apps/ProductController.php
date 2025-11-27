@@ -86,10 +86,20 @@ class ProductController extends Controller
       $imageUrl = $request->productImageUrl;
     }
     $price = $validated['productPrice'];
-    $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
+    $vatAmount = 0; $vatPercentage = 0; $vatMethodId = null; $vatMethodName = null; $vatMethodType = null;
     if ($request->vat_method_id) {
         $vatMethod = \App\Models\VatMethod::findOrFail($request->vat_method_id);
-        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
+        $vatMethodId = $vatMethod->id;
+        if ($vatMethod->type == 'Percentage') {
+            $vatPercentage = $vatMethod->amount;
+            $vatAmount = $price * $vatMethod->amount / 100;
+        } else {
+            // For Fixed type, calculate percentage: (fixed_amount / price) * 100
+            $vatAmount = $vatMethod->amount;
+            if ($price > 0) {
+                $vatPercentage = ($vatMethod->amount / $price) * 100;
+            }
+        }
         $vatMethodName = $vatMethod->name;
         $vatMethodType = $vatMethod->type;
     }
@@ -101,7 +111,7 @@ class ProductController extends Controller
     $quantity = $request->quantity ?? 0;
     $costPrice = $request->costPrice ?? 0;
 
-    $product = DB::transaction(function () use ($validated, $request, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl) {
+    $product = DB::transaction(function () use ($validated, $request, $price, $vatAmount, $vatPercentage, $vatMethodId, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl) {
       $product = Product::create([
         'name' => $validated['productTitle'],
         'sku' => $validated['productSku'],
@@ -116,6 +126,8 @@ class ProductController extends Controller
         'expiry_date' => $expiryDate,
         'image_url' => $imageUrl,
         'stock_quantity' => $quantity,
+        'vat_percentage' => $vatPercentage,
+        'vat_method_id' => $vatMethodId,
         'vat_amount' => $vatAmount,
         'vat_method_name' => $vatMethodName,
         'vat_method_type' => $vatMethodType,
@@ -210,10 +222,20 @@ class ProductController extends Controller
       $imageUrl = $request->productImageUrl;
     }
     $price = $validated['productPrice'];
-    $vatAmount = 0; $vatMethodName = null; $vatMethodType = null;
+    $vatAmount = 0; $vatPercentage = 0; $vatMethodId = null; $vatMethodName = null; $vatMethodType = null;
     if ($request->vat_method_id) {
         $vatMethod = \App\Models\VatMethod::findOrFail($request->vat_method_id);
-        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
+        $vatMethodId = $vatMethod->id;
+        if ($vatMethod->type == 'Percentage') {
+            $vatPercentage = $vatMethod->amount;
+            $vatAmount = $price * $vatMethod->amount / 100;
+        } else {
+            // For Fixed type, calculate percentage: (fixed_amount / price) * 100
+            $vatAmount = $vatMethod->amount;
+            if ($price > 0) {
+                $vatPercentage = ($vatMethod->amount / $price) * 100;
+            }
+        }
         $vatMethodName = $vatMethod->name;
         $vatMethodType = $vatMethod->type;
     }
@@ -225,7 +247,7 @@ class ProductController extends Controller
     $quantity = $request->quantity ?? 0;
     $costPrice = $request->costPrice ?? 0;
 
-    DB::transaction(function () use ($request, $validated, $price, $vatAmount, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl, $product) {
+    DB::transaction(function () use ($request, $validated, $price, $vatAmount, $vatPercentage, $vatMethodId, $vatMethodName, $vatMethodType, $expiryDate, $quantity, $costPrice, $imageUrl, $product) {
       
       $product->update([
         'name' => $validated['productTitle'],
@@ -241,6 +263,8 @@ class ProductController extends Controller
         'expiry_date' => $expiryDate,
         'image_url' => $imageUrl,
         'stock_quantity' => $quantity,
+        'vat_percentage' => $vatPercentage,
+        'vat_method_id' => $vatMethodId,
         'vat_amount' => $vatAmount,
         'vat_method_name' => $vatMethodName,
         'vat_method_type' => $vatMethodType,
@@ -835,22 +859,8 @@ class ProductController extends Controller
       }
     }
 
-    // Unit validation
-    if (!empty($data['productUnit'])) {
-      $unit = Unit::where('name', $data['productUnit'])->where('status', 'Active')->first();
-      if (!$unit) {
-        $errors[] = 'Product Unit "' . $data['productUnit'] . '" not found or inactive';
-      }
-    }
-
-    // VAT Method validation (optional)
-    if (!empty($data['vatMethod'])) {
-      $vatMethodName = trim($data['vatMethod']);
-      $vatMethod = VatMethod::where('name', $vatMethodName)->where('status', 'Active')->first();
-      if (!$vatMethod) {
-        $errors[] = 'VAT Method "' . $vatMethodName . '" not found or inactive';
-      }
-    }
+    // Unit validation - removed error, will be created if not exists
+    // VAT Method validation - removed error, will be created if not exists
 
     return [
       'valid' => empty($errors),
@@ -876,13 +886,20 @@ class ProductController extends Controller
       throw new \Exception('No valid brands found');
     }
 
-    // Get unit ID if provided
+    // Get unit ID if provided, create if doesn't exist
     $unitId = null;
     if (!empty($data['productUnit'])) {
-      $unit = Unit::where('name', $data['productUnit'])->where('status', 'Active')->first();
-      if ($unit) {
-        $unitId = $unit->id;
+      $unitName = trim($data['productUnit']);
+      // Check if unit exists (regardless of status)
+      $unit = Unit::where('name', $unitName)->first();
+      if (!$unit) {
+        // Create new unit with Active status
+        $unit = Unit::create([
+          'name' => $unitName,
+          'status' => 'Active'
+        ]);
       }
+      $unitId = $unit->id;
     }
 
     // Parse status - allow "0" as valid value (inactive)
@@ -914,18 +931,47 @@ class ProductController extends Controller
 
     $price = (float)$data['productPrice'];
     
-    // Handle VAT Method
+    // Handle VAT Method - create if doesn't exist
     $vatAmount = 0;
+    $vatPercentage = 0;
+    $vatMethodId = null;
     $vatMethodName = null;
     $vatMethodType = null;
     if (!empty($data['vatMethod'])) {
       $vatMethodName = trim($data['vatMethod']);
-      $vatMethod = VatMethod::where('name', $vatMethodName)->where('status', 'Active')->first();
-      if ($vatMethod) {
-        $vatAmount = ($vatMethod->type == 'Percentage') ? $price * $vatMethod->amount / 100 : $vatMethod->amount;
-        $vatMethodName = $vatMethod->name;
-        $vatMethodType = $vatMethod->type;
+      $vatMethod = VatMethod::where('name', $vatMethodName)->first();
+      
+      if (!$vatMethod) {
+        // Extract percentage from name if it contains a number (e.g., "20%", "VAT 15%")
+        $vatAmountValue = 0;
+        if (preg_match('/(\d+(?:\.\d+)?)\s*%/', $vatMethodName, $matches)) {
+          $vatAmountValue = (float)$matches[1];
+        }
+        
+        // Create new VAT method with type "Percentage" always
+        $vatMethod = VatMethod::create([
+          'name' => $vatMethodName,
+          'type' => 'Percentage',
+          'amount' => $vatAmountValue,
+          'status' => 'Active'
+        ]);
       }
+      
+      $vatMethodId = $vatMethod->id;
+      
+      // Calculate VAT amount and percentage
+      if ($vatMethod->type == 'Percentage') {
+        $vatPercentage = $vatMethod->amount;
+        $vatAmount = $price * $vatMethod->amount / 100;
+      } else {
+        // For Fixed type, calculate percentage: (fixed_amount / price) * 100
+        $vatAmount = $vatMethod->amount;
+        if ($price > 0) {
+          $vatPercentage = ($vatMethod->amount / $price) * 100;
+        }
+      }
+      $vatMethodName = $vatMethod->name;
+      $vatMethodType = $vatMethod->type;
     }
     
     // Handle numeric fields - convert empty strings to null/0, handle "0" as valid value
@@ -986,6 +1032,8 @@ class ProductController extends Controller
       'expiry_date' => $expiryDate,
       'image_url' => $imageUrl,
         'stock_quantity' => $quantity,
+        'vat_percentage' => $vatPercentage,
+        'vat_method_id' => $vatMethodId,
         'vat_amount' => $vatAmount,
         'vat_method_name' => $vatMethodName,
         'vat_method_type' => $vatMethodType,

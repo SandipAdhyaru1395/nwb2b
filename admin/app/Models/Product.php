@@ -27,6 +27,8 @@ class Product extends Model
         'stock_quantity',
         'step_quantity',
         'notification_request_count',
+        'vat_percentage',
+        'vat_method_id',
         'vat_amount',
         'vat_method_name',
         'vat_method_type',

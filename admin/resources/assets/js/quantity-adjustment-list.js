@@ -72,7 +72,8 @@ document.addEventListener('DOMContentLoaded', function (e) {
           targets: 3,
           render: function (data, type, full, meta) {
             const referenceNo = full['reference_no_display'];
-            return '<span>' + (referenceNo ? referenceNo : '-') + '</span>';
+            // reference_no_display already includes "#QA" prefix from server
+            return '<span>' + (referenceNo && referenceNo !== 'N/A' ? referenceNo : '-') + '</span>';
           }
         },
         {

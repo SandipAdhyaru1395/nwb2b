@@ -64,8 +64,12 @@
         #products-table tr td:nth-child(5) {
             width: 120px;
             min-width: 120px;
-            text-align: center;
+            text-align: right;
           
+        }
+        
+        #products-table .vat-cell {
+            text-align: right;
         }
         
         #products-table .form-control-sm {
@@ -86,7 +90,8 @@
                                     {{ $item->product_id }},
                                     '{{ addslashes($item->product->name ?? 'Product #' . $item->product_id) }} ({{ addslashes($item->product->sku ?? 'N/A') }})',
                                     {{ number_format((float)$item->quantity, 0, '.', '') }},
-                                    {{ number_format((float)($item->unit_cost ?? 0), 2, '.', '') }}
+                                    {{ number_format((float)($item->unit_cost ?? 0), 2, '.', '') }},
+                                    {{ number_format((float)($item->unit_vat ?? 0), 2, '.', '') }}
                                 );
                             @endif
                         @endforeach
@@ -113,7 +118,7 @@
             <div style="background: var(--bs-body-bg);"
                 class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                 <div class="d-flex flex-column justify-content-center">
-                    <h4 class="mb-1">Edit Purchase</h4>
+                    <h4 class="mb-1">Edit Purchase @if($purchase->reference_no)(#PO{{ $purchase->reference_no }})@endif</h4>
                     <p class="mb-0">Please fill in the information below. The field labels marked with * are required input fields.</p>
                 </div>
                 <div class="d-flex align-content-center flex-wrap gap-4">
@@ -142,16 +147,6 @@
                                 </div>
                                 
                                 <div class="col-md-4 mb-4 form-control-validation">
-                                    <label class="form-label" for="reference_no">Reference No</label>
-                                    <input type="text" class="form-control" id="reference_no" name="reference_no" 
-                                        value="{{ old('reference_no', $purchase->reference_no) }}" placeholder="Reference Number">
-                                    @error('reference_no')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="document">Attach Document</label>
                                     @if($purchase->document)
                                         <div class="mb-2">
@@ -168,8 +163,6 @@
                                         </span>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="supplier_id">Supplier <span class="text-danger">*</span></label>
                                     <select class="form-select" id="supplier_id" name="supplier_id">
@@ -188,6 +181,9 @@
                                         </span>
                                     @enderror
                                 </div>
+                            </div>
+                            <div class="row">
+                                
                                  <div class="col-md-4 mb-4 form-control-validation">
                                      <label class="form-label" for="deliver">Deliver </label>
                                      <select class="form-select" id="deliver" name="deliver">
@@ -238,9 +234,10 @@
                                 <table id="products-table" class="table table-bordered">
                                     <thead class="table-primary">
                                         <tr>
-                                            <th width="40%">Product Name (Product Code)</th>
+                                            <th width="35%">Product Name (Product Code)</th>
                                             <th width="15%">Cost Price</th>
-                                            <th width="15%">Quantity</th>
+                                            <th width="12%">Quantity</th>
+                                            <th width="12%">VAT</th>
                                             <th width="15%">Sub Total</th>
                                             <th style="width: 50px;"><i class="icon-base ti tabler-trash"></i></th>
                                         </tr>
@@ -249,6 +246,7 @@
                                         <tr class="total-row">
                                             <td class="text-end fw-bold" colspan="2">Total</td>
                                             <td class="fw-bold total-quantity">0.00</td>
+                                            <td></td>
                                             <td class="fw-bold total-amount">0.00</td>
                                             <td></td>
                                         </tr>

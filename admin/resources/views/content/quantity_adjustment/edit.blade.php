@@ -361,7 +361,7 @@
             <div style="background: var(--bs-body-bg);"
                 class="py-5 px-2 card-header sticky-element d-flex justify-content-sm-between align-items-sm-center flex-column flex-sm-row">
                 <div class="d-flex flex-column justify-content-center">
-                    <h4 class="mb-1">Edit Adjustment</h4>
+                    <h4 class="mb-1">Edit Adjustment @if($adjustment->reference_no)(#QA{{ $adjustment->reference_no }})@endif</h4>
                     <p class="mb-0">Please fill in the information below. The field labels marked with * are required input fields.</p>
                 </div>
                 <div class="d-flex align-content-center flex-wrap gap-4">
@@ -388,17 +388,7 @@
                                         </span>
                                     @enderror
                                 </div>
-                                <div class="col-md-4 mb-4 form-control-validation">
-                                    <label class="form-label" for="reference_no">Reference No</label>
-                                    <input type="text" class="form-control" id="reference_no" name="reference_no" 
-                                        value="{{ old('reference_no', $adjustment->reference_no) }}" placeholder="Reference Number">
-                                    @error('reference_no')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                                <div class="col-md-5 mb-4 form-control-validation">
+                                <div class="col-md-3 mb-4 form-control-validation">
                                     <label class="form-label" for="document">Attach Document</label>
                                     @if($adjustment->document)
                                         <div class="mb-2">

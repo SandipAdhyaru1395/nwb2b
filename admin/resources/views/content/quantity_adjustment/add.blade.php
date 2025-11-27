@@ -274,7 +274,6 @@
                 });
                 return {
                     date: ($('#date').val() || '').trim(),
-                    reference_no: ($('#reference_no').val() || '').trim(),
                     note: ($('#note').val() || '').trim(),
                     products
                 };
@@ -325,7 +324,6 @@
                     if (!raw) return;
                     const state = JSON.parse(raw);
                     if (state.date) $('#date').val(state.date);
-                    if (state.reference_no) $('#reference_no').val(state.reference_no);
 
                     // Restore note (both hidden input and quill if available)
                     if (typeof state.note === 'string') {
@@ -353,7 +351,7 @@
             }
 
             // Save on basic input changes
-            $('#date, #reference_no').on('input change', saveFormStateDebounced);
+            $('#date').on('input change', saveFormStateDebounced);
 
             // Save on type change
             $(document).on('change', '.type-select', saveFormStateDebounced);
@@ -519,17 +517,7 @@
                                         </span>
                                     @enderror
                                 </div>
-                                <div class="col-md-4 mb-4 form-control-validation">
-                                    <label class="form-label" for="reference_no">Reference No</label>
-                                    <input type="text" class="form-control" id="reference_no" name="reference_no" 
-                                        value="{{ old('reference_no') }}" placeholder="Reference Number">
-                                    @error('reference_no')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                                <div class="col-md-5 mb-4 form-control-validation">
+                                <div class="col-md-3 mb-4 form-control-validation">
                                     <label class="form-label" for="document">Attach Document</label>
                                     <input type="file" class="form-control" id="document" name="document" 
                                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">

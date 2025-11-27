@@ -489,6 +489,30 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
   const isOpen = expandedPaths.includes(path);
   const hasChildren = Array.isArray(node.subcategories) && node.subcategories.length > 0;
   const hasProducts = Array.isArray(node.products) && node.products.length > 0;
+  
+  // Get API base URL (without /api) to access admin assets
+  const getApiBaseUrl = () => {
+    if (typeof window === 'undefined') return 'http://localhost:8000';
+    const rawBase = process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
+    return rawBase.replace(/\/api$/, '').replace(/\/$/, '');
+  };
+  
+  const defaultImagePath = `${getApiBaseUrl()}/assets/img/default_product.png`;
+  const defaultBrandImagePath = `${getApiBaseUrl()}/assets/img/default_brand.png`;
+  
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    if (target.src !== defaultImagePath && !target.src.includes('default_product.png')) {
+      target.src = defaultImagePath;
+    }
+  };
+
+  const handleBrandImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.currentTarget;
+    if (target.src !== defaultBrandImagePath && !target.src.includes('default_brand.png')) {
+      target.src = defaultBrandImagePath;
+    }
+  };
 
   // Indentation only: increase left padding by depth
   const depthPad = ["", "", "", "", "", ""];
@@ -526,7 +550,12 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
         <div className={`flex items-center gap-2 ${padClass}`}>
           {hasProducts && (
             <div className="w-[42px] h-[42px] bg-white rounded-md border overflow-hidden flex items-center justify-center offer-products">
-              <img src={node?.image || (node.products && node.products[0]?.image)} alt="" className="w-[42px] h-[42px] object-cover" />
+              <img 
+                src={node?.image || defaultBrandImagePath} 
+                alt="" 
+                className="w-[42px] h-[42px] object-cover" 
+                onError={handleBrandImageError}
+              />
             </div>
           )}
           <span className={`font-semibold ${nameTextColorClass}`}>{node.name}</span>
@@ -602,7 +631,12 @@ function CategoryNode({ node, path, depth, expandedPaths, togglePath, cart, onIn
                     })()}
 
                   <div className="aspect-square mb-2 flex items-center relative justify-center">
-                    <img src={product.image || "/placeholder.svg"} alt={product.name} className="w-full h-[113px] object-contain" />
+                    <img 
+                      src={product.image || defaultImagePath} 
+                      alt={product.name} 
+                      className="w-full h-[113px] object-contain" 
+                      onError={handleImageError}
+                    />
                     {isOut && (
                       <div className="absolute inset-0 bg-white/60" />
                     )}

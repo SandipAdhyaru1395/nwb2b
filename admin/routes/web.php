@@ -280,6 +280,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/report/sales/ajax', [ReportController::class, 'salesReportAjax'])->name('report.sales.ajax');
         Route::get('/report/daily-sales', [ReportController::class, 'dailySalesReport'])->name('report.daily-sales');
         Route::get('/report/daily-sales/ajax', [ReportController::class, 'dailySalesReportAjax'])->name('report.daily-sales.ajax');
+        Route::get('/report/monthly-sales', [ReportController::class, 'monthlySalesReport'])->name('report.monthly-sales');
+        Route::get('/report/monthly-sales/ajax', [ReportController::class, 'monthlySalesReportAjax'])->name('report.monthly-sales.ajax');
     });
 
     Route::middleware('permission:settings.read')->group(function () {

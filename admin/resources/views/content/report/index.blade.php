@@ -82,7 +82,7 @@
             </span>
           </div>
         </div>
-        <a href="javascript:void(0);" class="btn btn-warning w-100">View Report</a>
+        <a href="{{ route('report.monthly-sales') }}" class="btn btn-warning w-100">View Report</a>
       </div>
     </div>
   </div>

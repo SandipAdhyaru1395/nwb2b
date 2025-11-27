@@ -79,6 +79,41 @@
             $('#vat_method_id').on('change', updateVatAmount);
             $('#ecommerce-product-price').on('input', updateVatAmount);
             updateVatAmount(); // Run initially in case fields are pre-filled
+            
+            // Handle image URL preview with fallback
+            const defaultImagePath = '{{ asset('assets/img/default_product.png') }}';
+            const $imageUrlInput = $('#productImageUrl');
+            const $imagePreview = $('#imagePreview');
+            const $imagePreviewContainer = $('#imagePreviewContainer');
+            const $existingImageContainer = $('#existingImageContainer');
+            const originalImageUrl = $imageUrlInput.val().trim();
+            
+            // Don't show preview initially if URL matches existing product image
+            // Only show preview if user changes the URL
+            $imageUrlInput.on('input blur', function() {
+                const currentUrl = $(this).val().trim();
+                if (currentUrl && currentUrl !== originalImageUrl) {
+                    // Show preview for new/changed URL
+                    $imagePreview.attr('src', currentUrl);
+                    $imagePreviewContainer.show();
+                    // Hide existing image when showing preview
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.hide();
+                    }
+                } else if (currentUrl === originalImageUrl) {
+                    // Show existing image if URL matches original
+                    $imagePreviewContainer.hide();
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.show();
+                    }
+                } else {
+                    // URL is empty
+                    $imagePreviewContainer.hide();
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.show();
+                    }
+                }
+            });
         });
     </script>
 @endsection
@@ -227,7 +262,7 @@
                                         @foreach ($vatMethods as $vat)
                                             <option value="{{ $vat->id }}" data-type="{{ $vat->type }}"
                                                 data-name="{{ $vat->name }}" data-amount="{{ $vat->amount }}"
-                                                @if ($product->vat_method_name == $vat->name && $product->vat_method_type == $vat->type) selected @endif>
+                                                @if ($product->vat_method_id == $vat->id) selected @endif>
                                                 {{ $vat->name }}
                                                 ({{ $vat->type == 'Percentage' ? $vat->amount . '%' : $currencySymbol . number_format($vat->amount, 2) }})
                                             </option>
@@ -296,10 +331,16 @@
                             <h5 class="card-title mb-0">Product Image</h5>
                         </div>
                         <div class="card-body">
+                            <div id="imagePreviewContainer" class="mb-4 text-center" style="display: none;">
+                                <img id="imagePreview" class="align-self-center" height="300px" width="400px"
+                                    alt="Product Image Preview" 
+                                    onerror="this.onerror=null; this.src='{{ asset('assets/img/default_product.png') }}';" />
+                            </div>
                             @if($product->image_url)
-                                <div class="mb-4 text-center">
+                                <div id="existingImageContainer" class="mb-4 text-center">
                                     <img class="align-self-center" height="300px" width="400px"
-                                        src="{{ $product->image_url }}" alt="Current Product Image" />
+                                        src="{{ $product->image_url }}" alt="Current Product Image" 
+                                        onerror="this.onerror=null; this.src='{{ asset('assets/img/default_product.png') }}';" />
                                 </div>
                             @endif
                             <div class="mb-4 form-control-validation">

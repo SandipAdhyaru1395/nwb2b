@@ -55,13 +55,24 @@
         
         #products-table th:nth-child(4),
         #products-table td:nth-child(4) {
+            width: 100px;
+            min-width: 100px;
+            text-align: right;
+        }
+        
+        #products-table .vat-cell {
+            text-align: right;
+        }
+        
+        #products-table th:nth-child(5),
+        #products-table td:nth-child(5) {
             width: 120px;
             min-width: 120px;
             text-align: right;
         }
         
-        #products-table tr th:nth-child(5),
-        #products-table tr td:nth-child(5) {
+        #products-table tr th:nth-child(6),
+        #products-table tr td:nth-child(6) {
             width: 120px;
             min-width: 120px;
             text-align: center;
@@ -113,16 +124,6 @@
                                 </div>
                                 
                                 <div class="col-md-4 mb-4 form-control-validation">
-                                    <label class="form-label" for="reference_no">Reference No</label>
-                                    <input type="text" class="form-control" id="reference_no" name="reference_no" 
-                                        value="{{ old('reference_no') }}" placeholder="Reference Number">
-                                    @error('reference_no')
-                                        <span class="text-danger" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                                <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="document">Attach Document</label>
                                     <input type="file" class="form-control" id="document" name="document" 
                                         accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
@@ -132,8 +133,6 @@
                                         </span>
                                     @enderror
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="supplier_id">Supplier <span class="text-danger">*</span></label>
                                     <select class="form-select" id="supplier_id" name="supplier_id">
@@ -152,6 +151,9 @@
                                         </span>
                                     @enderror
                                 </div>
+                            </div>
+                            <div class="row">
+                                
                                 <div class="col-md-4 mb-4 form-control-validation">
                                     <label class="form-label" for="deliver">Deliver </label>
                                     <select class="form-select" id="deliver" name="deliver">
@@ -205,6 +207,7 @@
                                             <th>Product Name (Product Code)</th>
                                             <th>Cost Price</th>
                                             <th>Quantity</th>
+                                            <th>VAT</th>
                                             <th>Sub Total</th>
                                             <th class="last-column"><i class="icon-base ti tabler-trash"></i></th>
                                         </tr>
@@ -213,6 +216,7 @@
                                         <tr class="total-row">
                                             <td class="text-end fw-bold" colspan="2">Total</td>
                                             <td class="fw-bold total-quantity">0.00</td>
+                                            <td></td>
                                             <td class="fw-bold total-amount">0.00</td>
                                             <td></td>
                                         </tr>

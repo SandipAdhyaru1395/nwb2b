@@ -462,7 +462,7 @@
                     @endphp
                     <tr>
                         <td>{{ $itemNumber++ }}</td>
-                        <td>Box Qty : {{ $boxQty ?: '-' }}</td>
+                        <td>{{ $boxQty ?: '-' }}</td>
                         <td>
                             @if($item->product)
                                 {{ $item->product->name ?? 'N/A' }}
