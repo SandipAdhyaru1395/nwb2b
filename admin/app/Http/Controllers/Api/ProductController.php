@@ -60,9 +60,17 @@ class ProductController extends Controller
                     ->filter(fn($p) => (int)($p->is_active ?? 0) === 1)
                     ->sortByDesc('id')
                     ->values();
+                // Check if image is a full URL or a stored file path
+                $imageUrl = null;
+                if ($brand->image) {
+                    $imageUrl = (filter_var($brand->image, FILTER_VALIDATE_URL)) 
+                        ? $brand->image 
+                        : asset('storage/'.$brand->image);
+                }
+                
                 return [
                     'name' => $brand->name,
-                    'image' => ($brand->image) ? asset('storage/'.$brand->image) : null,
+                    'image' => $imageUrl,
                     'tags' => $brand->tags->pluck('name')->implode(', '),
                     'products' => $products->map(fn($product) => $this->formatProduct($product))->values(),
                 ];

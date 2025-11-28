@@ -97,6 +97,7 @@
       editBrandForm.submit();
     });
   }
+
 })();
 
 //Jquery to handle the e-commerce brand edit page

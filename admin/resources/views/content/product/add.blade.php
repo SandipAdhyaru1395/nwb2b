@@ -305,12 +305,12 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-4 form-control-validation">
-                                <label class="form-label" for="productImageUrl">Image URL</label>
+                                <label class="form-label" for="productImageUrl">Image URL <span class="text-danger">*</span></label>
                                 <input type="url" class="form-control" id="productImageUrl"
                                     placeholder="https://example.com/image.jpg" name="productImageUrl" 
                                     aria-label="Product Image URL" value="{{ old('productImageUrl') }}" 
                                     autocomplete="off" />
-                                <div class="form-text">Enter a full image URL or upload an image file below</div>
+                                <div class="form-text">Enter a full image URL or upload an image file below (at least one is required)</div>
                                 @error('productImageUrl')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -318,7 +318,7 @@
                                 @enderror
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Or Upload Image</label>
+                                <label class="form-label">Or Upload Image <span class="text-danger">*</span></label>
                             </div>
                             <div class="form-control-validation">
                                 <input type="file" name="productImage" id="productImage" hidden>

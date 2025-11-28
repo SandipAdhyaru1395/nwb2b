@@ -349,7 +349,7 @@
                                     placeholder="https://example.com/image.jpg" name="productImageUrl" 
                                     aria-label="Product Image URL" value="{{ old('productImageUrl', $product->image_url) }}" 
                                     autocomplete="off" />
-                                <div class="form-text">Enter a full image URL or upload an image file below</div>
+                                <div class="form-text">Enter a full image URL or upload an image file below (at least one is required if no existing image)</div>
                                 @error('productImageUrl')
                                     <span class="text-danger" role="alert">
                                         <strong>{{ $message }}</strong>

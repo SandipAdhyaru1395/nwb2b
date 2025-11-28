@@ -38,8 +38,44 @@ class ProductController extends Controller
       'productSku' => ['required','unique:products,sku'],
       'productUnitSku' => ['required','unique:products,product_unit_sku'],
       'productPrice' => ['required', 'numeric', 'min:0'],
-      'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
-      'productImageUrl' => ['nullable', 'url', 'max:2048'],
+      'productImage' => [
+        'nullable',
+        function ($attribute, $value, $fail) use ($request) {
+          $imageUrl = trim($request->input('productImageUrl', ''));
+          // If no file uploaded and no URL provided, require at least one
+          if (!$request->hasFile('productImage') && empty($imageUrl)) {
+            $fail('Either an image file or image URL is required.');
+          }
+          // If file is provided, validate it
+          if ($request->hasFile('productImage')) {
+            $file = $request->file('productImage');
+            if (!$file->isValid()) {
+              $fail('The uploaded image file is invalid.');
+            }
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMimes)) {
+              $fail('Only jpg, png, jpeg, and webp images are allowed.');
+            }
+          }
+        },
+      ],
+      'productImageUrl' => [
+        'nullable',
+        'max:2048',
+        function ($attribute, $value, $fail) use ($request) {
+          $trimmedValue = trim($value ?? '');
+          // If URL is provided, validate it
+          if (!empty($trimmedValue)) {
+            if (!filter_var($trimmedValue, FILTER_VALIDATE_URL)) {
+              $fail('The image URL must be a valid URL.');
+            }
+          }
+          // If no URL and no file, require at least one
+          if (empty($trimmedValue) && !$request->hasFile('productImage')) {
+            $fail('Either an image file or image URL is required.');
+          }
+        },
+      ],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
       'unit_id' => ['nullable','exists:units,id'],
       'costPrice' => ['nullable', 'numeric', 'min:0'],
@@ -59,9 +95,6 @@ class ProductController extends Controller
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
       'productPrice.min' => 'Price can not be less than 0',
-      'productImage.image' => 'Must be valid image',
-      'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
-      'productImageUrl.url' => 'Must be a valid URL',
       'productImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'costPrice.numeric' => 'Cost price must be valid number',
       'costPrice.min' => 'Cost price can not be less than 0',
@@ -69,13 +102,6 @@ class ProductController extends Controller
       'rrp.numeric' => 'RRP must be a number',
       'expiry_date.date_format' => 'Expiry date must be in dd/mm/yyyy format',
     ]);
-
-    // Validate that at least one image source is provided
-    if (!$request->hasFile('productImage') && empty($request->productImageUrl)) {
-      return redirect()->back()
-        ->withInput()
-        ->withErrors(['productImage' => 'Either an image file or image URL is required.']);
-    }
 
     // Determine image URL: use uploaded file if provided, otherwise use URL input
     $imageUrl = null;
@@ -170,6 +196,8 @@ class ProductController extends Controller
   
   public function update(Request $request){
     
+    $product = Product::findOrFail($request->id);
+    $hasExistingImage = !empty($product->image_url);
     
     $validated = $request->validate([
       'brands' => ['required'],
@@ -178,8 +206,44 @@ class ProductController extends Controller
       'productSku' => ['required','unique:products,sku,'.$request->id],
       'productUnitSku' => ['required','unique:products,product_unit_sku,'.$request->id],
       'productPrice' => ['required', 'numeric', 'min:0'],
-      'productImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
-      'productImageUrl' => ['nullable', 'url', 'max:2048'],
+      'productImage' => [
+        'nullable',
+        function ($attribute, $value, $fail) use ($request, $hasExistingImage) {
+          $imageUrl = trim($request->input('productImageUrl', ''));
+          // If no file uploaded, no URL provided, and no existing image, require at least one
+          if (!$request->hasFile('productImage') && empty($imageUrl) && !$hasExistingImage) {
+            $fail('Either an image file or image URL is required.');
+          }
+          // If file is provided, validate it
+          if ($request->hasFile('productImage')) {
+            $file = $request->file('productImage');
+            if (!$file->isValid()) {
+              $fail('The uploaded image file is invalid.');
+            }
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMimes)) {
+              $fail('Only jpg, png, jpeg, and webp images are allowed.');
+            }
+          }
+        },
+      ],
+      'productImageUrl' => [
+        'nullable',
+        'max:2048',
+        function ($attribute, $value, $fail) use ($request, $hasExistingImage) {
+          $trimmedValue = trim($value ?? '');
+          // If URL is provided, validate it
+          if (!empty($trimmedValue)) {
+            if (!filter_var($trimmedValue, FILTER_VALIDATE_URL)) {
+              $fail('The image URL must be a valid URL.');
+            }
+          }
+          // If no URL, no file, and no existing image, require at least one
+          if (empty($trimmedValue) && !$request->hasFile('productImage') && !$hasExistingImage) {
+            $fail('Either an image file or image URL is required.');
+          }
+        },
+      ],
       'vat_method_id' => ['nullable','exists:vat_methods,id'],
       'unit_id' => ['nullable','exists:units,id'],
       'costPrice' => ['nullable', 'numeric', 'min:0'],
@@ -199,9 +263,6 @@ class ProductController extends Controller
       'productPrice.required' => 'Price is required',
       'productPrice.numeric' => 'Price must be valid number',
       'productPrice.min' => 'Price can not be less than 0',
-      'productImage.image' => 'Must be valid image',
-      'productImage.mimes' => 'Only jpg, png, jpeg images are allowed',
-      'productImageUrl.url' => 'Must be a valid URL',
       'productImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'costPrice.numeric' => 'Cost price must be valid number',
       'costPrice.min' => 'Cost price can not be less than 0',
@@ -212,7 +273,6 @@ class ProductController extends Controller
      
 
     // Determine image URL: prioritize uploaded file, then URL input, then keep existing
-    $product = Product::findOrFail($request->id);
     $imageUrl = $product->image_url; // Default to existing image
 
     if($request->hasFile('productImage')){

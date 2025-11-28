@@ -48,8 +48,9 @@
   // Basic Dropzone
 
   const dropzoneBasic = document.querySelector('#dropzone-basic');
+  let myDropzone = null;
   if (dropzoneBasic) {
-    const myDropzone = new Dropzone(dropzoneBasic, {
+    myDropzone = new Dropzone(dropzoneBasic, {
       url: "#",
       previewTemplate: previewTemplate,
       autoProcessQueue: false,
@@ -69,6 +70,13 @@
 
   //For form validation
   const editProductForm = document.getElementById('editProductForm');
+  
+  // Store original image URL if exists (for validation purposes)
+  let hasOriginalImage = false;
+  if (editProductForm) {
+    const existingImageContainer = document.getElementById('existingImageContainer');
+    hasOriginalImage = existingImageContainer !== null;
+  }
 
   if (editProductForm) {
     //Add New customer Form Validation
@@ -188,6 +196,51 @@
               message: 'Please enter a valid URL',
               allowLocal: false,
               allowEmpty: true
+            },
+            callback: {
+              message: 'Either an image file or image URL is required (if no existing image).',
+              callback: function(value, validator, $field) {
+                const productImageInput = document.getElementById('productImage');
+                const hasFile = productImageInput && productImageInput.files && productImageInput.files.length > 0;
+                const hasUrl = value && value.trim() !== '';
+                
+                // If there's an existing image, no need for new image
+                if (hasOriginalImage) {
+                  return true;
+                }
+                
+                // If URL is provided, it should be valid (handled by uri validator above)
+                // If no URL and no file, show error
+                if (!hasUrl && !hasFile) {
+                  return false;
+                }
+                return true;
+              }
+            }
+          }
+        },
+        productImage: {
+          validators: {
+            callback: {
+              message: 'Either an image file or image URL is required (if no existing image).',
+              callback: function(value, validator, $field) {
+                const productImageUrlInput = document.getElementById('productImageUrl');
+                const hasUrl = productImageUrlInput && productImageUrlInput.value && productImageUrlInput.value.trim() !== '';
+                const productImageInput = document.getElementById('productImage');
+                const hasFile = productImageInput && productImageInput.files && productImageInput.files.length > 0;
+                
+                // If there's an existing image, no need for new image
+                if (hasOriginalImage) {
+                  return true;
+                }
+                
+                // If file is provided, validate it (Dropzone handles file validation)
+                // If no file and no URL, show error
+                if (!hasFile && !hasUrl) {
+                  return false;
+                }
+                return true;
+              }
             }
           }
         },
@@ -222,6 +275,41 @@
         autoFocus: new FormValidation.plugins.AutoFocus()
       }
     });
+
+    // Revalidate both image fields when either changes
+    const productImageInput = document.getElementById('productImage');
+    const productImageUrlInput = document.getElementById('productImageUrl');
+    
+    if (productImageInput) {
+      productImageInput.addEventListener('change', function() {
+        fv.revalidateField('productImage');
+        fv.revalidateField('productImageUrl');
+      });
+    }
+    
+    if (productImageUrlInput) {
+      productImageUrlInput.addEventListener('input', function() {
+        fv.revalidateField('productImageUrl');
+        fv.revalidateField('productImage');
+      });
+    }
+    
+    // Handle Dropzone file addition
+    if (dropzoneBasic && myDropzone) {
+      myDropzone.on("addedfile", function (file) {
+        setTimeout(function() {
+          fv.revalidateField('productImage');
+          fv.revalidateField('productImageUrl');
+        }, 100);
+      });
+      
+      myDropzone.on("removedfile", function (file) {
+        setTimeout(function() {
+          fv.revalidateField('productImage');
+          fv.revalidateField('productImageUrl');
+        }, 100);
+      });
+    }
 
     // Handle form submission with Quill editor content
     fv.on('core.form.valid', function () {

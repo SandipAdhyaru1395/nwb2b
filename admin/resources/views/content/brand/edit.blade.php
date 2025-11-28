@@ -13,6 +13,44 @@
 
 @section('page-script')
     @vite(['resources/assets/js/brand-edit.js'])
+    <script>
+        $(document).ready(function() {
+            // Handle image URL preview with fallback
+            const defaultImagePath = '{{ asset('public/public/assets/img/default_brand.png') }}';
+            const $imageUrlInput = $('#brandImageUrl');
+            const $imagePreview = $('#imagePreview');
+            const $imagePreviewContainer = $('#imagePreviewContainer');
+            const $existingImageContainer = $('#existingImageContainer');
+            const originalImageUrl = $imageUrlInput.val().trim();
+            
+            // Don't show preview initially if URL matches existing brand image
+            // Only show preview if user changes the URL
+            $imageUrlInput.on('input blur', function() {
+                const currentUrl = $(this).val().trim();
+                if (currentUrl && currentUrl !== originalImageUrl) {
+                    // Show preview for new/changed URL
+                    $imagePreview.attr('src', currentUrl);
+                    $imagePreviewContainer.show();
+                    // Hide existing image when showing preview
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.hide();
+                    }
+                } else if (currentUrl === originalImageUrl) {
+                    // Show existing image if URL matches original
+                    $imagePreviewContainer.hide();
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.show();
+                    }
+                } else {
+                    // URL is empty
+                    $imagePreviewContainer.hide();
+                    if ($existingImageContainer.length) {
+                        $existingImageContainer.show();
+                    }
+                }
+            });
+        });
+    </script>
 @endsection
 
 @section('content')
@@ -57,23 +95,55 @@
                     <!-- /Brand Information -->
                     <!-- Media -->
                     <div class="card mb-6">
-                        <img class="align-self-center" height="300px" width="400px" src="{{ $brand->image ? asset('storage/'.$brand->image) : asset('public/assets/img/default_brand.png') }}" onerror="this.onerror=null; this.src='{{ asset('assets/img/default_brand.png') }}';" />
-                        <div class="card-body form-control-validation">
-                            <input type="file" name="brandImage" id="brandImage" hidden>
-                            <div class="dropzone needsclick p-0" id="dropzone-basic">
-                                <div class="dz-message needsclick">
-                                    <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
-                                    <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
-                                    <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
-                                        image</span>
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Brand Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="imagePreviewContainer" class="mb-4 text-center" style="display: none;">
+                                <img id="imagePreview" class="align-self-center" height="300px" width="400px"
+                                    alt="Brand Image Preview" 
+                                    onerror="this.onerror=null; this.src='{{ asset('assets/img/default_brand.png') }}';" />
+                            </div>
+                            @if($brand->image)
+                                <div id="existingImageContainer" class="mb-4 text-center">
+                                    <img class="align-self-center" height="300px" width="400px"
+                                        src="{{ $brand->image }}" alt="Current Brand Image" 
+                                        onerror="this.onerror=null; this.src='{{ asset('assets/img/default_brand.png') }}';" />
+                                </div>
+                            @endif
+                            <div class="mb-4 form-control-validation">
+                                <label class="form-label" for="brandImageUrl">Image URL</label>
+                                <input type="url" class="form-control" id="brandImageUrl"
+                                    placeholder="https://example.com/image.jpg" name="brandImageUrl" 
+                                    aria-label="Brand Image URL" value="{{ old('brandImageUrl', $brand->image ?? '') }}" 
+                                    autocomplete="off" />
+                                <div class="form-text">Enter a full image URL or upload an image file below (at least one is required if no existing image)</div>
+                                @error('brandImageUrl')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Or Upload Image</label>
+                            </div>
+                            <div class="form-control-validation">
+                                <input type="file" name="brandImage" id="brandImage" hidden>
+                                <div class="dropzone needsclick p-0" id="dropzone-basic">
+                                    <div class="dz-message needsclick">
+                                        <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
+                                        <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
+                                        <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
+                                            image</span>
+                                    </div>
                                 </div>
                             </div>
+                            @error('brandImage')
+                                <span class="text-danger text-center mb-5" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
-                        @error('brandImage')
-                            <span class="text-danger text-center mb-5" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
                     <!-- /Media -->
                 </div>

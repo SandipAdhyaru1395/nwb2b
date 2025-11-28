@@ -92,21 +92,63 @@ class BrandController extends Controller
 
     $validated = $request->validate([
       'brandTitle' => ['required'],
-      'brandImage' => ['required', 'image', 'mimes:jpeg,png,jpg,webp'],
+      'brandImage' => [
+        'nullable',
+        function ($attribute, $value, $fail) use ($request) {
+          $imageUrl = trim($request->input('brandImageUrl', ''));
+          // If no file uploaded and no URL provided, require at least one
+          if (!$request->hasFile('brandImage') && empty($imageUrl)) {
+            $fail('Either an image file or image URL is required.');
+          }
+          // If file is provided, validate it
+          if ($request->hasFile('brandImage')) {
+            $file = $request->file('brandImage');
+            if (!$file->isValid()) {
+              $fail('The uploaded image file is invalid.');
+            }
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMimes)) {
+              $fail('Only jpg, png, jpeg, and webp images are allowed.');
+            }
+          }
+        },
+      ],
+      'brandImageUrl' => [
+        'nullable',
+        'max:2048',
+        function ($attribute, $value, $fail) use ($request) {
+          $trimmedValue = trim($value ?? '');
+          // If URL is provided, validate it
+          if (!empty($trimmedValue)) {
+            if (!filter_var($trimmedValue, FILTER_VALIDATE_URL)) {
+              $fail('The image URL must be a valid URL.');
+            }
+          }
+          // If no URL and no file, require at least one
+          if (empty($trimmedValue) && !$request->hasFile('brandImage')) {
+            $fail('Either an image file or image URL is required.');
+          }
+        },
+      ],
       'categories' => ['required'],
     ], [
       'brandTitle.required' => 'Name is required',
-      'brandImage.required' => 'Image is required',
-      'brandImage.image' => 'Must be valid image',
-      'brandImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'brandImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'categories.required' => 'Category is required',
     ]);
 
-    $path = $request->file('brandImage')->store('brands', 'public');
+    // Determine image URL: use uploaded file if provided, otherwise use URL input
+    $imageUrl = null;
+    if ($request->hasFile('brandImage')) {
+      $path = $request->file('brandImage')->store('brands', 'public');
+      $imageUrl = asset('storage/' . $path);
+    } elseif (!empty($request->brandImageUrl)) {
+      $imageUrl = $request->brandImageUrl;
+    }
 
     $brand = Brand::create([
       'name' => $validated['brandTitle'],
-      'image' => $path,
+      'image' => $imageUrl,
       'is_active' => $request->brandStatus
     ]);
 
@@ -167,26 +209,81 @@ class BrandController extends Controller
   public function update(Request $request)
   {
 
+    $brand = Brand::findOrFail($request->id);
+    $hasExistingImage = !empty($brand->image);
+    
     $validated = $request->validate([
       'brandTitle' => ['required'],
-      'brandImage' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp'],
+      'brandImage' => [
+        'nullable',
+        function ($attribute, $value, $fail) use ($request, $hasExistingImage) {
+          $imageUrl = trim($request->input('brandImageUrl', ''));
+          // If no file uploaded, no URL provided, and no existing image, require at least one
+          if (!$request->hasFile('brandImage') && empty($imageUrl) && !$hasExistingImage) {
+            $fail('Either an image file or image URL is required.');
+          }
+          // If file is provided, validate it
+          if ($request->hasFile('brandImage')) {
+            $file = $request->file('brandImage');
+            if (!$file->isValid()) {
+              $fail('The uploaded image file is invalid.');
+            }
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+            if (!in_array($file->getMimeType(), $allowedMimes)) {
+              $fail('Only jpg, png, jpeg, and webp images are allowed.');
+            }
+          }
+        },
+      ],
+      'brandImageUrl' => [
+        'nullable',
+        'max:2048',
+        function ($attribute, $value, $fail) use ($request, $hasExistingImage) {
+          $trimmedValue = trim($value ?? '');
+          // If URL is provided, validate it
+          if (!empty($trimmedValue)) {
+            if (!filter_var($trimmedValue, FILTER_VALIDATE_URL)) {
+              $fail('The image URL must be a valid URL.');
+            }
+          }
+          // If no URL, no file, and no existing image, require at least one
+          if (empty($trimmedValue) && !$request->hasFile('brandImage') && !$hasExistingImage) {
+            $fail('Either an image file or image URL is required.');
+          }
+        },
+      ],
       'categories' => ['required'],
     ], [
       'brandTitle.required' => 'Name is required',
-      'brandImage.image' => 'Must be valid image',
-      'brandImage.mimes' => 'Only jpg, png, jpeg images are allowed',
+      'brandImageUrl.max' => 'Image URL must not exceed 2048 characters',
       'categories.required' => 'Category is required',
     ]);
 
-    if ($request->file('brandImage') != null) {
+    // Determine image URL: prioritize uploaded file, then URL input, then keep existing
+    $imageUrl = $brand->image; // Default to existing image
 
-      $image = Brand::find($request->id)->image;
-
-      if ($image) {
-        Storage::disk('public')->delete($image);
+    if ($request->hasFile('brandImage')) {
+      // Delete old file if it was a stored file (not a URL)
+      $oldImage = $brand->image;
+      if ($oldImage && !filter_var($oldImage, FILTER_VALIDATE_URL)) {
+        // It's a stored file path, delete it
+        if (Storage::disk('public')->exists($oldImage)) {
+          Storage::disk('public')->delete($oldImage);
+        }
       }
-
+      
       $path = $request->file('brandImage')->store('brands', 'public');
+      $imageUrl = asset('storage/' . $path);
+    } elseif (!empty($request->brandImageUrl)) {
+      // Delete old file if it was a stored file (not a URL)
+      $oldImage = $brand->image;
+      if ($oldImage && !filter_var($oldImage, FILTER_VALIDATE_URL)) {
+        // It's a stored file path, delete it
+        if (Storage::disk('public')->exists($oldImage)) {
+          Storage::disk('public')->delete($oldImage);
+        }
+      }
+      $imageUrl = $request->brandImageUrl;
     }
 
     if ($request->brandTags != null) {
@@ -219,9 +316,9 @@ class BrandController extends Controller
       ]);
     }
 
-    Brand::find($request->id)->update([
+    $brand->update([
       'name' => $validated['brandTitle'],
-      'image' =>  $request->file('brandImage') != null ? $path : Brand::find($request->id)->image,
+      'image' => $imageUrl,
       'is_active' => $request->brandStatus
     ]);
 

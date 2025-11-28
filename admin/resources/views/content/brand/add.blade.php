@@ -57,22 +57,43 @@
                     <!-- /Brand Information -->
                     <!-- Media -->
                     <div class="card mb-6">
-                        <div class="card-body form-control-validation">
-                            <input type="file" name="brandImage" id="brandImage" hidden>
-                            <div class="dropzone needsclick p-0" id="dropzone-basic">
-                                <div class="dz-message needsclick">
-                                    <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
-                                    <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
-                                    <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
-                                        image</span>
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Brand Image</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4 form-control-validation">
+                                <label class="form-label" for="brandImageUrl">Image URL <span class="text-danger">*</span></label>
+                                <input type="url" class="form-control" id="brandImageUrl"
+                                    placeholder="https://example.com/image.jpg" name="brandImageUrl" 
+                                    aria-label="Brand Image URL" value="{{ old('brandImageUrl') }}" 
+                                    autocomplete="off" />
+                                <div class="form-text">Enter a full image URL or upload an image file below (at least one is required)</div>
+                                @error('brandImageUrl')
+                                    <span class="text-danger" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Or Upload Image <span class="text-danger">*</span></label>
+                            </div>
+                            <div class="form-control-validation">
+                                <input type="file" name="brandImage" id="brandImage" hidden>
+                                <div class="dropzone needsclick p-0" id="dropzone-basic">
+                                    <div class="dz-message needsclick">
+                                        <p class="h4 needsclick pt-3 mb-2">Drag and drop your image here</p>
+                                        <p class="h6 text-body-secondary d-block fw-normal mb-2">or</p>
+                                        <span class="needsclick btn btn-sm btn-label-primary" id="btnBrowse">Browse
+                                            image</span>
+                                    </div>
                                 </div>
                             </div>
+                            @error('brandImage')
+                                <span class="text-danger text-center mb-5" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                            @enderror
                         </div>
-                        @error('brandImage')
-                            <span class="text-danger text-center mb-5" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                        @enderror
                     </div>
                     <!-- /Media -->
                 </div>

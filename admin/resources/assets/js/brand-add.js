@@ -66,10 +66,27 @@
             }
           }
         },
+        brandImageUrl: {
+          validators: {
+            callback: {
+              message: 'Please enter an image URL or upload an image file',
+              callback: function(value, validator, $field) {
+                const imageUrl = value.trim();
+                const imageFile = document.getElementById('brandImage').files.length;
+                return imageUrl.length > 0 || imageFile > 0;
+              }
+            }
+          }
+        },
         brandImage: {
           validators: {
-            notEmpty: {
-              message: 'Please upload brand image'
+            callback: {
+              message: 'Please enter an image URL or upload an image file',
+              callback: function(value, validator, $field) {
+                const imageUrl = document.getElementById('brandImageUrl').value.trim();
+                const imageFile = document.getElementById('brandImage').files.length;
+                return imageUrl.length > 0 || imageFile > 0;
+              }
             }
           }
         },
