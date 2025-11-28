@@ -11,6 +11,8 @@ use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Brand;
+use App\Models\Category;
+use App\Models\BrandCategory;
 use Illuminate\Support\Str;
 use Yajra\DataTables\Facades\DataTables;
 use App\Models\VatMethod;
@@ -555,7 +557,10 @@ class ProductController extends Controller
         'Quantity' => ['Quantity', 'quantity', 'QUANTITY', 'Qty', 'qty', 'Stock Quantity', 'stock quantity'],
         'VAT Method' => ['VAT Method (Optional)', 'VAT Method', 'vat method', 'VAT METHOD', 'Vat Method', 'VAT', 'vat', 'Tax Method', 'tax method'],
         'Product Unit' => ['Product Unit', 'product unit', 'PRODUCT UNIT', 'Unit', 'unit'],
-        'Description' => ['Description (Optional)', 'Description', 'description', 'DESCRIPTION', 'Desc', 'desc']
+        'Description' => ['Description (Optional)', 'Description', 'description', 'DESCRIPTION', 'Desc', 'desc'],
+        'Category' => ['Category', 'category', 'CATEGORY', 'Product Category', 'product category'],
+        'Type ( Sub Category )' => ['Type ( Sub Category )', 'Type ( Sub Category )', 'Type (Sub Category)', 'Type', 'type', 'Sub Category', 'sub category', 'SubCategory', 'Subcategory'],
+        'Brand Image' => ['Brand Image', 'brand image', 'BRAND IMAGE', 'Brand Image URL', 'brand image url', 'BrandImage']
       ];
       
       $missingHeaders = [];
@@ -805,7 +810,10 @@ class ProductController extends Controller
       'vatMethod' => $getValue('VAT Method (Optional)') ?: $getValue('VAT Method') ?: $getValue('vat method') ?: $getValue('VAT') ?: $getValue('Tax Method'),
       'productDescription' => $getValue('Description') ?: $getValue('Description (Optional)') ?: $getValue('description') ?: $getValue('Desc'),
       'productStatus' => $getValue('Status'),
+      'category' => $getValue('Category'),
+      'type' => $getValue('Type ( Sub Category )') ?: $getValue('Type (Sub Category)') ?: $getValue('Type') ?: $getValue('Sub Category') ?: $getValue('SubCategory'),
       'brand' => $getValue('Brand'),
+      'brandImage' => $getValue('Brand Image') ?: $getValue('Brand Image URL') ?: $getValue('brand image') ?: $getValue('BrandImage'),
       'productImageUrl' => $getValue('Image') ?: $getValue('Image URL') ?: $getValue('image') ?: $getValue('image url') ?: $getValue('Product Image'),
     ];
 
@@ -853,18 +861,19 @@ class ProductController extends Controller
       
       if (empty($brandNames)) {
         $errors[] = 'At least one brand is required';
-      } else {
-        // Validate each brand exists
-        $missingBrands = [];
-        foreach ($brandNames as $brandName) {
-          $brand = Brand::where('name', $brandName)->first();
-          if (!$brand) {
-            $missingBrands[] = $brandName;
-          }
-        }
-        
-        if (!empty($missingBrands)) {
-          $errors[] = 'Brand(s) not found: ' . implode(', ', $missingBrands);
+      }
+      // Note: Brands will be created if they don't exist, so we don't validate existence here
+    }
+    
+    // Brand Image URL validation (if provided)
+    if (!empty($data['brandImage'])) {
+      $url = trim($data['brandImage']);
+      // Check if it's a valid URL format (starts with http/https or is a valid URL)
+      if (!preg_match('/^https?:\/\//i', $url) && !filter_var($url, FILTER_VALIDATE_URL)) {
+        // Don't add error if it's just missing http:// prefix - we'll add it in createProductFromImport
+        // Only error if it's clearly not a URL
+        if (strpos($url, '://') !== false || (strpos($url, '.') === false && strpos($url, '/') === false)) {
+          $errors[] = 'Brand Image must be a valid URL';
         }
       }
     }
@@ -930,6 +939,66 @@ class ProductController extends Controller
 
   private function createProductFromImport($data)
   {
+    // Handle Category and Type (Sub Category) - create if not exists
+    $categoryId = null;
+    $subCategoryId = null;
+    
+    // Scenario 1: Category is provided
+    if (!empty($data['category'])) {
+      $categoryName = trim($data['category']);
+      $category = Category::where('name', $categoryName)
+        ->whereNull('parent_id')
+        ->first();
+      
+      if (!$category) {
+        // Create main category with Active status
+        $category = Category::create([
+          'name' => $categoryName,
+          'parent_id' => null,
+          'is_active' => 1,
+          'sort_order' => 1
+        ]);
+      }
+      $categoryId = $category->id;
+      
+      // Then, handle subcategory (Type) if provided
+      if (!empty($data['type'])) {
+        $typeName = trim($data['type']);
+        $subCategory = Category::where('name', $typeName)
+          ->where('parent_id', $categoryId)
+          ->first();
+        
+        if (!$subCategory) {
+          // Create subcategory with Active status
+          $subCategory = Category::create([
+            'name' => $typeName,
+            'parent_id' => $categoryId,
+            'is_active' => 1,
+            'sort_order' => 1
+          ]);
+        }
+        $subCategoryId = $subCategory->id;
+      }
+    } 
+    // Scenario 2: Category is blank but Type (Sub Category) is provided
+    elseif (!empty($data['type'])) {
+      $typeName = trim($data['type']);
+      // Search for Type as a subcategory (must have a parent)
+      $subCategory = Category::where('name', $typeName)
+        ->whereNotNull('parent_id')
+        ->first();
+      
+      if (!$subCategory) {
+        throw new \Exception("Type (Sub Category) '{$typeName}' does not exist and Category is blank.");
+      }
+      
+      $subCategoryId = $subCategory->id;
+      $categoryId = $subCategory->parent_id;
+    }
+    
+    // Determine which category to use for brand (prefer subcategory if available)
+    $brandCategoryId = $subCategoryId ?? $categoryId;
+    
     // Get brand IDs (support multiple brands comma-separated)
     $brandNames = array_map('trim', explode(',', $data['brand']));
     $brandNames = array_filter($brandNames, function($name) { return !empty($name); }); // Remove empty values
@@ -937,9 +1006,71 @@ class ProductController extends Controller
     $brandIds = [];
     foreach ($brandNames as $brandName) {
       $brand = Brand::where('name', $brandName)->first();
-      if ($brand) {
-        $brandIds[] = $brand->id;
+      
+      if (!$brand) {
+        // Brand doesn't exist - need to create it
+        // But we need a category to bind it to
+        
+        // Scenario: Category='', Type='', Brand='c' - Error case
+        if (empty($brandCategoryId)) {
+          throw new \Exception("Brand '{$brandName}' does not exist and cannot be created because no Category or Type (Sub Category) is provided.");
+        }
+        
+        // Create brand if it doesn't exist
+        $brandImageUrl = null;
+        if (!empty($data['brandImage'])) {
+          $url = trim($data['brandImage']);
+          // More lenient URL validation - check if it starts with http:// or https://
+          if (preg_match('/^https?:\/\//i', $url)) {
+            $brandImageUrl = $url;
+          } elseif (filter_var($url, FILTER_VALIDATE_URL)) {
+            $brandImageUrl = $url;
+          } else {
+            // If it doesn't start with http, try adding it
+            if (strpos($url, '://') === false && !empty($url)) {
+              $brandImageUrl = 'https://' . ltrim($url, '/');
+            }
+          }
+        }
+        
+        // Create brand with Active status
+        $brand = Brand::create([
+          'name' => $brandName,
+          'image' => $brandImageUrl,
+          'is_active' => 1
+        ]);
+        
+        // Link brand to category
+        if ($brandCategoryId) {
+          // Check if link already exists
+          $existingLink = BrandCategory::where('brand_id', $brand->id)
+            ->where('category_id', $brandCategoryId)
+            ->first();
+          
+          if (!$existingLink) {
+            BrandCategory::create([
+              'brand_id' => $brand->id,
+              'category_id' => $brandCategoryId
+            ]);
+          }
+        }
+      } else {
+        // Brand exists - ensure it's linked to the category if category exists
+        if ($brandCategoryId) {
+          $existingLink = BrandCategory::where('brand_id', $brand->id)
+            ->where('category_id', $brandCategoryId)
+            ->first();
+          
+          if (!$existingLink) {
+            BrandCategory::create([
+              'brand_id' => $brand->id,
+              'category_id' => $brandCategoryId
+            ]);
+          }
+        }
       }
+      
+      $brandIds[] = $brand->id;
     }
     
     if (empty($brandIds)) {
@@ -1131,8 +1262,11 @@ class ProductController extends Controller
         'VAT Method (Optional)',
         'Description (Optional)',
       'Status (1 = Active / 0 = Inactive)',
+      'Image',
+      'Category',
+      'Type ( Sub Category )',
       'Brand',
-      'Image'
+      'Brand Image'
     ];
 
     $sampleData = [
@@ -1152,9 +1286,11 @@ class ProductController extends Controller
         '20%',
         '',
         '1',
-        '
-Hayati Pro Ultra 25K Prefilled Pods, Hayati Pro Ultra 25K',
-        'https://aidemo.in/nwb2b/admin/public/storage/products/jihfqWToNwczA0CK6.JH19x9NSrFCyVAOv07.JtfGv.jpg'
+        'https://aidemo.in/nwb2b/admin/public/storage/products/jihfqWToNwczA0CK6.JH19x9NSrFCyVAOv07.JtfGv.jpg',
+        'Electronics',
+        'Vape Pods',
+        'Hayati Pro Ultra 25K Prefilled Pods',
+        'https://aidemo.in/nwb2b/admin/public/storage/brands/brand-image.jpg'
       ]
     ];
 
