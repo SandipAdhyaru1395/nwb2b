@@ -38,8 +38,26 @@ class BrandController extends Controller
       ->orderBy('id', 'desc');
 
     return DataTables::eloquent($query)
+      ->filter(function ($query) use ($request) {
+        $searchValue = $request->get('search')['value'] ?? '';
+        if (!empty($searchValue)) {
+          $query->where(function ($q) use ($searchValue) {
+            // Search in brand name
+            $q->where('brands.name', 'like', "%{$searchValue}%")
+              // Search in categories
+              ->orWhereHas('categories', function ($categoryQuery) use ($searchValue) {
+                $categoryQuery->where('categories.name', 'like', "%{$searchValue}%");
+              });
+          });
+        }
+      })
       ->filterColumn('brand', function ($query, $keyword) {
         $query->where('brands.name', 'like', "%{$keyword}%");
+      })
+      ->filterColumn('categories', function ($query, $keyword) {
+        $query->whereHas('categories', function ($q) use ($keyword) {
+          $q->where('categories.name', 'like', "%{$keyword}%");
+        });
       })
       ->orderColumn('brand', function ($query, $order) {
         $query->orderBy('brands.name', $order);

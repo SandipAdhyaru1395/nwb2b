@@ -160,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       },
       order: [0, 'desc'],
       displayLength: 7,
+      lengthMenu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
       layout: {
         topStart: {
           rowClass: 'card-header d-flex border-top rounded-0 flex-wrap py-0 flex-column flex-md-row align-items-start',
@@ -178,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           features: [
             {
               pageLength: {
-                menu: [7, 10, 25, 50, 100],
+                menu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
                 text: '_MENU_'
               },
               buttons: [
@@ -192,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-1"></i>Print</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -209,6 +210,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                               const userNameElements = doc.querySelectorAll('.product-name');
                               if (userNameElements.length > 0) {
                                 userNameElements.forEach(el => {
+                                  // Remove avatar-wrapper before extracting text
+                                  const avatarWrapper = el.querySelector('.avatar-wrapper');
+                                  if (avatarWrapper) {
+                                    avatarWrapper.remove();
+                                  }
                                   // Get text from nested structure
                                   const nameText =
                                     el.querySelector('.fw-medium')?.textContent ||
@@ -244,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-1"></i>Csv</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -259,6 +265,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             const userNameElements = doc.querySelectorAll('.product-name');
                             if (userNameElements.length > 0) {
                               userNameElements.forEach(el => {
+                                // Remove avatar-wrapper before extracting text
+                                const avatarWrapper = el.querySelector('.avatar-wrapper');
+                                if (avatarWrapper) {
+                                  avatarWrapper.remove();
+                                }
                                 // Get text from nested structure - try different selectors
                                 const nameText =
                                   el.querySelector('.fw-medium')?.textContent ||
@@ -281,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-upload me-1"></i>Excel</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -296,6 +307,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             const userNameElements = doc.querySelectorAll('.product-name');
                             if (userNameElements.length > 0) {
                               userNameElements.forEach(el => {
+                                // Remove avatar-wrapper before extracting text
+                                const avatarWrapper = el.querySelector('.avatar-wrapper');
+                                if (avatarWrapper) {
+                                  avatarWrapper.remove();
+                                }
                                 // Get text from nested structure - try different selectors
                                 const nameText =
                                   el.querySelector('.fw-medium')?.textContent ||
@@ -318,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-1"></i>Pdf</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -333,6 +349,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             const userNameElements = doc.querySelectorAll('.product-name');
                             if (userNameElements.length > 0) {
                               userNameElements.forEach(el => {
+                                // Remove avatar-wrapper before extracting text
+                                const avatarWrapper = el.querySelector('.avatar-wrapper');
+                                if (avatarWrapper) {
+                                  avatarWrapper.remove();
+                                }
                                 // Get text from nested structure - try different selectors
                                 const nameText =
                                   el.querySelector('.fw-medium')?.textContent ||
@@ -355,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<i class="icon-base ti tabler-copy me-1"></i>Copy`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4, 5],
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -370,6 +391,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                             const userNameElements = doc.querySelectorAll('.product-name');
                             if (userNameElements.length > 0) {
                               userNameElements.forEach(el => {
+                                // Remove avatar-wrapper before extracting text
+                                const avatarWrapper = el.querySelector('.avatar-wrapper');
+                                if (avatarWrapper) {
+                                  avatarWrapper.remove();
+                                }
                                 // Get text from nested structure - try different selectors
                                 const nameText =
                                   el.querySelector('.fw-medium')?.textContent ||

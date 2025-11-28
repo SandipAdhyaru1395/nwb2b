@@ -36,8 +36,35 @@ class CategoryController extends Controller
       ->orderBy('id', 'desc');
 
     return DataTables::eloquent($query)
+      ->filter(function ($query) use ($request) {
+        $searchValue = $request->get('search')['value'] ?? '';
+        if (!empty($searchValue)) {
+          $query->where(function ($q) use ($searchValue) {
+            // Search in category name
+            $q->where('categories.name', 'like', "%{$searchValue}%")
+              // Search in parent category name
+              ->orWhereHas('parent', function ($parentQuery) use ($searchValue) {
+                $parentQuery->where('name', 'like', "%{$searchValue}%");
+              })
+              // Search in child categories names
+              ->orWhereHas('children', function ($childQuery) use ($searchValue) {
+                $childQuery->where('name', 'like', "%{$searchValue}%");
+              });
+          });
+        }
+      })
       ->filterColumn('name', function ($query, $keyword) {
         $query->where('categories.name', 'like', "%{$keyword}%");
+      })
+      ->filterColumn('parent_category', function ($query, $keyword) {
+        $query->whereHas('parent', function ($q) use ($keyword) {
+          $q->where('name', 'like', "%{$keyword}%");
+        });
+      })
+      ->filterColumn('child_categories', function ($query, $keyword) {
+        $query->whereHas('children', function ($q) use ($keyword) {
+          $q->where('name', 'like', "%{$keyword}%");
+        });
       })
       ->addColumn('parent_category', function ($category) {
         return $category->parent?->name ?? '-';

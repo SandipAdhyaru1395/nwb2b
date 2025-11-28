@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           features: [
             {
               pageLength: {
-                menu: [7, 10, 25, 50, 100],
+                menu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
                 text: '_MENU_'
               },
               buttons: [

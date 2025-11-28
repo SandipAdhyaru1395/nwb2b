@@ -282,6 +282,8 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
         Route::get('/report/daily-sales/ajax', [ReportController::class, 'dailySalesReportAjax'])->name('report.daily-sales.ajax');
         Route::get('/report/monthly-sales', [ReportController::class, 'monthlySalesReport'])->name('report.monthly-sales');
         Route::get('/report/monthly-sales/ajax', [ReportController::class, 'monthlySalesReportAjax'])->name('report.monthly-sales.ajax');
+        Route::get('/report/net-vat', [ReportController::class, 'netVatReport'])->name('report.net-vat');
+        Route::get('/report/net-vat/ajax', [ReportController::class, 'netVatReportAjax'])->name('report.net-vat.ajax');
     });
 
     Route::middleware('permission:settings.read')->group(function () {

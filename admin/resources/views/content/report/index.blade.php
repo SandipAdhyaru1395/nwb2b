@@ -40,7 +40,7 @@
             </span>
           </div>
         </div>
-        <a href="javascript:void(0);" class="btn btn-info w-100">View Report</a>
+        <a href="{{ route('report.net-vat') }}" class="btn btn-info w-100">View Report</a>
       </div>
     </div>
   </div>

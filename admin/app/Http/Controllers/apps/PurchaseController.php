@@ -546,6 +546,74 @@ class PurchaseController extends Controller
             ->orderBy('id', 'desc');
 
         return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                $searchValue = trim($request->get('search')['value'] ?? '');
+                if (!empty($searchValue)) {
+                    $query->where(function ($q) use ($searchValue) {
+                        // Check if search starts with #PO or PO (case insensitive)
+                        $isReferenceNoSearch = preg_match('/^#?PO/i', $searchValue);
+                        
+                        // Remove #PO prefix if present for searching reference_no
+                        $refSearchValue = trim(preg_replace('/^#?PO/i', '', $searchValue));
+                        
+                        // Search in reference_no (with or without prefix)
+                        // Only search if we have something to search after removing prefix
+                        if (!empty($refSearchValue)) {
+                            $q->where(function ($refQuery) use ($searchValue, $refSearchValue) {
+                                // Search for the numeric part in reference_no
+                                $refQuery->where('reference_no', 'like', "%{$refSearchValue}%");
+                                // Also search for the full formatted version (e.g., "#PO1" matches "#po1")
+                                if (!empty(trim($searchValue))) {
+                                    $refQuery->orWhereRaw("CONCAT('#PO', reference_no) LIKE ?", ["%" . trim($searchValue) . "%"]);
+                                }
+                            });
+                        } else {
+                            // If search is just "#PO" or "PO", search for all PO references
+                            $q->whereNotNull('reference_no');
+                        }
+                        
+                        // Only search in other fields if it's NOT a reference number search
+                        // This prevents "#po1" from matching dates with "1" in them
+                        if (!$isReferenceNoSearch) {
+                            // Search in supplier name
+                            $q->orWhereHas('supplier', function ($supplierQuery) use ($searchValue) {
+                                $supplierQuery->where('company', 'like', "%{$searchValue}%")
+                                    ->orWhere('full_name', 'like', "%{$searchValue}%");
+                            })
+                            // Search in date (try to parse date formats)
+                            ->orWhere(function ($dateQuery) use ($searchValue) {
+                                try {
+                                    // Try d/m/Y format first (matches the formatted output)
+                                    if (preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $searchValue, $matches)) {
+                                        $date = Carbon::createFromFormat('d/m/Y', $matches[0]);
+                                        $dateQuery->whereDate('date', $date->format('Y-m-d'));
+                                    } else {
+                                        // Try to parse as date and search
+                                        $date = Carbon::parse($searchValue);
+                                        $dateQuery->whereDate('date', $date->format('Y-m-d'));
+                                    }
+                                } catch (\Exception $e) {
+                                    // If parsing fails, search in formatted date string
+                                    $dateQuery->whereRaw("DATE_FORMAT(date, '%d/%m/%Y %H:%i') LIKE ?", ["%{$searchValue}%"]);
+                                }
+                            })
+                            // Search in total amount (remove currency symbols and format characters)
+                            ->orWhere(function ($amountQuery) use ($searchValue) {
+                                $amountSearch = preg_replace('/[^0-9.]/', '', $searchValue);
+                                if (!empty($amountSearch)) {
+                                    $amountQuery->where('total_amount', 'like', "%{$amountSearch}%");
+                                }
+                            })
+                            // Search in user name
+                            ->orWhereHas('user', function ($userQuery) use ($searchValue) {
+                                $userQuery->where('name', 'like', "%{$searchValue}%");
+                            })
+                            // Search in note
+                            ->orWhere('note', 'like', "%{$searchValue}%");
+                        }
+                    });
+                }
+            })
             ->addColumn('reference_no_display', function ($purchase) {
                 return $purchase->reference_no ? '#PO' . $purchase->reference_no : 'N/A';
             })
@@ -573,15 +641,6 @@ class PurchaseController extends Controller
                        '<a href="' . $editUrl . '" class="rounded-pill waves-effect btn-icon"><button class="btn btn-text-secondary "><i class="icon-base ti tabler-edit icon-22px"></i></button></a> ' .
                        '<a href="javascript:;" onclick="deletePurchase(' . $purchase->id . ')" class="rounded-pill waves-effect btn-icon"><button class="btn"><i class="icon-base ti tabler-trash icon-22px"></i></button></a>' .
                        '</div>';
-            })
-            ->filterColumn('reference_no_display', function ($query, $keyword) {
-                $query->where('reference_no', 'like', "%{$keyword}%");
-            })
-            ->filterColumn('supplier_name', function ($query, $keyword) {
-                $query->whereHas('supplier', function ($q) use ($keyword) {
-                    $q->where('company', 'like', "%{$keyword}%")
-                      ->orWhere('full_name', 'like', "%{$keyword}%");
-                });
             })
             ->rawColumns(['actions'])
             ->make(true);

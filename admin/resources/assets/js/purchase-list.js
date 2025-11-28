@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
       },
       order: [0, 'desc'],
       displayLength: 7,
+      lengthMenu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
       layout: {
         topStart: {
           rowClass: 'card-header d-flex border-top rounded-0 flex-wrap py-0 flex-column flex-md-row align-items-start',
@@ -154,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           features: [
             {
               pageLength: {
-                menu: [7, 10, 25, 50, 100],
+                menu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
                 text: '_MENU_'
               },
               buttons: [

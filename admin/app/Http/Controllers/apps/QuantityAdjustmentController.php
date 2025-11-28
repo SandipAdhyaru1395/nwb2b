@@ -359,6 +359,43 @@ class QuantityAdjustmentController extends Controller
             ->orderBy('id', 'desc');
 
         return DataTables::eloquent($query)
+            ->filter(function ($query) use ($request) {
+                $searchValue = $request->get('search')['value'] ?? '';
+                if (!empty($searchValue)) {
+                    $query->where(function ($q) use ($searchValue) {
+                        // Remove #QA prefix if present for searching reference_no
+                        $refSearchValue = preg_replace('/^#?QA/i', '', $searchValue);
+                        // Search in reference_no (with or without prefix)
+                        $q->where(function ($refQuery) use ($searchValue, $refSearchValue) {
+                            $refQuery->where('reference_no', 'like', "%{$refSearchValue}%")
+                                ->orWhereRaw("CONCAT('#QA', reference_no) LIKE ?", ["%{$searchValue}%"]);
+                        })
+                            // Search in note
+                            ->orWhere('note', 'like', "%{$searchValue}%")
+                            // Search in date (try to parse date formats)
+                            ->orWhere(function ($dateQuery) use ($searchValue) {
+                                try {
+                                    // Try d/m/Y format first
+                                    if (preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $searchValue, $matches)) {
+                                        $date = Carbon::createFromFormat('d/m/Y', $matches[0]);
+                                        $dateQuery->whereDate('date', $date->format('Y-m-d'));
+                                    } else {
+                                        // Try to parse as date and search
+                                        $date = Carbon::parse($searchValue);
+                                        $dateQuery->whereDate('date', $date->format('Y-m-d'));
+                                    }
+                                } catch (\Exception $e) {
+                                    // If parsing fails, search in formatted date string
+                                    $dateQuery->whereRaw("DATE_FORMAT(date, '%d/%m/%Y %H:%i') LIKE ?", ["%{$searchValue}%"]);
+                                }
+                            })
+                            // Search in user name
+                            ->orWhereHas('user', function ($userQuery) use ($searchValue) {
+                                $userQuery->where('name', 'like', "%{$searchValue}%");
+                            });
+                    });
+                }
+            })
             ->addColumn('reference_no_display', function ($adjustment) {
                 return $adjustment->reference_no ? '#QA' . $adjustment->reference_no : 'N/A';
             })
@@ -379,7 +416,37 @@ class QuantityAdjustmentController extends Controller
                        '</div>';
             })
             ->filterColumn('reference_no_display', function ($query, $keyword) {
-                $query->where('reference_no', 'like', "%{$keyword}%");
+                // Remove #QA prefix if present for searching reference_no
+                $refSearchValue = preg_replace('/^#?QA/i', '', $keyword);
+                $query->where(function ($q) use ($keyword, $refSearchValue) {
+                    $q->where('reference_no', 'like', "%{$refSearchValue}%")
+                        ->orWhereRaw("CONCAT('#QA', reference_no) LIKE ?", ["%{$keyword}%"]);
+                });
+            })
+            ->filterColumn('date_formatted', function ($query, $keyword) {
+                // Try to parse date in d/m/Y format and search
+                try {
+                    // Try d/m/Y format first
+                    if (preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $keyword, $matches)) {
+                        $date = Carbon::createFromFormat('d/m/Y', $matches[0]);
+                        $query->whereDate('date', $date->format('Y-m-d'));
+                    } else {
+                        // Try to parse as date and search
+                        $date = Carbon::parse($keyword);
+                        $query->whereDate('date', $date->format('Y-m-d'));
+                    }
+                } catch (\Exception $e) {
+                    // If parsing fails, search in formatted date string
+                    $query->whereRaw("DATE_FORMAT(date, '%d/%m/%Y %H:%i') LIKE ?", ["%{$keyword}%"]);
+                }
+            })
+            ->filterColumn('user_name', function ($query, $keyword) {
+                $query->whereHas('user', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->filterColumn('note_display', function ($query, $keyword) {
+                $query->where('note', 'like', "%{$keyword}%");
             })
             ->rawColumns(['actions'])
             ->make(true);

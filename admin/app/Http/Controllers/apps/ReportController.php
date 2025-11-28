@@ -5,6 +5,7 @@ namespace App\Http\Controllers\apps;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Customer;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
@@ -466,6 +467,103 @@ class ReportController extends Controller
       'success' => true,
       'year' => $year,
       'monthly_data' => $monthlyData
+    ]);
+  }
+
+  public function netVatReport()
+  {
+    // Get default date range (last 30 days)
+    $endDate = Carbon::now();
+    $startDate = Carbon::now()->subDays(30);
+
+    return view('content.report.net-vat', [
+      'startDate' => $startDate->format('d/m/Y H:i'),
+      'endDate' => $endDate->format('d/m/Y H:i')
+    ]);
+  }
+
+  public function netVatReportAjax(Request $request)
+  {
+    $startDate = null;
+    $endDate = null;
+
+    // Parse start date
+    if ($request->has('start_date') && !empty($request->start_date)) {
+      try {
+        $startDateStr = trim($request->start_date);
+        if (strpos($startDateStr, '/') !== false) {
+          // Try parsing with time first (d/m/Y H:i)
+          if (strpos($startDateStr, ':') !== false) {
+            $startDate = Carbon::createFromFormat('d/m/Y H:i', $startDateStr)->startOfDay();
+          } else {
+            $startDate = Carbon::createFromFormat('d/m/Y', $startDateStr)->startOfDay();
+          }
+        } else {
+          $startDate = Carbon::parse($startDateStr)->startOfDay();
+        }
+      } catch (\Exception $e) {
+        // Invalid date format, use default
+      }
+    }
+
+    // Parse end date
+    if ($request->has('end_date') && !empty($request->end_date)) {
+      try {
+        $endDateStr = trim($request->end_date);
+        if (strpos($endDateStr, '/') !== false) {
+          // Try parsing with time first (d/m/Y H:i)
+          if (strpos($endDateStr, ':') !== false) {
+            $endDate = Carbon::createFromFormat('d/m/Y H:i', $endDateStr)->endOfDay();
+          } else {
+            $endDate = Carbon::createFromFormat('d/m/Y', $endDateStr)->endOfDay();
+          }
+        } else {
+          $endDate = Carbon::parse($endDateStr)->endOfDay();
+        }
+      } catch (\Exception $e) {
+        // Invalid date format, use default
+      }
+    }
+
+    // Build query for SO orders
+    $soQuery = Order::where('type', 'SO');
+    if ($startDate) {
+      $soQuery->where('order_date', '>=', $startDate);
+    }
+    if ($endDate) {
+      $soQuery->where('order_date', '<=', $endDate);
+    }
+    $soVatTotal = $soQuery->sum('vat_amount') ?? 0;
+
+    // Build query for CN orders
+    $cnQuery = Order::where('type', 'CN');
+    if ($startDate) {
+      $cnQuery->where('order_date', '>=', $startDate);
+    }
+    if ($endDate) {
+      $cnQuery->where('order_date', '<=', $endDate);
+    }
+    $cnVatTotal = $cnQuery->sum('vat_amount') ?? 0;
+
+    // Build query for Purchase VAT
+    $purchaseQuery = Purchase::query();
+    if ($startDate) {
+      $purchaseQuery->where('date', '>=', $startDate);
+    }
+    if ($endDate) {
+      $purchaseQuery->where('date', '<=', $endDate);
+    }
+    $purchaseVatTotal = $purchaseQuery->sum('vat') ?? 0;
+
+    // Calculate Net VAT To Pay = SO VAT - (CN VAT + Purchase VAT)
+    $netVatToPay = $soVatTotal - ($cnVatTotal + $purchaseVatTotal);
+
+    return response()->json([
+      'success' => true,
+      'soVatTotal' => (float)$soVatTotal,
+      'cnVatTotal' => (float)$cnVatTotal,
+      'purchaseVatTotal' => (float)$purchaseVatTotal,
+      'netVatToPay' => (float)$netVatToPay
     ]);
   }
 }

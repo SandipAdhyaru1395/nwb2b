@@ -92,6 +92,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Date
           targets: 2,
+          searchable: true,
           render: function (data, type, full, meta) {
             const date = new Date(full.order_date);
             const day = String(date.getDate()).padStart(2, '0');
@@ -111,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Reference No
           targets: 3,
+          searchable: true,
           render: function (data, type, full, meta) {
             const orderType = full['type'] || 'SO';
             const orderNumber = full['order_number'] || '';
@@ -133,6 +135,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // Customer
           targets: 4,
           responsivePriority: 1,
+          searchable: true,
           render: function (data, type, full, meta) {
             const name = full['customer_name'] || '';
             const email = full['customer_email'] || '';
@@ -148,6 +151,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Grand Total
           targets: 5,
+          searchable: true,
           render: function (data, type, full, meta) {
             const amount = parseFloat(full['total_amount'] || 0);
             return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
@@ -156,6 +160,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Paid
           targets: 6,
+          searchable: true,
           render: function (data, type, full, meta) {
             const amount = parseFloat(full['paid_amount'] || 0);
             return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
@@ -164,6 +169,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Balance
           targets: 7,
+          searchable: true,
           render: function (data, type, full, meta) {
             const amount = parseFloat(full['unpaid_amount'] || 0);
             return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
@@ -172,6 +178,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
         {
           // Total VAT
           targets: 8,
+          searchable: true,
           render: function (data, type, full, meta) {
             const amount = parseFloat(full['vat_amount'] || 0);
             return `<span class="text-nowrap">${currencySymbol}${amount.toFixed(2)}</span>`;
@@ -181,6 +188,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // Sale Status
           targets: 9,
           width: '80px',
+          searchable: true,
           render: function (data, type, full, meta) {
             const status = full['order_status'];
             const statusInfo = statusObj[status] || { title: '', class: 'bg-label-secondary' };
@@ -194,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           // Payment Status
           targets: 10,
           width: '90px',
+          searchable: true,
           render: function (data, type, full, meta) {
             const payment = full['payment_status'];
             const paymentStatus = paymentObj[payment];
@@ -250,7 +259,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           features: [
             {
               pageLength: {
-                menu: [7, 10, 25, 50, 100],
+                menu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
                 text: '_MENU_'
               }
             },
@@ -266,7 +275,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-1"></i>Print</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: function (idx, data, node) {
+                          // Export columns 2-10 (Date, Reference No, Customer, Grand Total, Paid, Balance, Total VAT, Sale Status, Payment Status)
+                          // Exclude: 0 (control), 1 (checkbox), 11 (has_credit_note - hidden), 12 (actions)
+                          return idx >= 2 && idx <= 10;
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -299,7 +312,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-1"></i>Csv</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: function (idx, data, node) {
+                          // Export columns 2-10 (Date, Reference No, Customer, Grand Total, Paid, Balance, Total VAT, Sale Status, Payment Status)
+                          // Exclude: 0 (control), 1 (checkbox), 11 (has_credit_note - hidden), 12 (actions)
+                          return idx >= 2 && idx <= 10;
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -322,7 +339,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-upload me-1"></i>Excel</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: function (idx, data, node) {
+                          // Export columns 2-10 (Date, Reference No, Customer, Grand Total, Paid, Balance, Total VAT, Sale Status, Payment Status)
+                          // Exclude: 0 (control), 1 (checkbox), 11 (has_credit_note - hidden), 12 (actions)
+                          return idx >= 2 && idx <= 10;
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -345,7 +366,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-1"></i>Pdf</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: function (idx, data, node) {
+                          // Export columns 2-10 (Date, Reference No, Customer, Grand Total, Paid, Balance, Total VAT, Sale Status, Payment Status)
+                          // Exclude: 0 (control), 1 (checkbox), 11 (has_credit_note - hidden), 12 (actions)
+                          return idx >= 2 && idx <= 10;
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -368,7 +393,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<i class="icon-base ti tabler-copy me-1"></i>Copy`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [2, 3, 4, 5, 6, 7, 8, 9, 10],
+                        columns: function (idx, data, node) {
+                          // Export columns 2-10 (Date, Reference No, Customer, Grand Total, Paid, Balance, Total VAT, Sale Status, Payment Status)
+                          // Exclude: 0 (control), 1 (checkbox), 11 (has_credit_note - hidden), 12 (actions)
+                          return idx >= 2 && idx <= 10;
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;

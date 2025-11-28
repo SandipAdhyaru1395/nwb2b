@@ -167,13 +167,14 @@ document.addEventListener('DOMContentLoaded', function (e) {
         selector: 'td:nth-child(2)'
       },
       order: [[2, 'desc']],
+      lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
       layout: {
         topStart: {
           rowClass: 'row my-md-0 me-3 ms-0 justify-content-between',
           features: [
             {
               pageLength: {
-                menu: [10, 25, 50, 100],
+                menu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
                 text: '_MENU_'
               }
             }
@@ -199,7 +200,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-printer me-1"></i>Print</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4],
+                        modifier: {
+                          page: 'current'
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -251,7 +255,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file me-1"></i>Csv</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4],
+                        modifier: {
+                          page: 'current'
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -288,7 +295,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-export me-1"></i>Excel</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4],
+                        modifier: {
+                          page: 'current'
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -325,7 +335,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<span class="d-flex align-items-center"><i class="icon-base ti tabler-file-text me-1"></i>Pdf</span>`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4],
+                        modifier: {
+                          page: 'current'
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
@@ -362,7 +375,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
                       text: `<i class="icon-base ti tabler-copy me-1"></i>Copy`,
                       className: 'dropdown-item',
                       exportOptions: {
-                        columns: [3, 4, 5, 6, 7],
+                        columns: [2, 3, 4],
+                        modifier: {
+                          page: 'current'
+                        },
                         format: {
                           body: function (inner, coldex, rowdex) {
                             if (inner.length <= 0) return inner;
