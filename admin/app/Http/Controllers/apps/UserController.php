@@ -22,9 +22,18 @@ class UserController extends Controller
     
     $data['roles'] = Role::where('id','!=',1)->get();
 
-    $all_users_count =User::whereNot('role_id', 1)->count();
-    $active_users_count =User::whereNot('role_id', 1)->where('status', 'active')->count();
-    $inactive_users_count =User::whereNot('role_id', 1)->where('status', 'inactive')->count();
+    $all_users_count = User::where(function ($q) {
+      $q->where('role_id', '!=', 1)
+        ->orWhereNull('role_id');
+    })->count();
+    $active_users_count = User::where(function ($q) {
+      $q->where('role_id', '!=', 1)
+        ->orWhereNull('role_id');
+    })->where('status', 'active')->count();
+    $inactive_users_count = User::where(function ($q) {
+      $q->where('role_id', '!=', 1)
+        ->orWhereNull('role_id');
+    })->where('status', 'inactive')->count();
     
     $data['all_users_count'] = $all_users_count;
     $data['active_users_count'] = $active_users_count;

@@ -292,16 +292,20 @@ document.addEventListener('DOMContentLoaded', function() {
         var cost = parseFloat($row.find('.cost-input').val()) || 0;
         var unitVat = parseFloat($row.data('unit-vat') || 0);
         var priceSubtotal = qty * cost;
-        var vat = qty * unitVat;
-        var sub = priceSubtotal + vat; // Subtotal = (sale price * quantity) + (vat * quantity)
-        $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
+        // For totals we use VAT * quantity,
+        // but the VAT column itself should show per-unit VAT (unitVat), independent of quantity.
+        var vatForTotals = qty * unitVat;
+        var sub = priceSubtotal + vatForTotals; // Subtotal = (sale price * quantity) + (vat * quantity)
+        // Show per-unit VAT in the VAT column
+        $row.find('.vat-cell').text(currencySymbol + unitVat.toFixed(2));
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
-        totalVat += vat;
+        totalVat += vatForTotals;
         totalAmount += sub;
       });
       $('.total-quantity').text(totalQty.toFixed(2));
-      $('.total-vat').text(currencySymbol + totalVat.toFixed(2));
+      // Do not show total VAT in the total row anymore
+      $('.total-vat').text('');
       $('.total-amount').text(currencySymbol + totalAmount.toFixed(2));
     }
 

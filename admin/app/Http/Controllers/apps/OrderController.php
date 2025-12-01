@@ -360,7 +360,8 @@ class OrderController extends Controller
     });
 
     Toastr::success('Order created successfully!');
-    return redirect()->route('order.list');
+    // Flag to clear add-order localStorage on next page load
+    return redirect()->route('order.list')->with('order_add_clear_storage', true);
   }
 
   public function edit($id)

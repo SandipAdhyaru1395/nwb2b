@@ -27,6 +27,19 @@
 
 @section('page-script')
 @vite(['resources/assets/js/order-list.js', 'resources/assets/js/payment-add.js', 'resources/assets/js/payment-view.js'])
+@if(session('order_add_clear_storage'))
+<script>
+  (function() {
+    try {
+      if (window && window.localStorage) {
+        localStorage.removeItem('order_add_form_v1');
+      }
+    } catch (e) {
+      // ignore
+    }
+  })();
+</script>
+@endif
 @endsection
 
 @section('page-style')

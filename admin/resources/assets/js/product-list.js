@@ -72,24 +72,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             let name = full['product_name'],
               id = full['id'],
-              productBrand = full['product_brand'],
               image_url = full['image_url'];
 
-            let output;
             const defaultImagePath = baseUrl + 'public/assets/img/default_product.png';
-
-            if (image_url) {
-              output = `<img src="${image_url}" alt="Product-${id}" class="rounded" onerror="this.onerror=null; this.src='${defaultImagePath}';">`;
-              // For Product image
-            } else {
-              // For Product badge
-              let stateNum = Math.floor(Math.random() * 6);
-              let states = ['success', 'danger', 'warning', 'info', 'dark', 'primary', 'secondary'];
-              let state = states[stateNum];
-              let initials = (productBrand.match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
-
-              output = `<span class="avatar-initial rounded-2 bg-label-${state}">${initials}</span>`;
-            }
+            const output = `<img src="${image_url}" alt="Product-${id}" class="rounded" onerror="this.onerror=null; this.src='${defaultImagePath}';">`;
 
             // Creates full output for Product name and product_brand
             let rowOutput = `

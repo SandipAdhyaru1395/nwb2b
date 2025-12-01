@@ -208,25 +208,6 @@ Route::middleware(['auth', 'sidebar'])->group(function () {
     });
 
 
-    
-    // Invoice
-    // Route::middleware('permission:invoice.read')->group(function () {
-    //     Route::get('/invoice', [InvoiceList::class, 'index'])->name('invoice-list.read');
-    //     Route::get('/invoice/preview', [InvoicePreview::class, 'index'])->name('invoice-preview.read');
-    //     Route::get('/invoice/print', [InvoicePrint::class, 'index'])->name('invoice-print.read');
-    //     Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
-    //     Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
-    // });
-
-    // Route::middleware('permission:invoice.create')->group(function () {
-    //     Route::get('/invoice/add', [InvoiceAdd::class, 'index'])->name('invoice-add.read');
-    // });
-
-    // Route::middleware('permission:invoice.write')->group(function () {
-    //     Route::get('/invoice/edit', [InvoiceEdit::class, 'index'])->name('invoice-edit.read');
-    // });
-
-
     // Users
     Route::middleware('permission:user.read')->group(function () {
 

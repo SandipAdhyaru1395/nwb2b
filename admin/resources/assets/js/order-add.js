@@ -23,8 +23,21 @@ document.addEventListener('DOMContentLoaded', function() {
         const productText = ($row.find('td').eq(0).text() || '').trim();
         const unit_cost = $row.find('.cost-input').val();
         const quantity = $row.find('.quantity-input').val();
-        const vat_amount = $row.data('unit-vat') || 0;
-        products.push({ productId, productText, unit_cost, quantity, vat_amount });
+        // Preserve original VAT and base price so is_est toggle can be restored correctly
+        const originalVat = $row.data('original-vat');
+        const originalPrice = $row.data('original-price');
+        const vat_amount = (originalVat !== undefined && originalVat !== null)
+          ? originalVat
+          : ($row.data('unit-vat') || 0);
+        products.push({
+          productId,
+          productText,
+          unit_cost,
+          quantity,
+          vat_amount,
+          original_price: originalPrice,
+          original_vat: originalVat
+        });
       });
       return {
         date: ($('#date').val() || '').trim(),
@@ -145,10 +158,9 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(function() {
         $('#products-table tbody tr:not(.total-row)').each(function() {
           const $row = $(this);
-          const qty = parseFloat($row.find('.quantity-input').val()) || 0;
           const unitVat = parseFloat($row.data('unit-vat') || 0);
-          const vat = qty * unitVat;
-          $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
+          // Show per-unit VAT in the VAT column (does not depend on quantity)
+          $row.find('.vat-cell').text(currencySymbol + unitVat.toFixed(2));
         });
         // Recalculate one more time to ensure totals are correct
         calculateTotal();
@@ -525,16 +537,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         var priceSubtotal = qty * cost;
-        var vat = qty * unitVat;
-        var sub = priceSubtotal + vat; // Subtotal = (sale price * quantity) + (vat * quantity)
-        $row.find('.vat-cell').text(currencySymbol + vat.toFixed(2));
+        // For totals we still use VAT * quantity,
+        // but the VAT column itself shows per-unit VAT (unitVat).
+        var vatForTotals = qty * unitVat;
+        var sub = priceSubtotal + vatForTotals; // Subtotal = (sale price * quantity) + (vat * quantity)
+        // Show per-unit VAT in the VAT column (does not change when quantity changes)
+        $row.find('.vat-cell').text(currencySymbol + unitVat.toFixed(2));
         $row.find('.subtotal-cell').text(currencySymbol + sub.toFixed(2));
         totalQty += qty;
-        totalVat += vat;
+        totalVat += vatForTotals;
         totalAmount += sub;
       });
       $('.total-quantity').text(totalQty.toFixed(2));
-      $('.total-vat').text(currencySymbol + totalVat.toFixed(2));
+      // Do not show total VAT in the total row anymore
+      $('.total-vat').text('');
       $('.total-amount').text(currencySymbol + totalAmount.toFixed(2));
     }
 
@@ -656,11 +672,13 @@ document.addEventListener('DOMContentLoaded', function() {
             flatpickrInstance.setDate(state.date, false);
           }
         }
-        
-        // Restore customer_id first
-        if (state.customer_id && $('#customer_id option[value="' + state.customer_id + '"]').length) {
+        // If backend provided old address (validation error), don't override customer/address from localStorage
+        const hasServerOldAddress = typeof window.oldAddressId !== 'undefined' && window.oldAddressId;
+
+        // Restore customer_id first (only if server didn't already set old address)
+        if (!hasServerOldAddress && state.customer_id && $('#customer_id option[value="' + state.customer_id + '"]').length) {
           $('#customer_id').val(state.customer_id).trigger('change.select2');
-          
+
           // Restore address_id after customer branches are loaded
           if (state.address_id) {
             pendingAddressId = state.address_id;
@@ -700,7 +718,20 @@ document.addEventListener('DOMContentLoaded', function() {
           const $totalRow = $('#products-table tbody tr.total-row');
           state.products.forEach(function(p) {
             if (!p || !p.productId || !p.productText) return;
-            const rowHtml = buildProductRowHtml(p.productId, p.productText, p.quantity, p.unit_cost, p.vat_amount || 0);
+            // Use original base price & VAT if available, otherwise fall back to stored/unit values
+            const basePrice = (p.original_price !== undefined && p.original_price !== null)
+              ? p.original_price
+              : p.unit_cost;
+            const baseVat = (p.original_vat !== undefined && p.original_vat !== null)
+              ? p.original_vat
+              : (p.vat_amount || 0);
+            const rowHtml = buildProductRowHtml(
+              p.productId,
+              p.productText,
+              p.quantity,
+              basePrice,
+              baseVat
+            );
             // Insert before the total row so total stays at bottom
             if ($totalRow.length > 0) {
               $totalRow.before(rowHtml);
@@ -737,12 +768,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Calculate totals on initial load to format with currency symbol
       calculateTotal();
     }, 100);
-
-    // Clear storage on successful submit
-    $('#addOrderForm').on('submit', function() {
-      clearPendingSave();
-      try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
-    });
 
     // Clear storage on logout
     $(document).on('click', 'a[href*="logout"]', function() {
@@ -949,8 +974,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Submit form after successful validation
       fv.on('core.form.valid', function () {
-        clearPendingSave();
-        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
         addOrderForm.submit();
       });
     }

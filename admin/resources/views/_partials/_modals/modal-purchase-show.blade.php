@@ -51,9 +51,9 @@
                                 <td>{{ $item->product ? $item->product->name . ' - ' . $item->product->sku : '#' . $item->product_id }}
                                 </td>
                                 <td>{{ number_format((float) $item->quantity, 2) }}</td>
-                                <td>{{ number_format((float) ($item->unit_cost ?? 0), 2) }}</td>
-                                <td>{{ number_format((float) ($item->total_vat ?? 0), 2) }}</td>
-                                <td>{{ number_format((float) ($item->subtotal ?? 0), 2) }}</td>
+                                <td>{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($item->unit_cost ?? 0), 2) }}</td>
+                                <td>{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($item->unit_vat ?? 0), 2) }}</td>
+                                <td>{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($item->subtotal ?? 0), 2) }}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -66,21 +66,21 @@
                         <tbody>
                             <tr>
                                 <td class="text-end fw-bold">Subtotal:</td>
-                                <td class="text-end">{{ number_format((float) ($purchase->sub_total ?? 0), 2) }}</td>
+                                <td class="text-end">{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($purchase->sub_total ?? 0), 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-end fw-bold">VAT:</td>
-                                <td class="text-end">{{ number_format((float) ($purchase->vat ?? 0), 2) }}</td>
+                                <td class="text-end">{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($purchase->vat ?? 0), 2) }}</td>
                             </tr>
                             <tr>
                                 <td class="text-end fw-bold">Shipping Charge:</td>
-                                <td class="text-end">{{ number_format((float) ($purchase->shipping_charge ?? 0), 2) }}
+                                <td class="text-end">{{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($purchase->shipping_charge ?? 0), 2) }}
                                 </td>
                             </tr>
                             <tr>
                                 <td class="text-end fw-bold">Total:</td>
                                 <td class="text-end fw-bold">
-                                    {{ number_format((float) ($purchase->total_amount ?? 0), 2) }}</td>
+                                    {{ $setting['currency_symbol'] ?? '' }}{{ number_format((float) ($purchase->total_amount ?? 0), 2) }}</td>
                             </tr>
                         </tbody>
                     </table>

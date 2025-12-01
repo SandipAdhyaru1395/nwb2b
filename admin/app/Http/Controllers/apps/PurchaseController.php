@@ -203,7 +203,7 @@ class PurchaseController extends Controller
                 $purchaseItemsForCost[] = [
                     'product_id' => $productData['product_id'],
                     'quantity' => $quantity,
-                    'unit_cost' => $unitCost,
+                    'unit_cost' => $unitCost + $unitVat,
                     'old_quantity' => $warehouseProduct ? (float) $warehouseProduct->quantity : 0,
                     'old_avg_cost' => $warehouseProduct ? (float) $warehouseProduct->avg_cost : 0,
                 ];
@@ -440,7 +440,7 @@ class PurchaseController extends Controller
                 $newPurchaseItemsForCost[] = [
                     'product_id' => $productData['product_id'],
                     'quantity' => $quantity,
-                    'unit_cost' => $unitCost,
+                    'unit_cost' => $unitCost + $unitVat,
                     'old_quantity' => $warehouseProduct ? (float) $warehouseProduct->quantity : 0,
                     'old_avg_cost' => $warehouseProduct ? (float) $warehouseProduct->avg_cost : 0,
                 ];
