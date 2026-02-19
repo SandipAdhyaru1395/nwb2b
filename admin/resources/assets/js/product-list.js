@@ -15,10 +15,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
   // Variable declaration for table
   const dt_product_table = document.querySelector('.datatables-products'),
     productAdd = baseUrl + 'product/add',
-     productEdit = baseUrl + 'product/edit',
-     publishedObj = {
-       0 : { title: 'Inactive', class: 'bg-label-danger' },
-        1 : { title: 'Active', class: 'bg-label-success' }
+    productEdit = baseUrl + 'product/edit',
+    publishedObj = {
+      0: { title: 'Inactive', class: 'bg-label-danger' },
+      1: { title: 'Active', class: 'bg-label-success' }
     };
 
   // E-commerce Products datatable
@@ -28,18 +28,16 @@ document.addEventListener('DOMContentLoaded', function (e) {
       // ajax: assetsPath + 'json/ecommerce-product-list.json',
       processing: true,
       stateSave: true,
-       serverSide: true,
+      serverSide: true,
       ajax: baseUrl + 'product/list/ajax',
       columns: [
-        // columns according to JSON
-        { data: 'id' },
-        { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'product_name', orderable: false,},
-        { data: 'sku',orderable: false},
-        { data: 'price',orderable: false},
-        { data: 'is_active',orderable: false},
-        // { data: 'status'},
-        { data: 'id'}
+        { data: 'id' },                        // hidden or control
+        { data: 'id', orderable: false, render: DataTable.render.select() }, // checkbox
+        { data: 'product_name', orderable: true },  // sortable
+        { data: 'sku', orderable: true },           // sortable
+        { data: 'price', orderable: true },         // sortable
+        { data: 'is_active', orderable: true },    // status
+        { data: 'id', orderable: false }           // actions
       ],
       columnDefs: [
         {
@@ -116,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function (e) {
           render: function (data, type, full, meta) {
             const is_active = full['is_active'];
 
-             return (
+            return (
               '<span class="badge ' +
               publishedObj[is_active].class +
               '" text-capitalized>' +
@@ -141,10 +139,10 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       ],
       select: {
-        style: 'multi',
+        style: 'multi+shift',
         selector: 'td:nth-child(2)'
       },
-      order: [0, 'desc'],
+      // order: [0, 'desc'],
       displayLength: 7,
       lengthMenu: [[7, 10, 25, 50, 100, -1], [7, 10, 25, 50, 100, "All"]],
       layout: {
@@ -157,6 +155,84 @@ document.addEventListener('DOMContentLoaded', function (e) {
                 placeholder: 'Search Product',
                 text: '_INPUT_'
               }
+            },
+            {
+              buttons: [
+                {
+                  text: '<i class="icon-base ti tabler-trash me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Delete Selected</span>',
+                  className: 'btn btn-danger',
+                  enabled: false,
+                  action: function (e, dt, node, config) {
+
+                    let selectedRows = dt.rows({ selected: true }).data();
+                    let ids = [];
+
+                    selectedRows.each(function (row) {
+                      ids.push(row.id);
+                    });
+
+                    if (ids.length === 0) return;
+
+                    Swal.fire({
+                      title: 'Are you sure?',
+                      text: "You won't be able to revert this!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes, delete them!',
+                      cancelButtonText: 'Cancel',
+                      customClass: {
+                        confirmButton: 'btn btn-danger me-3',
+                        cancelButton: 'btn btn-label-secondary'
+                      },
+                      buttonsStyling: false
+                    }).then(function (result) {
+                      if (result.isConfirmed) {
+
+                        $.ajax({
+                          url: baseUrl + 'product/delete-multiple',
+                          type: 'POST',
+                          data: {
+                            ids: ids,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                          },
+                          success: function (response) {
+                            
+                            dt.ajax.reload();
+                            
+                            dt.button(0).enable(false);
+
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Deleted!',
+                              text: 'Selected products have been deleted.',
+                              customClass: {
+                                confirmButton: 'btn btn-success'
+                              }
+                            });
+                          },
+                          error: function (xhr) {
+
+                            let message = 'Something went wrong.';
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                              message = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Error!',
+                              text: message,
+                              customClass: {
+                                confirmButton: 'btn btn-danger'
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+              ],
             }
           ]
         },
@@ -472,8 +548,13 @@ document.addEventListener('DOMContentLoaded', function (e) {
       },
       initComplete: function () {
         const api = this.api();
-        
+
       }
+    });
+
+    dt_products.on('select deselect', function () {
+      let selectedCount = dt_products.rows({ selected: true }).count();
+      dt_products.button(0).enable(selectedCount > 0);
     });
   }
 

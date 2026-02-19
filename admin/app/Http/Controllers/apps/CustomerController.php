@@ -4,6 +4,7 @@ namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
+use App\traits\BulkDeletes;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\Customer;
@@ -14,14 +15,20 @@ use App\Helpers\Helpers;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Yajra\DataTables\Facades\DataTables;
 
 class CustomerController extends Controller
 {
+  use BulkDeletes;
+
+  protected $model = Customer::class;
+  
   public function index()
   {
     $sales_persons = Helpers::getSalesPersons();
+    $customer_groups = Helpers::getCustomerGroups();
 
-    return view('content.customer.list',compact('sales_persons'));
+    return view('content.customer.list', compact('sales_persons','customer_groups'));
   }
 
   private function init($id = null)
@@ -53,34 +60,166 @@ class CustomerController extends Controller
   public function overview($id = null)
   {
     $data = $this->init($id);
+    $data['customer_groups'] = Helpers::getCustomerGroups();
+
     return view('content.customer.overview', $data);
   }
 
+  //   public function ajaxList(Request $request)
+// {
+//     $columns = [
+//         2 => 'customers.email',
+//         3 => 'customers.phone',
+//         4 => 'customers.credit_balance',
+//         5 => 'orders_count',
+//         6 => 'total_spent',
+//     ];
+
+  //     $query = Customer::query()
+//         ->leftJoin('orders', 'orders.customer_id', '=', 'customers.id')
+//         ->groupBy(
+//             'customers.id',
+//             'customers.email',
+//             'customers.phone',
+//             'customers.credit_balance'
+//         )
+//         ->selectRaw('
+//             customers.id,
+//             customers.email,
+//             customers.phone,
+//             customers.credit_balance,
+//             COUNT(orders.id) as orders_count,
+//             COALESCE(SUM(orders.total_amount), 0) as total_spent
+//         ');
+
+  //     // Apply sorting
+//     if ($request->has('order')) {
+//         $orderColumnIndex = $request->order[0]['column'];
+//         $orderDirection = $request->order[0]['dir'];
+
+  //         if (isset($columns[$orderColumnIndex])) {
+//             $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+//         }
+//     } else {
+//         $query->orderBy('customers.id', 'desc');
+//     }
+
+  //     $customerStats = $query->get();
+
+  //     $data = $customerStats->map(function ($row) {
+//         return [
+//             'id' => (int) $row->id,
+//             'customer' => $row->name ?? '',
+//             'email' => $row->email ?? '',
+//             'phone' => $row->phone ?? '',
+//             'credit_balance' => number_format((float) $row->credit_balance, 2, '.', ''),
+//             'order' => (int) $row->orders_count,
+//             'total_spent' => number_format((float) $row->total_spent, 2, '.', ''),
+//         ];
+//     });
+
+  //     return response()->json(['data' => $data]);
+// }
+
+
   public function ajaxList(Request $request)
   {
-    // Build aggregated customer stats
-    $customerStats = Customer::query()
-      ->leftJoin('orders', 'orders.customer_id', '=', 'customers.id')
-      ->groupBy('customers.id', 'customers.email', 'customers.phone', 'customers.credit_balance')
-      ->selectRaw('customers.id,customers.email, customers.phone, customers.credit_balance, COUNT(orders.id) as orders_count, COALESCE(SUM(orders.total_amount), 0) as total_spent')
-      ->orderBy('customers.id', 'desc')
-      ->get();
+    // Column mapping for manual sorting
+    $columns = [
+      2 => 'customers.email',
+      3 => 'customers.phone',
+      4 => 'customers.credit_balance',
+      5 => 'order_stats.orders_count',
+      6 => 'order_stats.total_spent',
+    ];
 
-    $data = $customerStats->map(function ($row) {
-      return [
-        'id' => (int) $row->id,
-        // 'customer' => $row->name ?? '—',
-        'email' => $row->email ?? '',
-        'image' => null, // No avatar stored; handled on client with initials
-        'phone' => $row->phone ?? '',
-        'credit_balance' => number_format((float) $row->credit_balance, 2, '.', ''),
-        'order' => (int) $row->orders_count,
-        'total_spent' => number_format((float) $row->total_spent, 2, '.', ''),
-      ];
-    });
+    // Subquery for order stats
+    $orderStats = DB::table('orders')
+      ->selectRaw('
+            customer_id,
+            COUNT(id) as orders_count,
+            COALESCE(SUM(total_amount),0) as total_spent
+        ')
+      ->groupBy('customer_id');
 
-    return response()->json(['data' => $data]);
+    // Main query
+    $query = Customer::query()
+      ->leftJoinSub($orderStats, 'order_stats', function ($join) {
+        $join->on('customers.id', '=', 'order_stats.customer_id');
+      })
+      ->whereNull('customers.deleted_at') // remove if not using soft deletes
+      ->select([
+        'customers.id',
+        'customers.email as customer',
+        'customers.phone',
+        'customers.credit_balance',
+        DB::raw('COALESCE(order_stats.orders_count,0) as orders_count'),
+        DB::raw('COALESCE(order_stats.total_spent,0) as total_spent'),
+      ]);
+
+    /*
+    |--------------------------------------------------------------------------
+    | Manual Sorting
+    |--------------------------------------------------------------------------
+    */
+    if ($request->has('order')) {
+
+      $orderColumnIndex = $request->order[0]['column'];
+      $orderDirection = $request->order[0]['dir'];
+
+      if (isset($columns[$orderColumnIndex])) {
+        $query->orderBy($columns[$orderColumnIndex], $orderDirection);
+      }
+
+    } else {
+      // Default sort: customer DESC
+      $query->orderBy('customers.email', 'desc');
+    }
+
+    return DataTables::of($query)
+
+      /*
+      |--------------------------------------------------------------------------
+      | Fix Global Search (important)
+      |--------------------------------------------------------------------------
+      */
+      ->filter(function ($query) use ($request) {
+
+        if ($search = $request->input('search.value')) {
+
+          $query->where(function ($q) use ($search) {
+
+            $q->where('customers.email', 'like', "%{$search}%")
+              ->orWhere('customers.phone', 'like', "%{$search}%")
+              ->orWhere('customers.credit_balance', 'like', "%{$search}%")
+              ->orWhere('order_stats.orders_count', 'like', "%{$search}%")
+              ->orWhere('order_stats.total_spent', 'like', "%{$search}%");
+          });
+        }
+      })
+
+      /*
+      |--------------------------------------------------------------------------
+      | Format Columns
+      |--------------------------------------------------------------------------
+      */
+      ->editColumn('credit_balance', function ($row) {
+        return number_format((float) $row->credit_balance, 2, '.', '');
+      })
+
+      ->editColumn('total_spent', function ($row) {
+        return number_format((float) $row->total_spent, 2, '.', '');
+      })
+
+      ->addColumn('actions', function ($row) {
+        return '<button class="btn btn-sm btn-primary">Edit</button>';
+      })
+
+      ->rawColumns(['actions'])
+
+      ->make(true);
   }
+
 
   public function ordersAjax(Request $request, $id)
   {
@@ -195,7 +334,6 @@ class CustomerController extends Controller
       'mobile.required' => 'Please enter mobile number',
       'mobile.digits' => 'Mobile number must be 10 digits',
       'mobile.unique' => 'Mobile number already exists',
-      'companyName.required' => 'Please enter company name',
       'addressLine1.required' => 'Please enter address line 1',
       'city.required' => 'Please enter city',
       'zip_code.required' => 'Please enter postcode'
@@ -207,7 +345,7 @@ class CustomerController extends Controller
 
     try {
       DB::beginTransaction();
-       
+
       Customer::create([
         'company_name' => $request->companyName,
         'email' => $request->email,
@@ -221,11 +359,12 @@ class CustomerController extends Controller
         'company_city' => $request->city,
         'company_country' => $request->country,
         'company_zip_code' => $request->zip_code,
-        'rep_id' => $request->rep_id ?? null
+        'rep_id' => $request->rep_id ?? null,
+        'customer_group_id' => $request->customer_group_id ?? null
       ]);
 
       DB::commit();
-      
+
       Toastr::success('Customer created successfully!');
     } catch (\Exception $e) {
       Toastr::error('Something went wrong');
@@ -278,7 +417,8 @@ class CustomerController extends Controller
       'company_city' => $request->city,
       'company_country' => $request->country,
       'company_zip_code' => $request->zip_code,
-      'rep_id' => $request->rep_id ?? null
+      'rep_id' => $request->rep_id ?? null,
+      'customer_group_id' => $request->customer_group_id ?? null
     ];
 
     if ($request->password) {

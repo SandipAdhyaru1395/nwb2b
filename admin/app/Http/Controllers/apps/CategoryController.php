@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\apps;
 
 use App\Http\Controllers\Controller;
+use App\traits\BulkDeletes;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\Category;
@@ -10,11 +11,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
-  // public function index()
-  // {
-  //   $data['categories']=Category::with('children')->whereNull('parent_id')->get();
-  //   return view('content.category.add',$data);
-  // }
+  use BulkDeletes;
+
+  protected $model = Category::class;
+  
 
   public function index()
   {
@@ -28,25 +28,22 @@ class CategoryController extends Controller
   public function ajaxList(Request $request)
   {
     $query = Category::select([
-      'id',
-      'name',
-      'is_active',
-      'parent_id'
-    ])->with(['parent', 'children'])
-      ->orderBy('id', 'desc');
+      'categories.id',                   // needed for checkbox
+      'categories.name',
+      'categories.is_active',
+      'categories.parent_id',
+      'parents.name as parent_name'
+    ])
+      ->leftJoin('categories as parents', 'categories.parent_id', '=', 'parents.id')
+      ->with('children');
 
     return DataTables::eloquent($query)
       ->filter(function ($query) use ($request) {
         $searchValue = $request->get('search')['value'] ?? '';
         if (!empty($searchValue)) {
           $query->where(function ($q) use ($searchValue) {
-            // Search in category name
             $q->where('categories.name', 'like', "%{$searchValue}%")
-              // Search in parent category name
-              ->orWhereHas('parent', function ($parentQuery) use ($searchValue) {
-                $parentQuery->where('name', 'like', "%{$searchValue}%");
-              })
-              // Search in child categories names
+              ->orWhere('parents.name', 'like', "%{$searchValue}%")
               ->orWhereHas('children', function ($childQuery) use ($searchValue) {
                 $childQuery->where('name', 'like', "%{$searchValue}%");
               });
@@ -57,17 +54,42 @@ class CategoryController extends Controller
         $query->where('categories.name', 'like', "%{$keyword}%");
       })
       ->filterColumn('parent_category', function ($query, $keyword) {
-        $query->whereHas('parent', function ($q) use ($keyword) {
-          $q->where('name', 'like', "%{$keyword}%");
-        });
+        $query->where('parents.name', 'like', "%{$keyword}%");
       })
       ->filterColumn('child_categories', function ($query, $keyword) {
         $query->whereHas('children', function ($q) use ($keyword) {
           $q->where('name', 'like', "%{$keyword}%");
         });
       })
+      ->order(function ($query) use ($request) {
+        // Handle backend sorting
+        if ($request->has('order')) {
+          $columns = [
+            0 => 'categories.id',        // control column (ignore)
+            1 => 'categories.id',        // checkbox (not sortable)
+            2 => 'categories.name',
+            3 => 'parents.name',
+            4 => 'categories.child_categories',
+            5 => 'categories.is_active',
+          ];
+
+          $colIndex = $request->order[0]['column'];
+          $dir = $request->order[0]['dir'];
+
+          // only sort visible/sortable columns
+          if (in_array($colIndex, [2, 3, 4, 5])) {
+            $query->orderBy($columns[$colIndex], $dir);
+          } else {
+            // fallback default: sort by id descending
+            $query->orderBy('categories.id', 'desc');
+          }
+        } else {
+          // default latest by id
+          $query->orderBy('categories.id', 'desc');
+        }
+      })
       ->addColumn('parent_category', function ($category) {
-        return $category->parent?->name ?? '-';
+        return $category->parent_name ?? '-';
       })
       ->addColumn('child_categories', function ($category) {
         return ($category->children && $category->children->isNotEmpty())
@@ -80,12 +102,17 @@ class CategoryController extends Controller
       ->toJson();
   }
 
-  public function add(){
+
+
+
+  public function add()
+  {
 
     $data['categories'] = Category::with('children')->whereNull('parent_id')->orderBy('id', 'desc')->get();
     return view('content.category.add', $data);
   }
-  public function edit($id){
+  public function edit($id)
+  {
 
     $data['main_category'] = Category::findOrFail($id);
 
@@ -105,7 +132,7 @@ class CategoryController extends Controller
       'categoryStatus.required' => 'Status is required',
     ]);
 
-    
+
     Category::create(
       [
         'name' => $request->categoryName,
@@ -155,7 +182,7 @@ class CategoryController extends Controller
       'categoryStatus' => 'required'
     ]);
 
-    $data=[
+    $data = [
       'name' => $request->categoryName,
       'parent_id' => $request->parentCategory,
       'description' => $request->categoryDescription,
@@ -163,7 +190,7 @@ class CategoryController extends Controller
       'is_active' => $request->categoryStatus
     ];
 
-    if(isset($request->sortOrder) && $request->sortOrder > 0){
+    if (isset($request->sortOrder) && $request->sortOrder > 0) {
       $data['sort_order'] = $request->sortOrder;
     }
 
@@ -181,4 +208,5 @@ class CategoryController extends Controller
     Toastr::success('Category deleted successfully!');
     return redirect()->back();
   }
+
 }

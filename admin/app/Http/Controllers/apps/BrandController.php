@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\BrandCategory;
 use App\Models\BrandTag;
 use App\Models\Tag;
+use App\traits\BulkDeletes;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Brian2694\Toastr\Facades\Toastr;
@@ -17,6 +18,10 @@ use Yajra\DataTables\Facades\DataTables;
 
 class BrandController extends Controller
 {
+  use BulkDeletes;
+  
+  protected $model = Brand::class;
+  
   public function index()
   {
     $data['total_brands_count'] = Brand::all()->count();
@@ -28,23 +33,19 @@ class BrandController extends Controller
 
   public function ajaxList(Request $request)
   {
-
     $query = Brand::select([
-      'id',
-      'name as brand',
-      'image',
-      'is_active'
-    ])->with('categories')
-      ->orderBy('id', 'desc');
+      'brands.id',
+      'brands.name as brand',
+      'brands.image',
+      'brands.is_active'
+    ])->with('categories');
 
     return DataTables::eloquent($query)
       ->filter(function ($query) use ($request) {
         $searchValue = $request->get('search')['value'] ?? '';
         if (!empty($searchValue)) {
           $query->where(function ($q) use ($searchValue) {
-            // Search in brand name
             $q->where('brands.name', 'like', "%{$searchValue}%")
-              // Search in categories
               ->orWhereHas('categories', function ($categoryQuery) use ($searchValue) {
                 $categoryQuery->where('categories.name', 'like', "%{$searchValue}%");
               });
@@ -54,19 +55,31 @@ class BrandController extends Controller
       ->filterColumn('brand', function ($query, $keyword) {
         $query->where('brands.name', 'like', "%{$keyword}%");
       })
-      ->filterColumn('categories', function ($query, $keyword) {
-        $query->whereHas('categories', function ($q) use ($keyword) {
-          $q->where('categories.name', 'like', "%{$keyword}%");
-        });
-      })
-      ->orderColumn('brand', function ($query, $order) {
-        $query->orderBy('brands.name', $order);
+      ->order(function ($query) use ($request) {
+        // Only Brand column sortable
+        if ($request->has('order')) {
+          $colIndex = $request->order[0]['column'];
+          $dir = $request->order[0]['dir'];
+
+          if ($colIndex == 2) {
+            $query->orderBy('brands.name', $dir);
+          }else if($colIndex == 4){
+            $query->orderBy('brands.is_active', $dir);
+          } else {
+            $query->orderBy('brands.id', 'desc'); // default for others
+          }
+        } else {
+          $query->orderBy('brands.id', 'desc'); // default latest by id
+        }
       })
       ->addColumn('categories', function ($brand) {
-        return $brand->categories ? $brand->categories->pluck('name')->implode(', ') : '';
+        return $brand->categories && $brand->categories->isNotEmpty()
+          ? $brand->categories->pluck('name')->implode(', ')
+          : '-';
       })
       ->toJson();
   }
+
 
   public function changeStatus($id)
   {
@@ -211,7 +224,7 @@ class BrandController extends Controller
 
     $brand = Brand::findOrFail($request->id);
     $hasExistingImage = !empty($brand->image);
-    
+
     $validated = $request->validate([
       'brandTitle' => ['required'],
       'brandImage' => [
@@ -271,7 +284,7 @@ class BrandController extends Controller
           Storage::disk('public')->delete($oldImage);
         }
       }
-      
+
       $path = $request->file('brandImage')->store('brands', 'public');
       $imageUrl = asset('storage/' . $path);
     } elseif (!empty($request->brandImageUrl)) {

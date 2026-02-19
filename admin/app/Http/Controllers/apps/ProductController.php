@@ -5,6 +5,7 @@ namespace App\Http\Controllers\apps;
 use App\Http\Controllers\Controller;
 use App\Models\ProductBrand;
 use App\Services\WarehouseProductSyncService;
+use App\traits\BulkDeletes;
 use Brian2694\Toastr\Facades\Toastr;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -23,6 +24,10 @@ use App\Models\Unit;
 
 class ProductController extends Controller
 {
+   use BulkDeletes;
+  
+    protected $model = Product::class;
+  
   public function index()
   {
     $data['total_products_count'] = Product::all()->count();
@@ -363,31 +368,62 @@ class ProductController extends Controller
     return view('content.product.add',$data);
   }
 
-  public function ajaxList(Request $request) {
-    
-   $query = Product::select([
+ public function ajaxList(Request $request)
+{
+    $query = Product::select([
         'id',
-        'name as product_name', // 👈 alias here
+        'name as product_name', 
         'description',
         'sku',
         'price',
         'image_url',
         'is_active'
-    ])->orderBy('id', 'desc');
-
+    ]);
 
     return DataTables::eloquent($query)
         ->filterColumn('product_name', function($query, $keyword) {
             $query->where('products.name', 'like', "%{$keyword}%");
         })
-        ->orderColumn('product_name', function ($query, $order) {
-            $query->orderBy('products.name', $order);
+        ->filterColumn('sku', function($query, $keyword) {
+            $query->where('products.sku', 'like', "%{$keyword}%");
         })
-        ->editColumn('product_brand', function($product) {
+        ->filterColumn('price', function($query, $keyword) {
+            $query->where('products.price', 'like', "%{$keyword}%");
+        })
+        ->order(function($query) use ($request) {
+         
+            if ($request->has('order')) {
+                $columnIndex = $request->order[0]['column'];
+                $dir = $request->order[0]['dir'];
+
+                // Column index mapping
+                switch ($columnIndex) {
+                    case 2: // product_name
+                        $query->orderBy('products.name', $dir);
+                        break;
+                    case 3: // sku
+                        $query->orderBy('products.sku', $dir);
+                        break;
+                    case 4: // price
+                        $query->orderBy('products.price', $dir);
+                        break;
+                    case 5: // price
+                        $query->orderBy('products.is_active', $dir);
+                        break;
+                    default: // default fallback
+                        $query->orderBy('products.id', 'desc');
+                        break;
+                }
+            } else {
+                $query->orderBy('products.id', 'desc'); // default
+            }
+        })
+        ->addColumn('product_brand', function($product) {
             return Str::limit($product->description, 40);
         })
-        ->make(true);
-  }
+        ->toJson();
+}
+
 
   public function searchAjax(Request $request)
   {

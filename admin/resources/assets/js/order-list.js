@@ -51,15 +51,15 @@ document.addEventListener('DOMContentLoaded', function (e) {
         // columns according to JSON
         { data: 'id' },
         { data: 'id', orderable: false, render: DataTable.render.select() },
-        { data: 'order_date' },
-        { data: 'order_number' },
-        { data: 'customer_name' },
-        { data: 'total_amount' },
-        { data: 'paid_amount' },
-        { data: 'unpaid_amount' },
-        { data: 'vat_amount' },
-        { data: 'order_status' },
-        { data: 'payment_status' },
+        { data: 'order_date',orderable: true, searchable: true },
+        { data: 'order_number',orderable: true, searchable: true  },
+        { data: 'customer_name',orderable: true, searchable: true  },
+        { data: 'total_amount',orderable: true, searchable: true  },
+        { data: 'paid_amount',orderable: true, searchable: true  },
+        { data: 'unpaid_amount',orderable: true, searchable: true  },
+        { data: 'vat_amount',orderable: true, searchable: true  },
+        { data: 'order_status',orderable: true, searchable: true  },
+        { data: 'payment_status',orderable: true, searchable: true  },
         { data: 'has_credit_note' },
         { data: 'id' }
       ],
@@ -243,16 +243,100 @@ document.addEventListener('DOMContentLoaded', function (e) {
         }
       ],
       select: {
-        style: 'multi',
+        style: 'multi+shift',
         selector: 'td:nth-child(2)'
       },
-      order: [2, 'desc'],
+      // order: [2, 'desc'],
       layout: {
         topStart: {
-          search: {
-            placeholder: 'Search Order',
-            text: '_INPUT_'
-          }
+          rowClass: 'card-header d-flex border-top rounded-0 flex-wrap py-0 flex-column flex-md-row align-items-start',
+          features: [
+            {
+              search: {
+                className: 'me-5 ms-n4 pe-5 mb-n6 mb-md-0',
+                placeholder: 'Search Order',
+                text: '_INPUT_'
+              }
+            },
+            {
+              buttons: [
+                {
+                  text: '<i class="icon-base ti tabler-trash me-0 me-sm-1 icon-16px"></i><span class="d-none d-sm-inline-block">Delete Selected</span>',
+                  className: 'btn btn-danger',
+                  enabled: false,
+                  action: function (e, dt, node, config) {
+
+                    let selectedRows = dt.rows({ selected: true }).data();
+                    let ids = [];
+
+                    selectedRows.each(function (row) {
+                      ids.push(row.id);
+                    });
+
+                    if (ids.length === 0) return;
+
+                    Swal.fire({
+                      title: 'Are you sure?',
+                      text: "You won't be able to revert this!",
+                      icon: 'warning',
+                      showCancelButton: true,
+                      confirmButtonText: 'Yes, delete them!',
+                      cancelButtonText: 'Cancel',
+                      customClass: {
+                        confirmButton: 'btn btn-danger me-3',
+                        cancelButton: 'btn btn-label-secondary'
+                      },
+                      buttonsStyling: false
+                    }).then(function (result) {
+                      if (result.isConfirmed) {
+
+                        $.ajax({
+                          url: baseUrl + 'order/delete-multiple',
+                          type: 'POST',
+                          data: {
+                            ids: ids,
+                            _token: $('meta[name="csrf-token"]').attr('content')
+                          },
+                          success: function (response) {
+                            
+                            dt.ajax.reload();
+                            
+                            dt.button(0).enable(false);
+
+                            Swal.fire({
+                              icon: 'success',
+                              title: 'Deleted!',
+                              text: 'Selected orders have been deleted.',
+                              customClass: {
+                                confirmButton: 'btn btn-success'
+                              }
+                            });
+                          },
+                          error: function (xhr) {
+
+                            let message = 'Something went wrong.';
+
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                              message = xhr.responseJSON.message;
+                            }
+
+                            Swal.fire({
+                              icon: 'error',
+                              title: 'Error!',
+                              text: message,
+                              customClass: {
+                                confirmButton: 'btn btn-danger'
+                              }
+                            });
+                          }
+                        });
+                      }
+                    });
+                  }
+                }
+              ],
+            }
+          ]
         },
         topEnd: {
           rowClass: 'row mx-3 my-0 justify-content-between',
@@ -694,6 +778,11 @@ document.addEventListener('DOMContentLoaded', function (e) {
       }
     });
 
+    dt_products.on('select deselect', function () {
+      let selectedCount = dt_products.rows({ selected: true }).count();
+      dt_products.button(0).enable(selectedCount > 0);
+    });
+    
     // Set datatable instance for payment modal to reload after payment is added
     if (typeof window.setPaymentDatatableInstance === 'function') {
       window.setPaymentDatatableInstance(dt_products);
